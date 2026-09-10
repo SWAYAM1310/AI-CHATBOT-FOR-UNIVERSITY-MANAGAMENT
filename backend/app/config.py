@@ -1,0 +1,31 @@
+"""Application settings, loaded from the repo-root .env (see .env.example)."""
+from __future__ import annotations
+
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=REPO_ROOT / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    database_url: str = "postgresql+psycopg://uniassist:uniassist@localhost:5432/uniassist"
+
+    embedding_dim: int = 1024
+    embedding_model: str = "jinaai/jina-embeddings-v5-omni-small"
+
+    llm_base_url: str = "https://api.groq.com/openai/v1"
+    llm_api_key: str = ""
+    llm_model_router: str = "openai/gpt-oss-20b"
+    llm_model_main: str = "openai/gpt-oss-120b"
+
+    frontend_origin: str = "http://localhost:5173"
+
+
+settings = Settings()
