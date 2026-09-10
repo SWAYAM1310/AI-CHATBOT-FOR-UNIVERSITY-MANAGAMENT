@@ -1,0 +1,8 @@
+id,employee_id,full_name,university_email,personal_email,gender,date_of_birth,phone,designation,date_of_joining,is_active
+1,SOT-ADM-001,Tanvi Joshi,tanvi.joshi@sot.pdpu.ac.in,tanvi.joshi10@gmail.com,Female,1988-07-22,+916178663096,Registrar,2017-01-22,True
+2,SOT-ADM-002,Sarthak Thakkar,sarthak.thakkar@sot.pdpu.ac.in,sarthak.thakkar956@gmail.com,Male,1983-08-28,+916362298393,Dean - School of Technology,2013-04-16,True
+3,SOT-ADM-003,Grishma Buch,grishma.buch@sot.pdpu.ac.in,grishma.buch627@outlook.com,Female,1991-09-23,+916817112652,Academic Coordinator,2023-04-30,True
+4,SOT-ADM-004,Nayana Sojitra,nayana.sojitra@sot.pdpu.ac.in,nayana.sojitra271@gmail.com,Female,1973-03-06,+916897163846,Examination Controller,2017-05-30,True
+5,SOT-ADM-005,Kavan Munshi,kavan.munshi@sot.pdpu.ac.in,kavan.munshi735@gmail.com,Male,1983-05-19,+917838194420,IT Systems Administrator,2019-03-24,True
+6,SOT-ADM-006,Zeel Vaghela,zeel.vaghela@sot.pdpu.ac.in,zeel.vaghela928@outlook.com,Female,1970-04-12,+916781057736,Training & Placement Officer,2014-07-02,True
+7,SOT-ADM-007,Anjali Patel,anjali.patel@sot.pdpu.ac.in,anjali.patel790@outlook.com,Female,1973-11-13,+918273497327,Accounts Officer,2021-08-17,True

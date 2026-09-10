@@ -1,0 +1,29 @@
+id,employee_id,full_name,university_email,personal_email,gender,date_of_birth,phone,dept_id,dept_code,designation,is_hod,date_of_joining,qualification,specialization,office_room,is_active
+1,SOT-FAC-0001,Dr. Jash Kacha,jash.kacha@sot.pdpu.ac.in,jash.kacha693@gmail.com,Male,1996-03-23,+916734036506,1,CP,Assistant Professor,False,2020-05-04,PhD,Artificial Intelligence & Machine Learning,CP-124,True
+2,SOT-FAC-0002,Dr. Jay Jadeja,jay.jadeja@sot.pdpu.ac.in,jay.jadeja575@gmail.com,Male,1971-12-02,+919336696312,1,CP,Associate Professor,False,2021-07-25,M.E.,Database Systems,CP-308,True
+3,SOT-FAC-0003,Dr. Nilesh Shah,nilesh.shah@sot.pdpu.ac.in,nilesh.shah349@yahoo.com,Male,1975-06-19,+917331191390,1,CP,Assistant Professor,False,2016-07-06,PhD,Data Science & Big Data,CP-198,True
+4,SOT-FAC-0004,Dr. Milan Vyas,milan.vyas@sot.pdpu.ac.in,milan.vyas827@outlook.com,Male,1964-12-12,+919675770529,1,CP,Professor,True,2007-01-06,M.Tech,Data Science & Big Data,CP-242,True
+5,SOT-FAC-0005,Dr. Hardika Bhavsar,hardika.bhavsar@sot.pdpu.ac.in,hardika.bhavsar47@gmail.com,Female,1992-08-30,+917930075810,2,IT,Professor,True,2014-05-25,PhD,Internet of Things,IT-160,True
+6,SOT-FAC-0006,Dr. Nihar Kadakia,nihar.kadakia@sot.pdpu.ac.in,nihar.kadakia651@yahoo.com,Male,1979-05-14,+917497478786,2,IT,Associate Professor,False,2017-05-08,PhD,Database Systems,IT-169,True
+7,SOT-FAC-0007,Dr. Rekha Panchal,rekha.panchal@sot.pdpu.ac.in,rekha.panchal624@gmail.com,Female,1991-06-26,+917673528321,2,IT,Assistant Professor,False,2012-05-24,PhD,Data Analytics,IT-198,True
+8,SOT-FAC-0008,Dr. Amit Gajjar,amit.gajjar@sot.pdpu.ac.in,amit.gajjar702@gmail.com,Male,1977-07-19,+916345938494,2,IT,Assistant Professor,False,2002-11-08,PhD,Data Analytics,IT-169,True
+9,SOT-FAC-0009,Dr. Ashok Zala,ashok.zala@sot.pdpu.ac.in,ashok.zala906@yahoo.com,Male,1991-11-02,+919253407200,3,EC,Assistant Professor,False,2013-04-18,PhD,Embedded Systems,EC-291,True
+10,SOT-FAC-0010,Dr. Bansari Thakkar,bansari.thakkar@sot.pdpu.ac.in,bansari.thakkar920@yahoo.com,Female,1989-03-05,+919488690725,3,EC,Associate Professor,False,2011-04-03,PhD,Microelectronics,EC-227,True
+11,SOT-FAC-0011,Dr. Mehul Dhaduk,mehul.dhaduk@sot.pdpu.ac.in,mehul.dhaduk157@gmail.com,Male,1991-02-23,+917950488739,3,EC,Assistant Professor,False,2020-05-08,M.E.,VLSI Design,EC-199,True
+12,SOT-FAC-0012,Dr. Vivek Parmar,vivek.parmar@sot.pdpu.ac.in,vivek.parmar995@outlook.com,Male,1987-10-26,+916830448745,3,EC,Professor,True,2006-07-21,PhD (Pursuing),Microelectronics,EC-293,True
+13,SOT-FAC-0013,Dr. Krish Thaker,krish.thaker@sot.pdpu.ac.in,krish.thaker465@gmail.com,Male,1963-02-23,+918637500247,4,ME,Professor,True,2009-06-06,M.E.,Thermal Engineering,ME-323,True
+14,SOT-FAC-0014,Dr. Manasi Mistry,manasi.mistry@sot.pdpu.ac.in,manasi.mistry157@gmail.com,Female,1979-10-10,+917679153816,4,ME,Associate Professor,False,2025-03-16,PhD,Fluid Mechanics,ME-183,True
+15,SOT-FAC-0015,Dr. Aditya Vachhani,aditya.vachhani@sot.pdpu.ac.in,aditya.vachhani900@outlook.com,Male,1976-10-17,+917162196678,4,ME,Assistant Professor,False,2012-03-21,M.E.,Thermal Engineering,ME-122,True
+16,SOT-FAC-0016,Dr. Vidhi Ramani,vidhi.ramani@sot.pdpu.ac.in,vidhi.ramani132@gmail.com,Female,1992-08-05,+919690347116,4,ME,Assistant Professor,False,2008-10-27,PhD,Fluid Mechanics,ME-324,True
+17,SOT-FAC-0017,Dr. Mansi Adhvaryu,mansi.adhvaryu@sot.pdpu.ac.in,mansi.adhvaryu449@outlook.com,Female,1986-03-20,+919229927269,5,CE,Associate Professor,False,2012-07-14,PhD,Structural Engineering,CE-187,True
+18,SOT-FAC-0018,Dr. Yug Chavda,yug.chavda@sot.pdpu.ac.in,yug.chavda603@gmail.com,Male,1972-11-17,+916176228245,5,CE,Assistant Professor,False,2004-01-21,PhD,Structural Engineering,CE-332,True
+19,SOT-FAC-0019,Dr. Ramesh Dave,ramesh.dave@sot.pdpu.ac.in,ramesh.dave527@gmail.com,Male,1973-09-04,+918818309417,5,CE,Professor,True,2023-03-11,PhD,Water Resources Engineering,CE-134,True
+20,SOT-FAC-0020,Dr. Bhavna Thakkar,bhavna.thakkar@sot.pdpu.ac.in,bhavna.thakkar249@yahoo.com,Female,1984-03-20,+919304451095,5,CE,Assistant Professor,False,2005-08-24,PhD,Construction Management,CE-211,True
+21,SOT-FAC-0021,Dr. Ramesh Engineer,ramesh.engineer@sot.pdpu.ac.in,ramesh.engineer690@gmail.com,Male,1992-04-24,+916165082363,6,CH,Professor,True,2019-06-23,PhD (Pursuing),Petrochemical Engineering,CH-305,True
+22,SOT-FAC-0022,Dr. Jenil Kapadia,jenil.kapadia@sot.pdpu.ac.in,jenil.kapadia550@gmail.com,Male,1983-02-15,+917552991960,6,CH,Assistant Professor,False,2009-08-24,PhD,Environmental & Green Chemistry,CH-164,True
+23,SOT-FAC-0023,Dr. Priyansh Chavda,priyansh.chavda@sot.pdpu.ac.in,priyansh.chavda52@gmail.com,Male,1992-04-02,+916200140141,6,CH,Associate Professor,False,2012-01-07,PhD,Environmental & Green Chemistry,CH-225,True
+24,SOT-FAC-0024,Dr. Jainil Adhvaryu,jainil.adhvaryu@sot.pdpu.ac.in,jainil.adhvaryu169@gmail.com,Male,1980-01-01,+916519212169,6,CH,Assistant Professor,False,2013-04-24,M.Tech,Petrochemical Engineering,CH-209,True
+25,SOT-FAC-0025,Dr. Jainil Kalariya,jainil.kalariya@sot.pdpu.ac.in,jainil.kalariya766@gmail.com,Male,1977-01-25,+916153839920,7,SH,Associate Professor,False,2022-10-20,M.E.,Electrical Engineering Fundamentals,SH-236,True
+26,SOT-FAC-0026,Dr. Ankit Gohil,ankit.gohil@sot.pdpu.ac.in,ankit.gohil872@gmail.com,Male,1971-05-03,+916738914080,7,SH,Assistant Professor,False,2004-06-18,PhD (Pursuing),Electrical Engineering Fundamentals,SH-161,True
+27,SOT-FAC-0027,Dr. Devarsh Rana,devarsh.rana@sot.pdpu.ac.in,devarsh.rana593@gmail.com,Male,1989-09-01,+916765055833,7,SH,Professor,True,2005-02-03,M.Tech,Environmental Science,SH-250,True
+28,SOT-FAC-0028,Dr. Twinkle Joshi,twinkle.joshi@sot.pdpu.ac.in,twinkle.joshi210@outlook.com,Female,1993-01-15,+918356287095,7,SH,Assistant Professor,False,2013-04-30,M.Tech,Applied Physics,SH-272,True

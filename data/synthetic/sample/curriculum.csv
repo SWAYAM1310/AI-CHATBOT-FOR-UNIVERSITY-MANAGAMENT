@@ -1,0 +1,428 @@
+id,dept_id,dept_code,semester,subject_code,subject_name,category,is_elective
+1,1,CP,1,24HS101T,English Communication,HSC,False
+2,1,CP,1,24MA101T,Mathematics - I,BSC,False
+3,1,CP,1,24PH102T,Engineering Physics,BSC,False
+4,1,CP,1,24PH102P,Engineering Physics Laboratory,BSC,False
+5,1,CP,1,24CV101T,Environmental Science,BSC,False
+6,1,CP,1,24ME101P,Workshop Practices,ESC,False
+7,1,CP,1,24ME102P,Engineering Graphics,ESC,False
+8,1,CP,1,24CP101T,Computer Programming - I,ESC,False
+9,1,CP,1,24CP101P,Computer Programming - I Laboratory,ESC,False
+10,1,CP,1,24HS102T,Universal Human Values,HSC,False
+11,1,CP,1,24HS103T,Indian Knowledge System,HSC,False
+12,1,CP,2,24HS105T,Professional Communication,HSC,False
+13,1,CP,2,24MA103T,Mathematics - II,BSC,False
+14,1,CP,2,24CH101T,Engineering Chemistry,BSC,False
+15,1,CP,2,24CH101P,Engineering Chemistry Laboratory,BSC,False
+16,1,CP,2,24EE101T,Elements of Electrical and Electronics Engineering,ESC,False
+17,1,CP,2,24EE101P,Elements of Electrical and Electronics Engineering Laboratory,ESC,False
+18,1,CP,2,24BT101T,Biological Systems for Engineers,BSC,False
+19,1,CP,2,24YOG101,"Yoga, Health & Hygiene",HSC,False
+20,1,CP,2,24NCC101,National Cadet Corps (NCC),HSC,False
+21,1,CP,2,24NSS101,National Service Scheme (NSS),HSC,False
+22,1,CP,2,24HS104T,Organizational Behaviour,HSC,False
+23,1,CP,2,24CP102T,Computer Programming - II,ESC,False
+24,1,CP,2,24CP102P,Computer Programming - II Laboratory,ESC,False
+25,1,CP,3,24INT151,Civic and Social Service Internship,PRO,False
+26,1,CP,3,24MA202T,Discrete Mathematics,BSC,False
+27,1,CP,3,24CS201T,Database Management System,PC,False
+28,1,CP,3,24CS201P,Database Management System Laboratory,PC,False
+29,1,CP,3,24CS202T,Digital Logic and Design,PC,False
+30,1,CP,3,24CS203T,Data Structures,PC,False
+31,1,CP,3,24CS203P,Data Structures Laboratory,PC,False
+32,1,CP,3,24CS204T,Object Oriented Programming,PC,False
+33,1,CP,3,24CS204P,Object Oriented Programming Laboratory,PC,False
+34,1,CP,4,24OE201T,Open Elective 1 (From Other School),OE,True
+35,1,CP,4,24CS205P,Design Thinking,PC,False
+36,1,CP,4,24CS206T,Probability and Statistics Theory,PC,False
+37,1,CP,4,24CS207T,Computer Organization and Architecture,PC,False
+38,1,CP,4,24CS208T,Software Engineering,PC,False
+39,1,CP,4,24CS208P,Software Engineering Laboratory,PC,False
+40,1,CP,4,24CS209T,Theory of Computation,PC,False
+41,1,CP,4,24CS210T,Design and Analysis of Algorithm,PC,False
+42,1,CP,4,24CS210P,Design and Analysis of Algorithm Laboratory,PC,False
+43,1,CP,5,MOOC,NPTEL / SWAYAM / MOOC Course,OE,True
+44,1,CP,5,24CS301T,Introduction to Artificial Intelligence,ESC,False
+45,1,CP,5,24HS301T,Engineering Economics,HSC,False
+46,1,CP,5,24CS331T,Data Mining and Data Warehousing,PE,True
+47,1,CP,5,24CS302T,Computer Networks,PC,False
+48,1,CP,5,24CS302P,Computer Networks Laboratory,PC,False
+49,1,CP,5,24CS303T,Compiler Design,PC,False
+50,1,CP,5,24CS303P,Compiler Design Laboratory,PC,False
+51,1,CP,5,24CS304T,Operating System,PC,False
+52,1,CP,5,24CS304P,Operating System Laboratory,PC,False
+53,1,CP,6,24OE301T,Open Elective 3 (From Other Department of FoET),OE,True
+54,1,CP,6,24CS336T,Soft Computing,PE,True
+55,1,CP,6,24CS341T,Deep Learning,PE,True
+56,1,CP,6,24CS305T,Cryptography and Network Security,PC,False
+57,1,CP,6,24CS305P,Cryptography and Network Security Laboratory,PC,False
+58,1,CP,6,24CS306T,Web & Mobile Development Essentials,PC,False
+59,1,CP,6,24CS306P,Web & Mobile Development Essentials Laboratory,PC,False
+60,1,CP,6,24CS307T,Distributed Computing,PC,False
+61,1,CP,6,24CS307P,Distributed Computing Laboratory,PC,False
+62,1,CP,7,24INT451,Summer Internship,PRO,False
+63,1,CP,7,24OE401T,Open Elective 4 (From Other Department of FoET),OE,True
+64,1,CP,7,24CS401T,Industry 4.0,ESC,False
+65,1,CP,7,24CS401P,Industry 4.0 Laboratory,ESC,False
+66,1,CP,7,24CS431T,Agent based Learning,PE,True
+67,1,CP,7,24CS436T,Machine Learning in Cyber Security,PE,True
+68,1,CP,7,24CS402T,Machine Learning,PC,False
+69,1,CP,7,24CS402P,Machine Learning Laboratory,PC,False
+70,1,CP,7,24CS403T,Cyber Laws and Ethics,PC,False
+71,1,CP,7,24PRCS451,Seminar,PRO,False
+72,1,CP,8,24PRCS452,Major/Comprehensive Project,PRO,False
+73,2,IT,1,24HS101T,English Communication,HSC,False
+74,2,IT,1,24MA101T,Mathematics - I,BSC,False
+75,2,IT,1,24PH102T,Engineering Physics,BSC,False
+76,2,IT,1,24PH102P,Engineering Physics Laboratory,BSC,False
+77,2,IT,1,24CV101T,Environmental Science,BSC,False
+78,2,IT,1,24ME101P,Workshop Practices,ESC,False
+79,2,IT,1,24BT102T,Biology for Engineers,BSC,False
+80,2,IT,1,24CP101T,Computer Programming - I,ESC,False
+81,2,IT,1,24CP101P,Computer Programming - I Laboratory,ESC,False
+82,2,IT,1,24HS102T,Universal Human Values,HSC,False
+83,2,IT,1,24HS103T,Indian Knowledge System,HSC,False
+84,2,IT,2,24HS105T,Professional Communication,HSC,False
+85,2,IT,2,24MA103T,Mathematics - II,BSC,False
+86,2,IT,2,24CH101T,Engineering Chemistry,BSC,False
+87,2,IT,2,24CH101P,Engineering Chemistry Laboratory,BSC,False
+88,2,IT,2,24EE101T,Elements of Electrical and Electronics Engineering,ESC,False
+89,2,IT,2,24EE101P,Elements of Electrical and Electronics Engineering Laboratory,ESC,False
+90,2,IT,2,24ME102P,Engineering Graphics,ESC,False
+91,2,IT,2,24YOG101,"Yoga, Health & Hygiene",HSC,False
+92,2,IT,2,24NCC101,National Cadet Corps (NCC),HSC,False
+93,2,IT,2,24NSS101,National Service Scheme (NSS),HSC,False
+94,2,IT,2,24HS104T,Organizational Behaviour,HSC,False
+95,2,IT,2,24CP102T,Computer Programming - II,ESC,False
+96,2,IT,2,24CP102P,Computer Programming - II Laboratory,ESC,False
+97,2,IT,3,24INT151,Civic and Social Service Internship,PRO,False
+98,2,IT,3,24IT201T,Introduction to Artificial Intelligence,ESC,False
+99,2,IT,3,24IT202T,Digital Circuits,PC,False
+100,2,IT,3,24IT202P,Digital Circuits Laboratory,PC,False
+101,2,IT,3,24IT203T,Data Structures and Algorithms,PC,False
+102,2,IT,3,24IT203P,Data Structures and Algorithms Laboratory,PC,False
+103,2,IT,3,24IT204T,Fundamentals of ICT,PC,False
+104,2,IT,3,24IT205T,Electronics Devices and Circuits,PC,False
+105,2,IT,3,24MA202T,Discrete Mathematics,BSC,False
+106,2,IT,4,24IT206T,Industry 4.0,ESC,False
+107,2,IT,4,24IT206P,Industry 4.0 Laboratory,ESC,False
+108,2,IT,4,24OE201T,Open Elective 1 (From Other School),OE,True
+109,2,IT,4,24IT207T,Database Management Systems,PC,False
+110,2,IT,4,24IT207P,Database Management Systems Laboratory,PC,False
+111,2,IT,4,24IT208T,Principles of Programming Languages,PC,False
+112,2,IT,4,24IT208P,Principles of Programming Languages Laboratory,PC,False
+113,2,IT,4,24IT209T,Fundamentals of Signal Processing & Communication,PC,False
+114,2,IT,4,24IT210T,Computer Organization & Microprocessor,PC,False
+115,2,IT,4,24IT210P,Computer Organization & Microprocessor Laboratory,PC,False
+116,2,IT,5,MOOC,NPTEL / SWAYAM / MOOC Course,OE,True
+117,2,IT,5,24HS301T,Engineering Economics,HSC,False
+118,2,IT,5,24IT331T,Web Technology,PE,True
+119,2,IT,5,24IT301T,Theory of Computation & Compiler Design,PC,False
+120,2,IT,5,24IT301P,Theory of Computation & Compiler Design Laboratory,PC,False
+121,2,IT,5,24IT302T,Digital Signal Processing,PC,False
+122,2,IT,5,24IT302P,Digital Signal Processing Laboratory,PC,False
+123,2,IT,5,24IT303T,RF Engineering,PC,False
+124,2,IT,5,24IT303P,RF Engineering Laboratory,PC,False
+125,2,IT,6,24OE301T,Open Elective 3 (From Other Department of FoET),OE,True
+126,2,IT,6,24IT335T,Cloud Architecture and Service,PE,True
+127,2,IT,6,24IT338T,Machine Learning,PE,True
+128,2,IT,6,24IT304T,Operating Systems,PC,False
+129,2,IT,6,24IT304P,Operating Systems Laboratory,PC,False
+130,2,IT,6,24IT305T,Digital Communication,PC,False
+131,2,IT,6,24IT305P,Digital Communication Laboratory,PC,False
+132,2,IT,6,24IT306T,Computer Communication and Networking,PC,False
+133,2,IT,6,24IT306P,Computer Communication and Networking Laboratory,PC,False
+134,2,IT,7,24INT451,Summer Internship,PRO,False
+135,2,IT,7,24OE401T,Open Elective 4 (From Other Department of FoET),OE,True
+136,2,IT,7,24IT431T,Cryptography and Network Security,PE,True
+137,2,IT,7,24IT434T,Mobile Application Development,PE,True
+138,2,IT,7,24IT401T,Software Engineering Methodology,PC,False
+139,2,IT,7,24IT401P,Software Engineering Methodology Laboratory,PC,False
+140,2,IT,7,24IT402T,Embedded Systems,PC,False
+141,2,IT,7,24IT402P,Embedded Systems Laboratory,PC,False
+142,2,IT,7,24IT403T,Digital CMOS and VLSI Design,PC,False
+143,2,IT,7,24IT403P,Digital CMOS and VLSI Design Laboratory,PC,False
+144,2,IT,7,24PRIT451,Seminar,PRO,False
+145,2,IT,8,24PRIT452,Major/Comprehensive Project,PRO,False
+146,3,EC,1,24HS101T,English Communication,HSC,False
+147,3,EC,1,24MA101T,Mathematics - I,BSC,False
+148,3,EC,1,24PH101T,Applied Physics,BSC,False
+149,3,EC,1,24PH101P,Applied Physics Laboratory,BSC,False
+150,3,EC,1,24CV101T,Environmental Science,BSC,False
+151,3,EC,1,24ME101P,Workshop Practices,ESC,False
+152,3,EC,1,24BT102T,Biology for Engineers,BSC,False
+153,3,EC,1,24CP101T,Computer Programming - I,ESC,False
+154,3,EC,1,24CP101P,Computer Programming - I Laboratory,ESC,False
+155,3,EC,1,24HS102T,Universal Human Values,HSC,False
+156,3,EC,1,24HS103T,Indian Knowledge System,HSC,False
+157,3,EC,2,24HS105T,Professional Communication,HSC,False
+158,3,EC,2,24MA103T,Mathematics - II,BSC,False
+159,3,EC,2,24CH101T,Engineering Chemistry,BSC,False
+160,3,EC,2,24CH101P,Engineering Chemistry Laboratory,BSC,False
+161,3,EC,2,24EE101T,Elements of Electrical and Electronics Engineering,ESC,False
+162,3,EC,2,24EE101P,Elements of Electrical and Electronics Engineering Laboratory,ESC,False
+163,3,EC,2,24ME102P,Engineering Graphics,ESC,False
+164,3,EC,2,24YOG101,"Yoga, Health & Hygiene",HSC,False
+165,3,EC,2,24NCC101,National Cadet Corps (NCC),HSC,False
+166,3,EC,2,24NSS101,National Service Scheme (NSS),HSC,False
+167,3,EC,2,24HS104T,Organizational Behaviour,HSC,False
+168,3,EC,2,24CP102T,Computer Programming - II,ESC,False
+169,3,EC,2,24CP102P,Computer Programming - II Laboratory,ESC,False
+170,3,EC,3,24INT151,Civic and Social Service Internship,PRO,False
+171,3,EC,3,24EC201T,Introduction to Artificial Intelligence,ESC,False
+172,3,EC,3,24EC202T,Digital Circuits,PC,False
+173,3,EC,3,24EC202P,Digital Circuits Laboratory,PC,False
+174,3,EC,3,24EC203T,Electronics Devices and Circuits,PC,False
+175,3,EC,3,24EC203P,Electronics Devices and Circuits Laboratory,PC,False
+176,3,EC,3,24EC204T,Networks and Systems,PC,False
+177,3,EC,3,24MA201T,Mathematics - III,BSC,False
+178,3,EC,4,24EC205T,Industry 4.0,ESC,False
+179,3,EC,4,24EC205P,Industry 4.0 Laboratory,ESC,False
+180,3,EC,4,24OE201T,Open Elective 1 (From Other School),OE,True
+181,3,EC,4,24EC206T,Analog Electronics,PC,False
+182,3,EC,4,24EC206P,Analog Electronics Laboratory,PC,False
+183,3,EC,4,24EC207T,Analog Communication,PC,False
+184,3,EC,4,24EC207P,Analog Communication Laboratory,PC,False
+185,3,EC,4,24EC208T,Electromagnetics and Transmission Lines,PC,False
+186,3,EC,4,24EC209T,Digital Signal Processing,PC,False
+187,3,EC,4,24EC209P,Digital Signal Processing Laboratory,PC,False
+188,3,EC,5,MOOC,NPTEL / SWAYAM / MOOC Course,OE,True
+189,3,EC,5,24HS301T,Engineering Economics,HSC,False
+190,3,EC,5,24EC331T,Digital Systems Design using HDL,PE,True
+191,3,EC,5,24EC301T,Control Systems,PC,False
+192,3,EC,5,24EC301P,Control Systems Lab,PC,False
+193,3,EC,5,24EC302T,Linear Integrated Circuits and Applications,PC,False
+194,3,EC,5,24EC302P,Linear Integrated Circuits and Applications Laboratory,PC,False
+195,3,EC,5,24EC303T,Digital Communication,PC,False
+196,3,EC,5,24EC303P,Digital Communication Laboratory,PC,False
+197,3,EC,6,24OE301T,Open Elective 3 (From Other Department of FoET),OE,True
+198,3,EC,6,24EC333T,Analog IC Design,PE,True
+199,3,EC,6,24EC337T,Machine Learning and Applications,PE,True
+200,3,EC,6,24EC304T,Computer and Communication Networks,PC,False
+201,3,EC,6,24EC304P,Computer and Communication Networks Laboratory,PC,False
+202,3,EC,6,24EC305T,Computer Organization and Microprocessor,PC,False
+203,3,EC,6,24EC305P,Computer Organization and Microprocessor Lab,PC,False
+204,3,EC,6,24EC306T,Microwave and Antenna,PC,False
+205,3,EC,6,24EC306P,Microwave and Antenna Lab,PC,False
+206,3,EC,7,24INT451,Summer Internship,PRO,False
+207,3,EC,7,24OE401T,Open Elective 4 (From Other Department of FoET),OE,True
+208,3,EC,7,24EC431T,Advanced Processors and SoCs,PE,True
+209,3,EC,7,24EC436T,Internet of Things,PE,True
+210,3,EC,7,24EC401T,Modern Wireless Communication,PC,False
+211,3,EC,7,24EC401P,Modern Wireless Communication Lab,PC,False
+212,3,EC,7,24EC402T,Embedded System Design,PC,False
+213,3,EC,7,24EC402P,Embedded System Design Lab,PC,False
+214,3,EC,7,24EC403T,Digital CMOS VLSI Design,PC,False
+215,3,EC,7,24EC403P,Digital CMOS VLSI Design Lab,PC,False
+216,3,EC,7,24PREC451,Seminar,PRO,False
+217,3,EC,8,24PREC452,Major/Comprehensive Project,PRO,False
+218,4,ME,1,24MA101T,Mathematics - I,BSC,False
+219,4,ME,1,24PH102T,Engineering Physics,BSC,False
+220,4,ME,1,24PH102P,Engineering Physics Laboratory,BSC,False
+221,4,ME,1,24BT102T,Biology for Engineers,BSC,False
+222,4,ME,1,24CV101T,Environmental Science,BSC,False
+223,4,ME,1,24CP101T,Computer Programming - I,ESC,False
+224,4,ME,1,24CP101P,Computer Programming - I Laboratory,ESC,False
+225,4,ME,1,24ME101P,Workshop Practices,ESC,False
+226,4,ME,1,24ME102P,Engineering Graphics,ESC,False
+227,4,ME,1,24HS101T,English Communication,HSC,False
+228,4,ME,1,24HS102T,Universal Human Values,HSC,False
+229,4,ME,2,24MA103T,Mathematics - II,BSC,False
+230,4,ME,2,24CH101T,Engineering Chemistry,BSC,False
+231,4,ME,2,24CH101P,Engineering Chemistry Laboratory,BSC,False
+232,4,ME,2,24CP102T,Computer Programming - II,ESC,False
+233,4,ME,2,24CP102P,Computer Programming - II Laboratory,ESC,False
+234,4,ME,2,24EE101T,Elements of Electrical and Electronics Engineering,ESC,False
+235,4,ME,2,24EE101P,Elements of Electrical and Electronics Engineering Laboratory,ESC,False
+236,4,ME,2,24HS103T,Indian Knowledge System,HSC,False
+237,4,ME,2,24HS104T,Organizational Behaviour,HSC,False
+238,4,ME,2,24HS105T,Professional Communication,HSC,False
+239,4,ME,2,24YOG101,"Yoga, Health & Hygiene",HSC,False
+240,4,ME,2,24NSS101,National Service Scheme (NSS),HSC,False
+241,4,ME,2,24NCC101,National Cadet Corps (NCC),HSC,False
+242,4,ME,3,24INT151,Civic and Social Service Internship,PRO,False
+243,4,ME,3,24MA201T,Mathematics - III,BSC,False
+244,4,ME,3,24ME201T,Introduction to Artificial Intelligence,PC,False
+245,4,ME,3,24ME202T,Engineering Mechanics,PC,False
+246,4,ME,3,24ME203T,Thermodynamics,PC,False
+247,4,ME,3,24ME203P,Thermodynamics Laboratory,PC,False
+248,4,ME,3,24ME204T,Mechanical Measurement and Metrology,PC,False
+249,4,ME,3,24ME204P,Mechanical Measurement and Metrology Laboratory,PC,False
+250,4,ME,3,24ME205P,Mechanical Drawing Laboratory,PC,False
+251,4,ME,4,24ME221T,Renewable Energy,OE,True
+252,4,ME,4,24ME205T,Industry 4.0,ESC,False
+253,4,ME,4,24ME205P,Mechanical Drawing Laboratory,PC,False
+254,4,ME,4,24ME206T,Fluid Mechanics,PC,False
+255,4,ME,4,24ME206P,Fluid Mechanics Laboratory,PC,False
+256,4,ME,4,24ME207T,Design and Kinematics of Machines,PC,False
+257,4,ME,4,24ME207P,Design and Kinematics of Machines Laboratory,PC,False
+258,4,ME,4,24ME208T,Engineering Metallurgy,PC,False
+259,4,ME,4,24ME208P,Engineering Metallurgy Laboratory,PC,False
+260,4,ME,4,24ME209T,Strength of Material,PC,False
+261,4,ME,4,24ME209P,Strength of Material Laboratory,PC,False
+262,4,ME,4,24INT251,Industrial Orientation,PRO,False
+263,4,ME,5,24HS301T,Engineering Economics,HSC,False
+264,4,ME,5,MOOC,NPTEL / SWAYAM / MOOC Course,OE,True
+265,4,ME,5,24ME331T,Introduction to Composite Materials,PE,True
+266,4,ME,5,24ME301T,Heat Transfer,PC,False
+267,4,ME,5,24ME301P,Heat Transfer Laboratory,PC,False
+268,4,ME,5,24ME302T,Dynamics of Machine,PC,False
+269,4,ME,5,24ME302P,Dynamics of Machine Laboratory,PC,False
+270,4,ME,5,24ME303T,Manufacturing Processes - I,PC,False
+271,4,ME,5,24ME303P,Manufacturing Processes - I Laboratory,PC,False
+272,4,ME,6,24OE301T,Open Elective 3 (From Other Department of FoET),OE,True
+273,4,ME,6,24ME335T,Mechanical Vibration,PE,True
+274,4,ME,6,24ME304T,Refrigeration and Air Conditioning,PC,False
+275,4,ME,6,24ME304P,Refrigeration and Air Conditioning Laboratory,PC,False
+276,4,ME,6,24ME305T,Machine Design - I,PC,False
+277,4,ME,6,24ME305P,Machine Design - I Laboratory,PC,False
+278,4,ME,6,24ME306T,Manufacturing Processes - II,PC,False
+279,4,ME,6,24ME306P,Manufacturing Processes - II Laboratory,PC,False
+280,4,ME,6,24ME307T,Robotics,PC,False
+281,4,ME,6,24ME307P,Robotics Laboratory,PC,False
+282,4,ME,7,24INT451,Summer Internship,PRO,False
+283,4,ME,7,24OE401T,Open Elective 4 (From Other Department of FoET),OE,True
+284,4,ME,7,24ME431T,Exergy Analysis of Thermal Systems,PE,True
+285,4,ME,7,24ME434T,Cryogenics,PE,True
+286,4,ME,7,24ME436T,"Welding for Metal Joining, Surfacing and Additive Manufacturing",PE,True
+287,4,ME,7,24ME401T,Optimization Techniques,PC,False
+288,4,ME,7,24ME402T,Project Management,PC,False
+289,4,ME,7,24ME403P,Computational Engineering Laboratory,PC,False
+290,4,ME,7,24PRME451,Seminar,PRO,False
+291,4,ME,8,24PRME452,Major Project,PRO,False
+292,4,ME,8,24PRME453,Comprehensive Project,PRO,False
+293,5,CE,1,24HS101T,English Communication,HSC,False
+294,5,CE,1,24MA101T,Mathematics - I,BSC,False
+295,5,CE,1,24PH102T,Engineering Physics,BSC,False
+296,5,CE,1,24PH102P,Engineering Physics Laboratory,BSC,False
+297,5,CE,1,24CV101T,Environmental Science,BSC,False
+298,5,CE,1,24ME101P,Workshop Practices,ESC,False
+299,5,CE,1,24BT102T,Biology for Engineers,BSC,False
+300,5,CE,1,24CP101T,Computer Programming - I,ESC,False
+301,5,CE,1,24CP101P,Computer Programming - I Laboratory,ESC,False
+302,5,CE,1,24HS102T,Universal Human Values,HSC,False
+303,5,CE,1,24HS103T,Indian Knowledge System,HSC,False
+304,5,CE,2,24HS105T,Professional Communication,HSC,False
+305,5,CE,2,24MA103T,Mathematics - II,BSC,False
+306,5,CE,2,24CH101T,Engineering Chemistry,BSC,False
+307,5,CE,2,24CH101P,Engineering Chemistry Laboratory,BSC,False
+308,5,CE,2,24EE101T,Elements of Electrical and Electronics Engineering,ESC,False
+309,5,CE,2,24EE101P,Elements of Electrical and Electronics Engineering Laboratory,ESC,False
+310,5,CE,2,24ME102P,Engineering Graphics,ESC,False
+311,5,CE,2,24YOG101,"Yoga, Health & Hygiene",HSC,False
+312,5,CE,2,24NCC101,National Cadet Corps (NCC),HSC,False
+313,5,CE,2,24NSS101,National Service Scheme (NSS),HSC,False
+314,5,CE,2,24HS104T,Organizational Behaviour,HSC,False
+315,5,CE,2,24CP102T,Computer Programming - II,ESC,False
+316,5,CE,2,24CP102P,Computer Programming - II Laboratory,ESC,False
+317,5,CE,3,24INT151,Civic and Social Service Internship,PRO,False
+318,5,CE,3,24MA201T,Mathematics - III,BSC,False
+319,5,CE,3,24CV201T,Introduction to Artificial Intelligence,ESC,False
+320,5,CE,3,24CV202T,Building Materials and Construction Technology,PC,False
+321,5,CE,3,24CV203T,Building Planning and Computer Aided Drawing,PC,False
+322,5,CE,3,24CV204T,Solid Mechanics,PC,False
+323,5,CE,3,24CV205T,Concrete Technology,PC,False
+324,5,CE,3,24CV206P,Material Testing Laboratory,PC,False
+325,5,CE,4,24CV207T,Industry 4.0,ESC,False
+326,5,CE,4,24CV207P,Industry 4.0 Laboratory,ESC,False
+327,5,CE,4,24OE201T,Open Elective 1 (From Other School),OE,True
+328,5,CE,4,24CV208T,Fluid Mechanics,PC,False
+329,5,CE,4,24CV209T,Engineering Geology and Soil Mechanics,PC,False
+330,5,CE,4,24CV210T,Surveying Practices,PC,False
+331,5,CE,4,24CV211T,Structural Analysis,PC,False
+332,5,CE,4,24INT251,Industrial Orientation,PRO,False
+333,5,CE,5,MOOC,NPTEL / SWAYAM / MOOC Course,OE,True
+334,5,CE,5,24HS301T,Engineering Economics,HSC,False
+335,5,CE,5,24CV331T,Program Elective 1,PE,True
+336,5,CE,5,24CV301T,Hydrology and Water Resources,PC,False
+337,5,CE,5,24CV302T,Foundation and Geotechnical Applications,PC,False
+338,5,CE,5,24CV303T,Design of RCC Structures,PC,False
+339,5,CE,5,24CV304P,Computer Aided Design Drawing Lab - I,PC,False
+340,5,CE,6,24OE301T,Open Elective 3 (From Other Department of FoET),OE,True
+341,5,CE,6,24CV332T,Program Elective 2,PE,True
+342,5,CE,6,24CV333T,Program Elective 3,PE,True
+343,5,CE,6,24CV305T,Design of Steel Structures,PC,False
+344,5,CE,6,24CV306P,Computer Aided Design Drawing Lab - II,PC,False
+345,5,CE,6,24CV307T,Environmental Engineering,PC,False
+346,5,CE,6,24CV308T,Highway and Traffic Engineering,PC,False
+347,5,CE,7,24INT451,Summer Internship,PRO,False
+348,5,CE,7,24OE401T,Open Elective 4 (From Other Department of FoET),OE,True
+349,5,CE,7,24CV431T,Program Elective 4,PE,True
+350,5,CE,7,24CV432T,Program Elective 5,PE,True
+351,5,CE,7,24CV401T,Estimation Costing Contracts and Valuations,PC,False
+352,5,CE,7,24CV402T,Project Management,PC,False
+353,5,CE,7,24CV403T,Earthquake Engineering,PC,False
+354,5,CE,7,24PRCV451,Seminar,PRO,False
+355,5,CE,8,24PRCV452,Major/Comprehensive Project,PRO,False
+356,6,CH,1,24MA101T,Mathematics - I,BSC,False
+357,6,CH,1,24HS101T,English Communication,HSC,False
+358,6,CH,1,24CP101T,Computer Programming - I,ESC,False
+359,6,CH,1,24CP101P,Computer Programming - I Laboratory,ESC,False
+360,6,CH,1,24CH101T,Engineering Chemistry,BSC,False
+361,6,CH,1,24CH101P,Engineering Chemistry Laboratory,BSC,False
+362,6,CH,1,24EE101T,Elements of Electrical and Electronics Engineering,ESC,False
+363,6,CH,1,24EE101P,Elements of Electrical and Electronics Engineering Laboratory,ESC,False
+364,6,CH,1,24BT101T,Biological Systems for Engineers,BSC,False
+365,6,CH,1,24HS104T,Organizational Behaviour,HSC,False
+366,6,CH,1,24YOG101,"Yoga, Health & Hygiene",HSC,False
+367,6,CH,1,24NSS101,National Service Scheme (NSS),HSC,False
+368,6,CH,1,24NCC101,National Cadet Corps (NCC),HSC,False
+369,6,CH,2,24HS105T,Professional Communication,HSC,False
+370,6,CH,2,24MA103T,Mathematics - II,BSC,False
+371,6,CH,2,24CP102T,Computer Programming - II,ESC,False
+372,6,CH,2,24CP102P,Computer Programming - II Laboratory,ESC,False
+373,6,CH,2,24PH103T,Modern Physics,BSC,False
+374,6,CH,2,24PH103P,Modern Physics Laboratory,BSC,False
+375,6,CH,2,24ME101P,Workshop Practices,ESC,False
+376,6,CH,2,24ME102P,Engineering Graphics,ESC,False
+377,6,CH,2,24CV101T,Environmental Science,BSC,False
+378,6,CH,2,24HS102T,Universal Human Values,HSC,False
+379,6,CH,2,24HS103T,Indian Knowledge System,HSC,False
+380,6,CH,3,24INT151,Civic and Social Service Internship,PRO,False
+381,6,CH,3,24MA201T,Mathematics - III,BSC,False
+382,6,CH,3,24CH201T,Introduction to Artificial Intelligence,ESC,False
+383,6,CH,3,24CH202T,Chemical Process Calculations,PC,False
+384,6,CH,3,24CH203T,Mechanical Unit Operations,PC,False
+385,6,CH,3,24CH203P,Mechanical Unit Operations Lab,PC,False
+386,6,CH,3,24CH204T,Fluid Mechanics,PC,False
+387,6,CH,3,24CH204P,Fluid Mechanics Lab,PC,False
+388,6,CH,4,24INT251,Industrial Orientation,PRO,False
+389,6,CH,4,24OE201T,Open Elective 1 (From Other School),OE,True
+390,6,CH,4,24CH205T,Chemical Engineering Industry 4.0,ESC,False
+391,6,CH,4,24CH205P,Chemical Engineering Industry 4.0 Lab,ESC,False
+392,6,CH,4,24CH206T,Introduction to Numerical Methods for Chemical Engineers,PC,False
+393,6,CH,4,24CH207T,Chemical Engineering Thermodynamics,PC,False
+394,6,CH,4,24CH207P,Chemical Engineering Thermodynamics Lab,PC,False
+395,6,CH,4,24CH208T,Heat Transfer,PC,False
+396,6,CH,4,24CH208P,Heat Transfer Lab,PC,False
+397,6,CH,4,24CH209T,Chemical Process Technology,PC,False
+398,6,CH,4,24CH209P,Chemical Process Technology Lab,PC,False
+399,6,CH,5,MOOC,NPTEL / SWAYAM / MOOC Course,OE,True
+400,6,CH,5,24HS301T,Engineering Economics,HSC,False
+401,6,CH,5,24CH331T,Petroleum Refining & Petrochemicals,PE,True
+402,6,CH,5,24CH301T,Mass Transfer 1,PC,False
+403,6,CH,5,24CH301P,Mass Transfer 1 Lab,PC,False
+404,6,CH,5,24CH302T,Chemical Reaction Engineering 1,PC,False
+405,6,CH,5,24CH302P,Chemical Reaction Engineering 1 Lab,PC,False
+406,6,CH,5,24CH303T,Process Equipment Design,PC,False
+407,6,CH,5,24CH303P,Process Equipment Design Lab,PC,False
+408,6,CH,6,24OE301T,Open Elective 3 (From Other Department of FoET),OE,True
+409,6,CH,6,24CH334T,Piping Design,PE,True
+410,6,CH,6,24CH337T,Nano Technology & Energy Storage,PE,True
+411,6,CH,6,24CH304T,Instrumentation & Process Control,PC,False
+412,6,CH,6,24CH304P,Instrumentation & Process Control Lab,PC,False
+413,6,CH,6,24CH305T,Mass Transfer 2,PC,False
+414,6,CH,6,24CH305P,Mass Transfer 2 Lab,PC,False
+415,6,CH,6,24CH306T,Chemical Reaction Engineering 2,PC,False
+416,6,CH,6,24CH306P,Chemical Reaction Engineering 2 Lab,PC,False
+417,6,CH,7,24INT451,Summer Internship,PRO,False
+418,6,CH,7,24OE401T,Open Elective 4 (From Other Department of FoET),OE,True
+419,6,CH,7,24CH431T,Polymer Science & Technology,PE,True
+420,6,CH,7,24CH434T,"Process Plant Safety, Health and Hygiene",PE,True
+421,6,CH,7,24CH401T,Process Modelling and Optimization,PC,False
+422,6,CH,7,24CH401P,Process Modelling and Optimization Lab,PC,False
+423,6,CH,7,24CH402T,Computer Aided Process Design,PC,False
+424,6,CH,7,24CH402P,Computer Aided Process Design Lab,PC,False
+425,6,CH,7,24CH403T,Transport Phenomenon,PC,False
+426,6,CH,7,24PRCH451,Seminar,PRO,False
+427,6,CH,8,24PRCH452,Major/Comprehensive Project,PRO,False

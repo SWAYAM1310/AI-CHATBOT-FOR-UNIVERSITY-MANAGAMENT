@@ -1,0 +1,8 @@
+id,code,name,building,hod_faculty_id
+1,CP,Computer Science,A Block,4
+2,IT,Information & Communication Technology,B Block,5
+3,EC,Electronics & Communication,C Block,12
+4,ME,Mechanical,D Block,13
+5,CE,Civil,E Block,19
+6,CH,Chemical,F Block,21
+7,SH,Basic Sciences & Humanities,Central Block,27

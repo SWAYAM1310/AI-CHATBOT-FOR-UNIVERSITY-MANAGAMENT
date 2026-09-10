@@ -1,0 +1,347 @@
+subject_code,subject_name,category,component,lecture_hours,tutorial_hours,practical_hours,credits
+24BT101T,Biological Systems for Engineers,BSC,Theory,2,0,0,2
+24BT102T,Biology for Engineers,BSC,Theory,2,0,0,2
+24CH101P,Engineering Chemistry Laboratory,BSC,Lab,0,0,2,1
+24CH101T,Engineering Chemistry,BSC,Theory,3,0,0,3
+24CH201T,Introduction to Artificial Intelligence,ESC,Theory,3,0,0,3
+24CH202T,Chemical Process Calculations,PC,Theory,3,1,0,4
+24CH203P,Mechanical Unit Operations Lab,PC,Lab,0,0,2,1
+24CH203T,Mechanical Unit Operations,PC,Theory,3,0,0,3
+24CH204P,Fluid Mechanics Lab,PC,Lab,0,0,2,1
+24CH204T,Fluid Mechanics,PC,Theory,3,0,0,3
+24CH205P,Chemical Engineering Industry 4.0 Lab,ESC,Lab,0,0,2,1
+24CH205T,Chemical Engineering Industry 4.0,ESC,Theory,2,0,0,2
+24CH206T,Introduction to Numerical Methods for Chemical Engineers,PC,Theory,3,1,0,4
+24CH207P,Chemical Engineering Thermodynamics Lab,PC,Lab,0,0,2,1
+24CH207T,Chemical Engineering Thermodynamics,PC,Theory,3,0,0,3
+24CH208P,Heat Transfer Lab,PC,Lab,0,0,2,1
+24CH208T,Heat Transfer,PC,Theory,3,0,0,3
+24CH209P,Chemical Process Technology Lab,PC,Lab,0,0,2,1
+24CH209T,Chemical Process Technology,PC,Theory,3,0,0,3
+24CH301P,Mass Transfer 1 Lab,PC,Lab,0,0,2,1
+24CH301T,Mass Transfer 1,PC,Theory,3,0,0,3
+24CH302P,Chemical Reaction Engineering 1 Lab,PC,Lab,0,0,2,1
+24CH302T,Chemical Reaction Engineering 1,PC,Theory,3,0,0,3
+24CH303P,Process Equipment Design Lab,PC,Lab,0,0,2,1
+24CH303T,Process Equipment Design,PC,Theory,3,0,0,3
+24CH304P,Instrumentation & Process Control Lab,PC,Lab,0,0,2,1
+24CH304T,Instrumentation & Process Control,PC,Theory,3,0,0,3
+24CH305P,Mass Transfer 2 Lab,PC,Lab,0,0,2,1
+24CH305T,Mass Transfer 2,PC,Theory,3,0,0,3
+24CH306P,Chemical Reaction Engineering 2 Lab,PC,Lab,0,0,2,1
+24CH306T,Chemical Reaction Engineering 2,PC,Theory,3,0,0,3
+24CH331T,Petroleum Refining & Petrochemicals,PE,Theory,3,0,0,3
+24CH332T,Renewable Energy Engineering,PE,Theory,3,0,0,3
+24CH333T,Sustainability & Green Chemistry,PE,Theory,3,0,0,3
+24CH334T,Piping Design,PE,Theory,3,0,0,3
+24CH335T,Corrosion Engineering,PE,Theory,3,0,0,3
+24CH336T,Material Science & Engineering,PE,Theory,3,0,0,3
+24CH337T,Nano Technology & Energy Storage,PE,Theory,3,0,0,3
+24CH338T,Membrane Processes,PE,Theory,3,0,0,3
+24CH339T,Environmental Engineering and Pollution Control,PE,Theory,3,0,0,3
+24CH401P,Process Modelling and Optimization Lab,PC,Lab,0,0,2,1
+24CH401T,Process Modelling and Optimization,PC,Theory,3,0,0,3
+24CH402P,Computer Aided Process Design Lab,PC,Lab,0,0,2,1
+24CH402T,Computer Aided Process Design,PC,Theory,3,0,0,3
+24CH403T,Transport Phenomenon,PC,Theory,3,1,0,4
+24CH431T,Polymer Science & Technology,PE,Theory,3,0,0,3
+24CH432T,Energy Conversion Device Engineering,PE,Theory,3,0,0,3
+24CH433T,Pharmaceuticals Technology,PE,Theory,3,0,0,3
+24CH434T,"Process Plant Safety, Health and Hygiene",PE,Theory,3,0,0,3
+24CH435T,Project Management,PE,Theory,3,0,0,3
+24CH436T,Plant Design & Process Economics,PE,Theory,3,0,0,3
+24CP101P,Computer Programming - I Laboratory,ESC,Lab,0,0,2,1
+24CP101T,Computer Programming - I,ESC,Theory,1,0,0,1
+24CP102P,Computer Programming - II Laboratory,ESC,Lab,0,0,2,1
+24CP102T,Computer Programming - II,ESC,Theory,1,0,0,1
+24CS201P,Database Management System Laboratory,PC,Lab,0,0,2,1
+24CS201T,Database Management System,PC,Theory,3,0,0,3
+24CS202T,Digital Logic and Design,PC,Theory,3,1,0,4
+24CS203P,Data Structures Laboratory,PC,Lab,0,0,2,1
+24CS203T,Data Structures,PC,Theory,3,0,0,3
+24CS204P,Object Oriented Programming Laboratory,PC,Lab,0,0,2,1
+24CS204T,Object Oriented Programming,PC,Theory,3,0,0,3
+24CS205P,Design Thinking,PC,Lab,0,0,2,1
+24CS206T,Probability and Statistics Theory,PC,Theory,3,0,0,3
+24CS207T,Computer Organization and Architecture,PC,Theory,3,1,0,4
+24CS208P,Software Engineering Laboratory,PC,Lab,0,0,2,1
+24CS208T,Software Engineering,PC,Theory,3,0,0,3
+24CS209T,Theory of Computation,PC,Theory,3,1,0,4
+24CS210P,Design and Analysis of Algorithm Laboratory,PC,Lab,0,0,2,1
+24CS210T,Design and Analysis of Algorithm,PC,Theory,3,0,0,3
+24CS301T,Introduction to Artificial Intelligence,ESC,Theory,3,0,0,3
+24CS302P,Computer Networks Laboratory,PC,Lab,0,0,2,1
+24CS302T,Computer Networks,PC,Theory,3,0,0,3
+24CS303P,Compiler Design Laboratory,PC,Lab,0,0,2,1
+24CS303T,Compiler Design,PC,Theory,3,0,0,3
+24CS304P,Operating System Laboratory,PC,Lab,0,0,2,1
+24CS304T,Operating System,PC,Theory,3,0,0,3
+24CS305P,Cryptography and Network Security Laboratory,PC,Lab,0,0,2,1
+24CS305T,Cryptography and Network Security,PC,Theory,3,0,0,3
+24CS306P,Web & Mobile Development Essentials Laboratory,PC,Lab,0,0,4,2
+24CS306T,Web & Mobile Development Essentials,PC,Theory,1,0,0,1
+24CS307P,Distributed Computing Laboratory,PC,Lab,0,0,2,1
+24CS307T,Distributed Computing,PC,Theory,3,0,0,3
+24CS331T,Data Mining and Data Warehousing,PE,Theory,3,0,0,3
+24CS332T,Object Oriented Modelling and Design,PE,Theory,3,0,0,3
+24CS333T,Computer Graphics,PE,Theory,3,0,0,3
+24CS334T,Advanced Data Structure and Algorithms,PE,Theory,3,0,0,3
+24CS335T,Data Communication,PE,Theory,3,0,0,3
+24CS336T,Soft Computing,PE,Theory,3,0,0,3
+24CS337T,UI/UX Design,PE,Theory,3,0,0,3
+24CS338T,Digital Image Processing,PE,Theory,3,0,0,3
+24CS339T,Blockchain Technology,PE,Theory,3,0,0,3
+24CS340T,Mobile Computing,PE,Theory,3,0,0,3
+24CS341T,Deep Learning,PE,Theory,3,0,0,3
+24CS342T,Secure Software Engineering,PE,Theory,3,0,0,3
+24CS343T,Computer Vision,PE,Theory,3,0,0,3
+24CS344T,Big Data Analytics,PE,Theory,3,0,0,3
+24CS345T,Wireless Sensor Networks,PE,Theory,3,0,0,3
+24CS401P,Industry 4.0 Laboratory,ESC,Lab,0,0,2,1
+24CS401T,Industry 4.0,ESC,Theory,2,0,0,2
+24CS402P,Machine Learning Laboratory,PC,Lab,0,0,2,1
+24CS402T,Machine Learning,PC,Theory,3,0,0,3
+24CS403T,Cyber Laws and Ethics,PC,Theory,1,0,0,1
+24CS431T,Agent based Learning,PE,Theory,3,0,0,3
+24CS432T,Agile and DevOps,PE,Theory,3,0,0,3
+24CS433T,Natural Language Processing,PE,Theory,3,0,0,3
+24CS434T,Cloud Computing,PE,Theory,3,0,0,3
+24CS435T,Internet of Things,PE,Theory,3,0,0,3
+24CS436T,Machine Learning in Cyber Security,PE,Theory,3,0,0,3
+24CS437T,Web Application Testing,PE,Theory,3,0,0,3
+24CS438T,Speech Processing,PE,Theory,3,0,0,3
+24CS439T,Quantum Computing,PE,Theory,3,0,0,3
+24CS440T,Autonomous Systems,PE,Theory,3,0,0,3
+24CV101T,Environmental Science,BSC,Theory,2,0,0,2
+24CV201T,Introduction to Artificial Intelligence,ESC,Theory,3,0,0,3
+24CV202T,Building Materials and Construction Technology,PC,Theory,3,0,0,3
+24CV203T,Building Planning and Computer Aided Drawing,PC,Theory,1,0,2,2
+24CV204T,Solid Mechanics,PC,Theory,4,0,0,4
+24CV205T,Concrete Technology,PC,Theory,2,0,0,2
+24CV206P,Material Testing Laboratory,PC,Lab,0,0,2,1
+24CV207P,Industry 4.0 Laboratory,ESC,Lab,0,0,2,1
+24CV207T,Industry 4.0,ESC,Theory,2,0,0,2
+24CV208T,Fluid Mechanics,PC,Theory,3,0,2,4
+24CV209T,Engineering Geology and Soil Mechanics,PC,Theory,3,0,2,4
+24CV210T,Surveying Practices,PC,Theory,3,0,2,4
+24CV211T,Structural Analysis,PC,Theory,3,1,0,4
+24CV301T,Hydrology and Water Resources,PC,Theory,3,0,2,4
+24CV302T,Foundation and Geotechnical Applications,PC,Theory,3,0,2,4
+24CV303T,Design of RCC Structures,PC,Theory,3,0,0,3
+24CV304P,Computer Aided Design Drawing Lab - I,PC,Lab,0,0,2,1
+24CV305T,Design of Steel Structures,PC,Theory,3,0,0,3
+24CV306P,Computer Aided Design Drawing Lab - II,PC,Lab,0,0,2,1
+24CV307T,Environmental Engineering,PC,Theory,3,0,2,4
+24CV308T,Highway and Traffic Engineering,PC,Theory,3,0,2,4
+24CV331T,Program Elective 1,PE,Theory,3,0,0,3
+24CV332T,Program Elective 2,PE,Theory,3,0,0,3
+24CV333T,Program Elective 3,PE,Theory,3,0,0,3
+24CV401T,Estimation Costing Contracts and Valuations,PC,Theory,3,1,0,4
+24CV402T,Project Management,PC,Theory,3,0,2,4
+24CV403T,Earthquake Engineering,PC,Theory,3,1,0,4
+24CV431T,Program Elective 4,PE,Theory,3,0,0,3
+24CV432T,Program Elective 5,PE,Theory,3,0,0,3
+24EC201T,Introduction to Artificial Intelligence,ESC,Theory,3,0,0,3
+24EC202P,Digital Circuits Laboratory,PC,Lab,0,0,2,1
+24EC202T,Digital Circuits,PC,Theory,3,0,0,3
+24EC203P,Electronics Devices and Circuits Laboratory,PC,Lab,0,0,2,1
+24EC203T,Electronics Devices and Circuits,PC,Theory,3,0,0,3
+24EC204T,Networks and Systems,PC,Theory,3,1,0,4
+24EC205P,Industry 4.0 Laboratory,ESC,Lab,0,0,2,1
+24EC205T,Industry 4.0,ESC,Theory,2,0,0,2
+24EC206P,Analog Electronics Laboratory,PC,Lab,0,0,2,1
+24EC206T,Analog Electronics,PC,Theory,3,0,0,3
+24EC207P,Analog Communication Laboratory,PC,Lab,0,0,2,1
+24EC207T,Analog Communication,PC,Theory,3,0,0,3
+24EC208T,Electromagnetics and Transmission Lines,PC,Theory,3,1,0,4
+24EC209P,Digital Signal Processing Laboratory,PC,Lab,0,0,2,1
+24EC209T,Digital Signal Processing,PC,Theory,3,0,0,3
+24EC301P,Control Systems Lab,PC,Lab,0,0,2,1
+24EC301T,Control Systems,PC,Theory,3,0,0,3
+24EC302P,Linear Integrated Circuits and Applications Laboratory,PC,Lab,0,0,2,1
+24EC302T,Linear Integrated Circuits and Applications,PC,Theory,3,0,0,3
+24EC303P,Digital Communication Laboratory,PC,Lab,0,0,2,1
+24EC303T,Digital Communication,PC,Theory,3,0,0,3
+24EC304P,Computer and Communication Networks Laboratory,PC,Lab,0,0,2,1
+24EC304T,Computer and Communication Networks,PC,Theory,3,0,0,3
+24EC305P,Computer Organization and Microprocessor Lab,PC,Lab,0,0,2,1
+24EC305T,Computer Organization and Microprocessor,PC,Theory,3,0,0,3
+24EC306P,Microwave and Antenna Lab,PC,Lab,0,0,2,1
+24EC306T,Microwave and Antenna,PC,Theory,3,0,0,3
+24EC331T,Digital Systems Design using HDL,PE,Theory,3,0,0,3
+24EC332T,Opto Electronics and Optical Communication,PE,Theory,3,0,0,3
+24EC333T,Analog IC Design,PE,Theory,3,0,0,3
+24EC334T,Power Electronics,PE,Theory,3,0,0,3
+24EC335T,Satellite Communication,PE,Theory,3,0,0,3
+24EC336T,Information Theory and Coding,PE,Theory,3,0,0,3
+24EC337T,Machine Learning and Applications,PE,Theory,3,0,0,3
+24EC338T,Database Management Systems,PE,Theory,3,0,0,3
+24EC339T,Introduction to Robotics,PE,Theory,3,0,0,3
+24EC340T,Modern Control Systems,PE,Theory,3,0,0,3
+24EC401P,Modern Wireless Communication Lab,PC,Lab,0,0,2,1
+24EC401T,Modern Wireless Communication,PC,Theory,3,0,0,3
+24EC402P,Embedded System Design Lab,PC,Lab,0,0,2,1
+24EC402T,Embedded System Design,PC,Theory,3,0,0,3
+24EC403P,Digital CMOS VLSI Design Lab,PC,Lab,0,0,2,1
+24EC403T,Digital CMOS VLSI Design,PC,Theory,3,0,0,3
+24EC431T,Advanced Processors and SoCs,PE,Theory,3,0,0,3
+24EC432T,IC Technology,PE,Theory,3,0,0,3
+24EC433T,Mixed Signal VLSI Design,PE,Theory,3,0,0,3
+24EC434T,Advanced Communication Networks,PE,Theory,3,0,0,3
+24EC435T,Radar and Navigation Systems,PE,Theory,3,0,0,3
+24EC436T,Internet of Things,PE,Theory,3,0,0,3
+24EC437T,Deep Learning and Applications,PE,Theory,3,0,0,3
+24EC438T,"Drones: Design, Theory and Applications",PE,Theory,3,0,0,3
+24EE101P,Elements of Electrical and Electronics Engineering Laboratory,ESC,Lab,0,0,2,1
+24EE101T,Elements of Electrical and Electronics Engineering,ESC,Theory,3,0,0,3
+24HS101T,English Communication,HSC,Theory,2,0,0,2
+24HS102T,Universal Human Values,HSC,Theory,1,0,0,1
+24HS103T,Indian Knowledge System,HSC,Theory,2,0,0,2
+24HS104T,Organizational Behaviour,HSC,Theory,1,0,0,1
+24HS105T,Professional Communication,HSC,Theory,2,0,0,2
+24HS301T,Engineering Economics,HSC,Theory,3,0,0,3
+24INT151,Civic and Social Service Internship,PRO,Theory,0,0,0,1
+24INT251,Industrial Orientation,PRO,Theory,0,0,0,0
+24INT451,Summer Internship,PRO,Theory,0,0,0,2
+24IT201T,Introduction to Artificial Intelligence,ESC,Theory,3,0,0,3
+24IT202P,Digital Circuits Laboratory,PC,Lab,0,0,2,1
+24IT202T,Digital Circuits,PC,Theory,3,0,0,3
+24IT203P,Data Structures and Algorithms Laboratory,PC,Lab,0,0,2,1
+24IT203T,Data Structures and Algorithms,PC,Theory,3,0,0,3
+24IT204T,Fundamentals of ICT,PC,Theory,2,0,0,2
+24IT205T,Electronics Devices and Circuits,PC,Theory,2,0,0,2
+24IT206P,Industry 4.0 Laboratory,ESC,Lab,0,0,2,1
+24IT206T,Industry 4.0,ESC,Theory,2,0,0,2
+24IT207P,Database Management Systems Laboratory,PC,Lab,0,0,2,1
+24IT207T,Database Management Systems,PC,Theory,3,0,0,3
+24IT208P,Principles of Programming Languages Laboratory,PC,Lab,0,0,2,1
+24IT208T,Principles of Programming Languages,PC,Theory,3,0,0,3
+24IT209T,Fundamentals of Signal Processing & Communication,PC,Theory,3,1,0,4
+24IT210P,Computer Organization & Microprocessor Laboratory,PC,Lab,0,0,2,1
+24IT210T,Computer Organization & Microprocessor,PC,Theory,3,0,0,3
+24IT301P,Theory of Computation & Compiler Design Laboratory,PC,Lab,0,0,2,1
+24IT301T,Theory of Computation & Compiler Design,PC,Theory,3,0,0,3
+24IT302P,Digital Signal Processing Laboratory,PC,Lab,0,0,2,1
+24IT302T,Digital Signal Processing,PC,Theory,3,0,0,3
+24IT303P,RF Engineering Laboratory,PC,Lab,0,0,2,1
+24IT303T,RF Engineering,PC,Theory,3,0,0,3
+24IT304P,Operating Systems Laboratory,PC,Lab,0,0,2,1
+24IT304T,Operating Systems,PC,Theory,3,0,0,3
+24IT305P,Digital Communication Laboratory,PC,Lab,0,0,2,1
+24IT305T,Digital Communication,PC,Theory,3,0,0,3
+24IT306P,Computer Communication and Networking Laboratory,PC,Lab,0,0,2,1
+24IT306T,Computer Communication and Networking,PC,Theory,3,0,0,3
+24IT331T,Web Technology,PE,Theory,3,0,0,3
+24IT332T,Problem Solving through Java,PE,Theory,3,0,0,3
+24IT333T,Optimization Methods and Algorithms,PE,Theory,3,0,0,3
+24IT334T,Introduction to CMOS and Memory Technology,PE,Theory,3,0,0,3
+24IT335T,Cloud Architecture and Service,PE,Theory,3,0,0,3
+24IT336T,Advanced Web Technology,PE,Theory,3,0,0,3
+24IT337T,Advanced Algorithm Design,PE,Theory,3,0,0,3
+24IT338T,Machine Learning,PE,Theory,3,0,0,3
+24IT339T,Data Warehousing & Mining,PE,Theory,3,0,0,3
+24IT340T,Image Processing,PE,Theory,3,0,0,3
+24IT341T,Statistical Signal Processing,PE,Theory,3,0,0,3
+24IT342T,Hardware Accelerated Computing,PE,Theory,3,0,0,3
+24IT401P,Software Engineering Methodology Laboratory,PC,Lab,0,0,2,1
+24IT401T,Software Engineering Methodology,PC,Theory,3,0,0,3
+24IT402P,Embedded Systems Laboratory,PC,Lab,0,0,2,1
+24IT402T,Embedded Systems,PC,Theory,3,0,0,3
+24IT403P,Digital CMOS and VLSI Design Laboratory,PC,Lab,0,0,2,1
+24IT403T,Digital CMOS and VLSI Design,PC,Theory,3,0,0,3
+24IT431T,Cryptography and Network Security,PE,Theory,3,0,0,3
+24IT432T,Internet of Things,PE,Theory,3,0,0,3
+24IT433T,Blockchain Technology,PE,Theory,3,0,0,3
+24IT434T,Mobile Application Development,PE,Theory,3,0,0,3
+24IT435T,Computer Vision,PE,Theory,3,0,0,3
+24IT436T,Deep Learning and Reinforcement Learning,PE,Theory,3,0,0,3
+24IT437T,Optical Communication,PE,Theory,3,0,0,3
+24IT438T,Modern Wireless Communications,PE,Theory,3,0,0,3
+24IT439T,Autonomous Systems,PE,Theory,3,0,0,3
+24IT440T,Real Time Operating Systems,PE,Theory,3,0,0,3
+24MA101T,Mathematics - I,BSC,Theory,3,1,0,4
+24MA102T,Mathematics for Biotechnology - I,BSC,Theory,3,1,0,4
+24MA103T,Mathematics - II,BSC,Theory,3,1,0,4
+24MA104T,Mathematics for Biotechnology - II,BSC,Theory,3,1,0,4
+24MA201T,Mathematics - III,BSC,Theory,3,1,0,4
+24MA202T,Discrete Mathematics,BSC,Theory,3,1,0,4
+24ME101P,Workshop Practices,ESC,Lab,0,0,2,1
+24ME102P,Engineering Graphics,ESC,Lab,0,0,4,2
+24ME201T,Introduction to Artificial Intelligence,PC,Theory,3,0,0,3
+24ME202T,Engineering Mechanics,PC,Theory,3,0,0,3
+24ME203P,Thermodynamics Laboratory,PC,Lab,0,0,2,1
+24ME203T,Thermodynamics,PC,Theory,3,0,0,3
+24ME204P,Mechanical Measurement and Metrology Laboratory,PC,Lab,0,0,2,1
+24ME204T,Mechanical Measurement and Metrology,PC,Theory,3,0,0,3
+24ME205P,Mechanical Drawing Laboratory,PC,Lab,0,0,2,1
+24ME205T,Industry 4.0,ESC,Theory,2,0,0,2
+24ME206P,Fluid Mechanics Laboratory,PC,Lab,0,0,2,1
+24ME206T,Fluid Mechanics,PC,Theory,3,0,0,3
+24ME207P,Design and Kinematics of Machines Laboratory,PC,Lab,0,0,2,1
+24ME207T,Design and Kinematics of Machines,PC,Theory,3,0,0,3
+24ME208P,Engineering Metallurgy Laboratory,PC,Lab,0,0,2,1
+24ME208T,Engineering Metallurgy,PC,Theory,3,0,0,3
+24ME209P,Strength of Material Laboratory,PC,Lab,0,0,2,1
+24ME209T,Strength of Material,PC,Theory,3,0,0,3
+24ME221T,Renewable Energy,OE,Theory,3,0,0,3
+24ME301P,Heat Transfer Laboratory,PC,Lab,0,0,2,1
+24ME301T,Heat Transfer,PC,Theory,3,0,0,3
+24ME302P,Dynamics of Machine Laboratory,PC,Lab,0,0,2,1
+24ME302T,Dynamics of Machine,PC,Theory,3,0,0,3
+24ME303P,Manufacturing Processes - I Laboratory,PC,Lab,0,0,2,1
+24ME303T,Manufacturing Processes - I,PC,Theory,3,0,0,3
+24ME304P,Refrigeration and Air Conditioning Laboratory,PC,Lab,0,0,2,1
+24ME304T,Refrigeration and Air Conditioning,PC,Theory,3,0,0,3
+24ME305P,Machine Design - I Laboratory,PC,Lab,0,0,2,1
+24ME305T,Machine Design - I,PC,Theory,3,0,0,3
+24ME306P,Manufacturing Processes - II Laboratory,PC,Lab,0,0,2,1
+24ME306T,Manufacturing Processes - II,PC,Theory,3,0,0,3
+24ME307P,Robotics Laboratory,PC,Lab,0,0,2,1
+24ME307T,Robotics,PC,Theory,3,0,0,3
+24ME331T,Introduction to Composite Materials,PE,Theory,3,0,0,3
+24ME332T,Renewable and Sustainable Energy Technologies,PE,Theory,3,0,0,3
+24ME333T,Fluid Machinery,PE,Theory,3,0,0,3
+24ME334T,Laser and Electron Beam Material Processing,PE,Theory,3,0,0,3
+24ME335T,Mechanical Vibration,PE,Theory,3,0,0,3
+24ME336T,Additive Manufacturing,PE,Theory,3,0,0,3
+24ME337T,Production and Operation Management,PE,Theory,3,0,0,3
+24ME338T,Heat Exchanger Design,PE,Theory,3,0,0,3
+24ME401T,Optimization Techniques,PC,Theory,3,0,0,3
+24ME402T,Project Management,PC,Theory,3,0,0,3
+24ME403P,Computational Engineering Laboratory,PC,Lab,0,0,4,2
+24ME431T,Exergy Analysis of Thermal Systems,PE,Theory,3,0,0,3
+24ME432T,Machine Design - II,PE,Theory,3,0,0,3
+24ME433T,Micro and Nano Manufacturing,PE,Theory,3,0,0,3
+24ME434T,Cryogenics,PE,Theory,3,0,0,3
+24ME435T,CAD,PE,Theory,3,0,0,3
+24ME436T,"Welding for Metal Joining, Surfacing and Additive Manufacturing",PE,Theory,3,0,0,3
+24ME437T,Automobile Engineering,PE,Theory,3,0,0,3
+24ME438T,Computer Aided Manufacturing,PE,Theory,3,0,0,3
+24ME439T,Non-Destructive Testing and Failure Analysis,PE,Theory,3,0,0,3
+24ME440T,Material and Procurement Management,PE,Theory,3,0,0,3
+24NCC101,National Cadet Corps (NCC),HSC,Theory,0,0,2,1
+24NSS101,National Service Scheme (NSS),HSC,Theory,0,0,2,1
+24OE201T,Open Elective 1 (From Other School),OE,Theory,3,0,0,3
+24OE301T,Open Elective 3 (From Other Department of FoET),OE,Theory,3,0,0,3
+24OE401T,Open Elective 4 (From Other Department of FoET),OE,Theory,3,0,0,3
+24PH101P,Applied Physics Laboratory,BSC,Lab,0,0,2,1
+24PH101T,Applied Physics,BSC,Theory,3,0,0,3
+24PH102P,Engineering Physics Laboratory,BSC,Lab,0,0,2,1
+24PH102T,Engineering Physics,BSC,Theory,3,0,0,3
+24PH103P,Modern Physics Laboratory,BSC,Lab,0,0,2,1
+24PH103T,Modern Physics,BSC,Theory,3,0,0,3
+24PRCH451,Seminar,PRO,Theory,0,0,0,0
+24PRCH452,Major/Comprehensive Project,PRO,Theory,0,0,26,13
+24PRCS451,Seminar,PRO,Theory,0,0,0,1
+24PRCS452,Major/Comprehensive Project,PRO,Theory,0,0,0,12
+24PRCV451,Seminar,PRO,Theory,0,0,0,1
+24PRCV452,Major/Comprehensive Project,PRO,Theory,0,0,0,12
+24PREC451,Seminar,PRO,Theory,0,0,0,1
+24PREC452,Major/Comprehensive Project,PRO,Theory,0,0,0,12
+24PRIT451,Seminar,PRO,Theory,0,0,0,1
+24PRIT452,Major/Comprehensive Project,PRO,Theory,0,0,0,12
+24PRME451,Seminar,PRO,Theory,0,0,0,1
+24PRME452,Major Project,PRO,Theory,0,0,0,12
+24PRME453,Comprehensive Project,PRO,Theory,0,0,0,12
+24YOG101,"Yoga, Health & Hygiene",HSC,Theory,0,0,2,1
+MOOC,NPTEL / SWAYAM / MOOC Course,OE,Theory,3,0,0,3

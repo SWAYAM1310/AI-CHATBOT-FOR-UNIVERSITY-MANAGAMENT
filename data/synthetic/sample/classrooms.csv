@@ -1,0 +1,86 @@
+id,code,building,capacity,room_type,dept_id
+1,CP-101,A Block,72,Lecture Hall,1
+2,CP-102,A Block,72,Lecture Hall,1
+3,CP-103,A Block,72,Lecture Hall,1
+4,CP-104,A Block,72,Lecture Hall,1
+5,CP-205,A Block,72,Lecture Hall,1
+6,CP-206,A Block,72,Lecture Hall,1
+7,CP-207,A Block,72,Lecture Hall,1
+8,CP-208,A Block,72,Lecture Hall,1
+9,CP-309,A Block,72,Lecture Hall,1
+10,CP-310,A Block,72,Lecture Hall,1
+11,CP-L01,A Block,36,Laboratory,1
+12,CP-L02,A Block,36,Laboratory,1
+13,CP-L03,A Block,36,Laboratory,1
+14,CP-L04,A Block,36,Laboratory,1
+15,CP-L05,A Block,36,Laboratory,1
+16,CP-L06,A Block,36,Laboratory,1
+17,CP-L07,A Block,36,Laboratory,1
+18,CP-L08,A Block,36,Laboratory,1
+19,IT-101,B Block,72,Lecture Hall,2
+20,IT-102,B Block,72,Lecture Hall,2
+21,IT-103,B Block,72,Lecture Hall,2
+22,IT-104,B Block,72,Lecture Hall,2
+23,IT-205,B Block,72,Lecture Hall,2
+24,IT-206,B Block,72,Lecture Hall,2
+25,IT-207,B Block,72,Lecture Hall,2
+26,IT-L01,B Block,36,Laboratory,2
+27,IT-L02,B Block,36,Laboratory,2
+28,IT-L03,B Block,36,Laboratory,2
+29,IT-L04,B Block,36,Laboratory,2
+30,IT-L05,B Block,36,Laboratory,2
+31,IT-L06,B Block,36,Laboratory,2
+32,EC-101,C Block,72,Lecture Hall,3
+33,EC-102,C Block,72,Lecture Hall,3
+34,EC-103,C Block,72,Lecture Hall,3
+35,EC-104,C Block,72,Lecture Hall,3
+36,EC-205,C Block,72,Lecture Hall,3
+37,EC-206,C Block,72,Lecture Hall,3
+38,EC-L01,C Block,36,Laboratory,3
+39,EC-L02,C Block,36,Laboratory,3
+40,EC-L03,C Block,36,Laboratory,3
+41,EC-L04,C Block,36,Laboratory,3
+42,EC-L05,C Block,36,Laboratory,3
+43,EC-L06,C Block,36,Laboratory,3
+44,ME-101,D Block,72,Lecture Hall,4
+45,ME-102,D Block,72,Lecture Hall,4
+46,ME-103,D Block,72,Lecture Hall,4
+47,ME-104,D Block,72,Lecture Hall,4
+48,ME-205,D Block,72,Lecture Hall,4
+49,ME-206,D Block,72,Lecture Hall,4
+50,ME-L01,D Block,36,Laboratory,4
+51,ME-L02,D Block,36,Laboratory,4
+52,ME-L03,D Block,36,Laboratory,4
+53,ME-L04,D Block,36,Laboratory,4
+54,ME-L05,D Block,36,Laboratory,4
+55,ME-L06,D Block,36,Laboratory,4
+56,ME-L07,D Block,36,Laboratory,4
+57,CE-101,E Block,72,Lecture Hall,5
+58,CE-102,E Block,72,Lecture Hall,5
+59,CE-103,E Block,72,Lecture Hall,5
+60,CE-104,E Block,72,Lecture Hall,5
+61,CE-205,E Block,72,Lecture Hall,5
+62,CE-206,E Block,72,Lecture Hall,5
+63,CE-L01,E Block,36,Laboratory,5
+64,CE-L02,E Block,36,Laboratory,5
+65,CE-L03,E Block,36,Laboratory,5
+66,CE-L04,E Block,36,Laboratory,5
+67,CE-L05,E Block,36,Laboratory,5
+68,CH-101,F Block,72,Lecture Hall,6
+69,CH-102,F Block,72,Lecture Hall,6
+70,CH-103,F Block,72,Lecture Hall,6
+71,CH-104,F Block,72,Lecture Hall,6
+72,CH-205,F Block,72,Lecture Hall,6
+73,CH-206,F Block,72,Lecture Hall,6
+74,CH-L01,F Block,36,Laboratory,6
+75,CH-L02,F Block,36,Laboratory,6
+76,CH-L03,F Block,36,Laboratory,6
+77,CH-L04,F Block,36,Laboratory,6
+78,CH-L05,F Block,36,Laboratory,6
+79,SEM-01,Central Block,40,Seminar Hall,7
+80,SEM-02,Central Block,40,Seminar Hall,7
+81,SEM-03,Central Block,40,Seminar Hall,7
+82,EXAM-H1,Central Block,120,Examination Hall,7
+83,EXAM-H2,Central Block,120,Examination Hall,7
+84,EXAM-H3,Central Block,120,Examination Hall,7
+85,EXAM-H4,Central Block,120,Examination Hall,7

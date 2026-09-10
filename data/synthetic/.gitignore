@@ -1,0 +1,4 @@
+# Full generated dataset — ~94 MB, reproducible from a fixed seed via
+#   python scripts/generate_synthetic_data.py
+# The committed `sample/` set is enough for tests and code review.
+/*.csv

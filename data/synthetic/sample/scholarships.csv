@@ -1,0 +1,21 @@
+id,student_id,roll_no,name,amount,term,status,applied_on,decided_on
+1,2,25BCP002,EWS Tuition Assistance,25000,2026-27-ODD,approved,2026-07-31,2026-08-05
+2,7,25BCP007,PDEU Merit Scholarship,30000,2026-27-ODD,disbursed,2026-06-28,2026-08-17
+3,11,25BCP011,SC/ST Post-Matric Scholarship,35000,2026-27-ODD,rejected,2026-07-06,2026-08-09
+4,12,25BCP012,MYSY (Mukhyamantri Yuva Swavalamban Yojana),50000,2026-27-ODD,pending,2026-07-23,
+5,19,25BIT003,EWS Tuition Assistance,25000,2026-27-ODD,pending,2026-08-07,
+6,22,25BIT006,MYSY (Mukhyamantri Yuva Swavalamban Yojana),50000,2026-27-ODD,approved,2026-07-12,2026-08-10
+7,25,25BIT009,MYSY (Mukhyamantri Yuva Swavalamban Yojana),50000,2026-27-ODD,approved,2026-07-16,2026-08-25
+8,38,25BME006,Sports Excellence Scholarship,20000,2026-27-ODD,pending,2026-06-28,
+9,39,25BCE001,MYSY (Mukhyamantri Yuva Swavalamban Yojana),50000,2026-27-ODD,disbursed,2026-07-20,2026-08-02
+10,41,25BCE003,Sports Excellence Scholarship,20000,2026-27-ODD,approved,2026-07-25,2026-08-13
+11,55,26BCP005,Girl Child Education Grant,15000,2026-27-ODD,disbursed,2026-08-10,2026-08-10
+12,58,26BCP008,Girl Child Education Grant,15000,2026-27-ODD,disbursed,2026-07-20,2026-08-22
+13,61,26BCP011,Merit-cum-Means Scholarship,40000,2026-27-ODD,disbursed,2026-07-02,2026-08-25
+14,64,26BCP014,Merit-cum-Means Scholarship,40000,2026-27-ODD,disbursed,2026-07-10,2026-08-03
+15,66,26BCP016,SC/ST Post-Matric Scholarship,35000,2026-27-ODD,approved,2026-07-11,2026-08-22
+16,67,26BIT001,Merit-cum-Means Scholarship,40000,2026-27-ODD,disbursed,2026-08-02,2026-08-06
+17,70,26BIT004,Sports Excellence Scholarship,20000,2026-27-ODD,approved,2026-07-13,2026-08-10
+18,78,26BEC002,PDEU Merit Scholarship,30000,2026-27-ODD,approved,2026-07-16,2026-08-05
+19,91,26BCE003,EWS Tuition Assistance,25000,2026-27-ODD,rejected,2026-07-11,2026-08-10
+20,99,26BCH005,MYSY (Mukhyamantri Yuva Swavalamban Yojana),50000,2026-27-ODD,pending,2026-07-25,

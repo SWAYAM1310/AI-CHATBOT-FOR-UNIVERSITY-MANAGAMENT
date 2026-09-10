@@ -1,0 +1,24 @@
+id,student_id,roll_no,from_date,to_date,reason,status,applied_on,decided_by,decided_on
+1,3,25BCP003,2026-09-02,2026-09-04,Grandfather's health emergency,pending,2026-08-24,,
+2,5,25BCP005,2026-07-09,2026-07-12,Religious pilgrimage with family,rejected,2026-07-02,1,2026-07-15
+3,7,25BCP007,2026-08-10,2026-08-13,"Fever and viral infection, advised rest by doctor",approved,2026-08-07,1,2026-08-16
+4,13,25BCP013,2026-07-09,2026-07-11,"Sister's wedding, out of town",approved,2026-06-29,2,2026-07-12
+5,14,25BCP014,2026-08-16,2026-08-18,Family function at native place,approved,2026-08-07,2,2026-08-20
+6,20,25BIT004,2026-09-09,2026-09-10,Dental surgery and recovery,pending,2026-09-06,,
+7,26,25BIT010,2026-07-28,2026-07-29,Passport appointment and document verification,pending,2026-07-25,,
+8,28,25BEC002,2026-07-02,2026-07-05,"Sister's wedding, out of town",approved,2026-06-26,12,2026-07-08
+9,34,25BME002,2026-07-09,2026-07-11,"Sister's wedding, out of town",pending,2026-06-29,,
+10,37,25BME005,2026-07-20,2026-07-24,Represented college at inter-university sports meet,rejected,2026-07-11,16,2026-07-26
+11,41,25BCE003,2026-07-20,2026-07-21,Passport appointment and document verification,approved,2026-07-10,19,2026-07-26
+12,46,25BCH002,2026-07-26,2026-07-28,Dental surgery and recovery,approved,2026-07-24,21,2026-07-30
+13,52,26BCP002,2026-07-31,2026-08-04,"Fever and viral infection, advised rest by doctor",approved,2026-07-25,1,2026-08-05
+14,53,26BCP003,2026-07-05,2026-07-08,Passport appointment and document verification,approved,2026-06-27,4,2026-07-10
+15,54,26BCP004,2026-07-11,2026-07-14,Grandfather's health emergency,approved,2026-07-05,2,2026-07-16
+16,61,26BCP011,2026-07-18,2026-07-18,Passport appointment and document verification,approved,2026-07-13,3,2026-07-20
+17,62,26BCP012,2026-08-15,2026-08-15,Represented college at inter-university sports meet,rejected,2026-08-09,2,2026-08-17
+18,72,26BIT006,2026-08-09,2026-08-10,Religious pilgrimage with family,approved,2026-08-03,7,2026-08-15
+19,75,26BIT009,2026-08-04,2026-08-05,Passport appointment and document verification,approved,2026-07-26,8,2026-08-09
+20,77,26BEC001,2026-07-23,2026-07-24,"Fever and viral infection, advised rest by doctor",pending,2026-07-19,,
+21,78,26BEC002,2026-08-19,2026-08-20,Represented college at inter-university sports meet,approved,2026-08-12,12,2026-08-22
+22,79,26BEC003,2026-08-16,2026-08-17,"Fever and viral infection, advised rest by doctor",approved,2026-08-14,9,2026-08-22
+23,92,26BCE004,2026-07-19,2026-07-20,Dental surgery and recovery,approved,2026-07-10,17,2026-07-24
