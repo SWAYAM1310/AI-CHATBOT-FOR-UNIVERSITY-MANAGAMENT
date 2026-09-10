@@ -1,1031 +1,1031 @@
 id,offering_id,subject_code,term,type,title,max_marks,weightage_pct,due_date,status
 1,1,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-10-01,scheduled
-2,2,24MA202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+2,2,24MA202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
 3,2,24MA202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
-4,2,24MA202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
+4,2,24MA202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
 5,2,24MA202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
 6,2,24MA202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-7,2,24MA202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-8,3,24CS201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+7,2,24MA202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+8,3,24CS201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
 9,3,24CS201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-10,3,24CS201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+10,3,24CS201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
 11,3,24CS201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-12,3,24CS201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-13,3,24CS201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+12,3,24CS201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+13,3,24CS201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
 14,4,24CS201P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-15,4,24CS201P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-16,5,24CS201P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
-17,5,24CS201P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+15,4,24CS201P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+16,5,24CS201P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
+17,5,24CS201P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
 18,6,24CS202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-19,6,24CS202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-20,6,24CS202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-21,6,24CS202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-22,6,24CS202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-23,6,24CS202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-24,7,24CS203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-25,7,24CS203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+19,6,24CS202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+20,6,24CS202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+21,6,24CS202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+22,6,24CS202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
+23,6,24CS202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+24,7,24CS203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
+25,7,24CS203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
 26,7,24CS203T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-27,7,24CS203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-28,7,24CS203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-29,7,24CS203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
-30,8,24CS203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-31,8,24CS203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-32,9,24CS203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-33,9,24CS203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
-34,10,24CS204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-35,10,24CS204T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-36,10,24CS204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-37,10,24CS204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+27,7,24CS203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+28,7,24CS203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
+29,7,24CS203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+30,8,24CS203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+31,8,24CS203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+32,9,24CS203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+33,9,24CS203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+34,10,24CS204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+35,10,24CS204T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+36,10,24CS204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+37,10,24CS204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
 38,10,24CS204T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
 39,10,24CS204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-40,11,24CS204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-41,11,24CS204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
-42,12,24CS204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-43,12,24CS204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
+40,11,24CS204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+41,11,24CS204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+42,12,24CS204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+43,12,24CS204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
 44,13,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
-45,13,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-46,13,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-47,13,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-48,13,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-49,13,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+45,13,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+46,13,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+47,13,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+48,13,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+49,13,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
 50,14,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-51,14,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-52,14,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-53,14,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+51,14,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+52,14,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+53,14,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
 54,14,24MA101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-55,14,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-56,15,24PH102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-57,15,24PH102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
+55,14,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+56,15,24PH102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
+57,15,24PH102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
 58,15,24PH102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
 59,15,24PH102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-60,15,24PH102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-61,15,24PH102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-62,16,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
-63,16,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-64,17,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-65,17,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-66,18,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-67,18,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
-68,18,24CV101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+60,15,24PH102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+61,15,24PH102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+62,16,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+63,16,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
+64,17,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+65,17,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+66,18,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+67,18,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+68,18,24CV101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
 69,18,24CV101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-70,18,24CV101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-71,18,24CV101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
-72,19,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-73,19,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+70,18,24CV101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
+71,18,24CV101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+72,19,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+73,19,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
 74,20,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
 75,20,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
-76,21,24ME102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-77,21,24ME102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
-78,22,24ME102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-79,22,24ME102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-80,23,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
-81,23,24CP101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-82,23,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+76,21,24ME102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+77,21,24ME102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+78,22,24ME102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+79,22,24ME102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+80,23,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
+81,23,24CP101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+82,23,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
 83,23,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
 84,23,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
 85,23,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-86,24,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-87,24,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-88,25,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-89,25,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+86,24,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+87,24,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+88,25,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+89,25,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
 90,26,24HS102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-91,26,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-92,26,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+91,26,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+92,26,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
 93,26,24HS102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-94,26,24HS102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-95,26,24HS102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-96,27,24HS103T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
-97,27,24HS103T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
-98,27,24HS103T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-99,27,24HS103T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-100,27,24HS103T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-101,27,24HS103T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
-102,28,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-10-03,scheduled
-103,29,24IT201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-104,29,24IT201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-105,29,24IT201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-106,29,24IT201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-107,29,24IT201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+94,26,24HS102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
+95,26,24HS102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+96,27,24HS103T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+97,27,24HS103T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
+98,27,24HS103T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+99,27,24HS103T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+100,27,24HS103T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+101,27,24HS103T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+102,28,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-10-01,scheduled
+103,29,24IT201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+104,29,24IT201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+105,29,24IT201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
+106,29,24IT201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+107,29,24IT201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
 108,29,24IT201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
 109,30,24IT202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
 110,30,24IT202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-111,30,24IT202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
+111,30,24IT202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
 112,30,24IT202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
 113,30,24IT202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-114,30,24IT202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+114,30,24IT202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
 115,31,24IT202P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-116,31,24IT202P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+116,31,24IT202P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
 117,32,24IT202P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
 118,32,24IT202P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
 119,33,24IT203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
-120,33,24IT203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+120,33,24IT203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
 121,33,24IT203T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-122,33,24IT203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-123,33,24IT203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
-124,33,24IT203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-125,34,24IT203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-126,34,24IT203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-127,35,24IT203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-128,35,24IT203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
-129,36,24IT204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+122,33,24IT203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+123,33,24IT203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+124,33,24IT203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+125,34,24IT203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
+126,34,24IT203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+127,35,24IT203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+128,35,24IT203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+129,36,24IT204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
 130,36,24IT204T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
 131,36,24IT204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
 132,36,24IT204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
 133,36,24IT204T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-134,36,24IT204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-135,37,24IT205T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-136,37,24IT205T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+134,36,24IT204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+135,37,24IT205T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+136,37,24IT205T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
 137,37,24IT205T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
 138,37,24IT205T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-139,37,24IT205T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+139,37,24IT205T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
 140,37,24IT205T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
 141,38,24MA202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-142,38,24MA202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-143,38,24MA202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-144,38,24MA202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-145,38,24MA202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
+142,38,24MA202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+143,38,24MA202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+144,38,24MA202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+145,38,24MA202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
 146,38,24MA202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-147,39,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-148,39,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
-149,39,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
-150,39,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-151,39,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-152,39,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-153,40,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-154,40,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+147,39,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+148,39,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+149,39,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
+150,39,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+151,39,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+152,39,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+153,40,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+154,40,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
 155,40,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-156,40,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-157,40,24MA101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+156,40,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+157,40,24MA101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
 158,40,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
 159,41,24PH102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-160,41,24PH102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-161,41,24PH102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-162,41,24PH102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-163,41,24PH102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-164,41,24PH102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-165,42,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
+160,41,24PH102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+161,41,24PH102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
+162,41,24PH102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+163,41,24PH102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+164,41,24PH102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+165,42,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
 166,42,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-167,43,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+167,43,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
 168,43,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-169,44,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-170,44,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-171,44,24CV101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-172,44,24CV101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-173,44,24CV101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
-174,44,24CV101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-175,45,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-176,45,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
-177,46,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+169,44,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+170,44,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+171,44,24CV101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+172,44,24CV101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+173,44,24CV101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+174,44,24CV101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+175,45,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+176,45,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+177,46,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
 178,46,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-179,47,24BT102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-180,47,24BT102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-181,47,24BT102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-182,47,24BT102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-183,47,24BT102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+179,47,24BT102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+180,47,24BT102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+181,47,24BT102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+182,47,24BT102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+183,47,24BT102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
 184,47,24BT102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-185,48,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+185,48,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
 186,48,24CP101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
 187,48,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
-188,48,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-189,48,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-190,48,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+188,48,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+189,48,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+190,48,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
 191,49,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-192,49,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
-193,50,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-194,50,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-195,51,24HS102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-196,51,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
-197,51,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-198,51,24HS102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-199,51,24HS102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-200,51,24HS102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-201,52,24HS103T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-202,52,24HS103T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-203,52,24HS103T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-204,52,24HS103T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-205,52,24HS103T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
-206,52,24HS103T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-207,53,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-09-30,scheduled
-208,54,24EC201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-209,54,24EC201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+192,49,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+193,50,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+194,50,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+195,51,24HS102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
+196,51,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+197,51,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+198,51,24HS102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+199,51,24HS102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+200,51,24HS102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+201,52,24HS103T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
+202,52,24HS103T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+203,52,24HS103T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
+204,52,24HS103T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+205,52,24HS103T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
+206,52,24HS103T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+207,53,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-10-01,scheduled
+208,54,24EC201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+209,54,24EC201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
 210,54,24EC201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
 211,54,24EC201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
 212,54,24EC201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
-213,54,24EC201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-214,55,24EC202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+213,54,24EC201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+214,55,24EC202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
 215,55,24EC202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-216,55,24EC202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-217,55,24EC202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-218,55,24EC202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-219,55,24EC202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-220,56,24EC202P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
+216,55,24EC202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+217,55,24EC202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+218,55,24EC202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+219,55,24EC202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+220,56,24EC202P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
 221,56,24EC202P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-222,57,24EC202P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-223,57,24EC202P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-224,58,24EC203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-225,58,24EC203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
-226,58,24EC203T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-227,58,24EC203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-228,58,24EC203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+222,57,24EC202P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+223,57,24EC202P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+224,58,24EC203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+225,58,24EC203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+226,58,24EC203T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+227,58,24EC203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+228,58,24EC203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
 229,58,24EC203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-230,59,24EC203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-231,59,24EC203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
+230,59,24EC203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+231,59,24EC203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
 232,60,24EC203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-233,60,24EC203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
-234,61,24EC204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-235,61,24EC204T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
-236,61,24EC204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
-237,61,24EC204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+233,60,24EC203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+234,61,24EC204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+235,61,24EC204T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
+236,61,24EC204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+237,61,24EC204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
 238,61,24EC204T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
-239,61,24EC204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-240,62,24MA201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+239,61,24EC204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+240,62,24MA201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
 241,62,24MA201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-242,62,24MA201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-243,62,24MA201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+242,62,24MA201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+243,62,24MA201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
 244,62,24MA201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-245,62,24MA201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-246,63,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+245,62,24MA201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+246,63,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
 247,63,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-248,63,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+248,63,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
 249,63,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-250,63,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-251,63,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+250,63,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+251,63,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
 252,64,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-253,64,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
-254,64,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
-255,64,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+253,64,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+254,64,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+255,64,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
 256,64,24MA101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-257,64,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-258,65,24PH101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-259,65,24PH101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-260,65,24PH101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-261,65,24PH101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-262,65,24PH101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-263,65,24PH101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-264,66,24PH101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-265,66,24PH101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
-266,67,24PH101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-267,67,24PH101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-268,68,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-269,68,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-270,68,24CV101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+257,64,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+258,65,24PH101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+259,65,24PH101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+260,65,24PH101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+261,65,24PH101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+262,65,24PH101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+263,65,24PH101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+264,66,24PH101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+265,66,24PH101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+266,67,24PH101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
+267,67,24PH101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+268,68,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+269,68,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+270,68,24CV101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
 271,68,24CV101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-272,68,24CV101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+272,68,24CV101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
 273,68,24CV101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-274,69,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-275,69,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
-276,70,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-277,70,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
-278,71,24BT102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-279,71,24BT102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-280,71,24BT102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-281,71,24BT102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-282,71,24BT102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+274,69,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+275,69,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+276,70,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+277,70,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+278,71,24BT102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+279,71,24BT102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+280,71,24BT102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+281,71,24BT102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+282,71,24BT102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
 283,71,24BT102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-284,72,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+284,72,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
 285,72,24CP101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-286,72,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
-287,72,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-288,72,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-289,72,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-290,73,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
-291,73,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
-292,74,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
-293,74,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-294,75,24HS102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-295,75,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-296,75,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-297,75,24HS102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-298,75,24HS102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+286,72,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+287,72,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+288,72,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+289,72,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+290,73,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+291,73,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
+292,74,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+293,74,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
+294,75,24HS102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+295,75,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+296,75,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+297,75,24HS102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+298,75,24HS102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
 299,75,24HS102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
 300,76,24HS103T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
 301,76,24HS103T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-302,76,24HS103T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+302,76,24HS103T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
 303,76,24HS103T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-304,76,24HS103T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-305,76,24HS103T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-306,77,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-09-30,scheduled
-307,78,24MA201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-308,78,24MA201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+304,76,24HS103T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+305,76,24HS103T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+306,77,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-09-29,scheduled
+307,78,24MA201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+308,78,24MA201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
 309,78,24MA201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-310,78,24MA201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-311,78,24MA201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-312,78,24MA201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-313,79,24ME201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-314,79,24ME201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-315,79,24ME201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-316,79,24ME201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-317,79,24ME201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-318,79,24ME201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-319,80,24ME202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-320,80,24ME202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-321,80,24ME202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-322,80,24ME202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-323,80,24ME202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-324,80,24ME202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-325,81,24ME203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
-326,81,24ME203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
+310,78,24MA201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+311,78,24MA201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+312,78,24MA201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+313,79,24ME201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+314,79,24ME201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+315,79,24ME201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+316,79,24ME201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+317,79,24ME201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+318,79,24ME201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+319,80,24ME202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+320,80,24ME202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+321,80,24ME202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+322,80,24ME202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+323,80,24ME202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+324,80,24ME202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+325,81,24ME203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+326,81,24ME203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
 327,81,24ME203T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-328,81,24ME203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-329,81,24ME203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
-330,81,24ME203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
-331,82,24ME203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-332,82,24ME203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-333,83,24ME203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-334,83,24ME203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
-335,84,24ME204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+328,81,24ME203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+329,81,24ME203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+330,81,24ME203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+331,82,24ME203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+332,82,24ME203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+333,83,24ME203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+334,83,24ME203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+335,84,24ME204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
 336,84,24ME204T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-337,84,24ME204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
-338,84,24ME204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-339,84,24ME204T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+337,84,24ME204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+338,84,24ME204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+339,84,24ME204T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
 340,84,24ME204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-341,85,24ME204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-342,85,24ME204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-343,86,24ME204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-344,86,24ME204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-345,87,24ME205P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-346,87,24ME205P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
-347,88,24ME205P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-348,88,24ME205P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
-349,89,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-350,89,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
-351,89,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-352,89,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+341,85,24ME204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+342,85,24ME204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+343,86,24ME204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+344,86,24ME204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+345,87,24ME205P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
+346,87,24ME205P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
+347,88,24ME205P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
+348,88,24ME205P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+349,89,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+350,89,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
+351,89,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+352,89,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
 353,89,24MA101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-354,89,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
-355,90,24PH102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-356,90,24PH102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+354,89,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+355,90,24PH102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+356,90,24PH102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
 357,90,24PH102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-358,90,24PH102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+358,90,24PH102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
 359,90,24PH102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-360,90,24PH102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-361,91,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-362,91,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-363,92,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+360,90,24PH102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+361,91,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+362,91,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+363,92,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
 364,92,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
-365,93,24BT102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-366,93,24BT102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+365,93,24BT102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+366,93,24BT102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
 367,93,24BT102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-368,93,24BT102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-369,93,24BT102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
-370,93,24BT102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-371,94,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-372,94,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+368,93,24BT102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+369,93,24BT102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+370,93,24BT102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+371,94,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+372,94,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
 373,94,24CV101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-374,94,24CV101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-375,94,24CV101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+374,94,24CV101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+375,94,24CV101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
 376,94,24CV101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-377,95,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-378,95,24CP101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-379,95,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-380,95,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-381,95,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-382,95,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-383,96,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
-384,96,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+377,95,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+378,95,24CP101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+379,95,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+380,95,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+381,95,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+382,95,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+383,96,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
+384,96,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
 385,97,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-386,97,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+386,97,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
 387,98,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-388,98,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+388,98,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
 389,99,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-390,99,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-391,100,24ME102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
+390,99,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+391,100,24ME102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
 392,100,24ME102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
-393,101,24ME102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
+393,101,24ME102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
 394,101,24ME102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
-395,102,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-396,102,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
-397,102,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-398,102,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-399,102,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+395,102,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+396,102,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+397,102,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+398,102,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+399,102,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
 400,102,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-401,103,24HS102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-402,103,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-403,103,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-404,103,24HS102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+401,103,24HS102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+402,103,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+403,103,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+404,103,24HS102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
 405,103,24HS102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
-406,103,24HS102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-407,104,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-10-01,scheduled
-408,105,24MA201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+406,103,24HS102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+407,104,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-10-02,scheduled
+408,105,24MA201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
 409,105,24MA201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-410,105,24MA201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-411,105,24MA201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-412,105,24MA201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-413,105,24MA201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
-414,106,24CV201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
-415,106,24CV201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-416,106,24CV201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
+410,105,24MA201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+411,105,24MA201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+412,105,24MA201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+413,105,24MA201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+414,106,24CV201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+415,106,24CV201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+416,106,24CV201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
 417,106,24CV201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-418,106,24CV201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-419,106,24CV201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-420,107,24CV202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-421,107,24CV202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
-422,107,24CV202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-423,107,24CV202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+418,106,24CV201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
+419,106,24CV201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+420,107,24CV202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+421,107,24CV202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+422,107,24CV202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+423,107,24CV202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
 424,107,24CV202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
 425,107,24CV202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-426,108,24CV203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-427,108,24CV203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+426,108,24CV203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+427,108,24CV203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
 428,108,24CV203T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-429,108,24CV203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-430,108,24CV203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
-431,108,24CV203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-432,109,24CV204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+429,108,24CV203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+430,108,24CV203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+431,108,24CV203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+432,109,24CV204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
 433,109,24CV204T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-434,109,24CV204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-435,109,24CV204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-436,109,24CV204T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-437,109,24CV204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+434,109,24CV204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+435,109,24CV204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+436,109,24CV204T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+437,109,24CV204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
 438,110,24CV205T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-439,110,24CV205T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+439,110,24CV205T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
 440,110,24CV205T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-441,110,24CV205T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+441,110,24CV205T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
 442,110,24CV205T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
 443,110,24CV205T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-444,111,24CV206P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-445,111,24CV206P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-446,112,24CV206P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-447,112,24CV206P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-448,113,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-449,113,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-450,113,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-451,113,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-452,113,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-453,113,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-454,114,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-455,114,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
+444,111,24CV206P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
+445,111,24CV206P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+446,112,24CV206P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
+447,112,24CV206P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+448,113,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
+449,113,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+450,113,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+451,113,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+452,113,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+453,113,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+454,114,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+455,114,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
 456,114,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
-457,114,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
+457,114,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
 458,114,24MA101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
-459,114,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
-460,115,24PH102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
-461,115,24PH102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
-462,115,24PH102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-463,115,24PH102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+459,114,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+460,115,24PH102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+461,115,24PH102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+462,115,24PH102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+463,115,24PH102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
 464,115,24PH102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
-465,115,24PH102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
-466,116,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
-467,116,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
-468,117,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-469,117,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
-470,118,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-471,118,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-472,118,24CV101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-473,118,24CV101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+465,115,24PH102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
+466,116,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+467,116,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+468,117,24PH102P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+469,117,24PH102P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+470,118,24CV101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+471,118,24CV101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
+472,118,24CV101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+473,118,24CV101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
 474,118,24CV101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-475,118,24CV101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+475,118,24CV101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
 476,119,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-477,119,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
-478,120,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
-479,120,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-480,121,24BT102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-481,121,24BT102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-482,121,24BT102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+477,119,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+478,120,24ME101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+479,120,24ME101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+480,121,24BT102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+481,121,24BT102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+482,121,24BT102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
 483,121,24BT102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-484,121,24BT102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-485,121,24BT102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
-486,122,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-487,122,24CP101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+484,121,24BT102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+485,121,24BT102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+486,122,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+487,122,24CP101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
 488,122,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-489,122,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+489,122,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
 490,122,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
-491,122,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+491,122,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
 492,123,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-493,123,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-494,124,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-495,124,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
-496,125,24HS102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
-497,125,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-498,125,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-499,125,24HS102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-500,125,24HS102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-501,125,24HS102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-502,126,24HS103T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+493,123,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+494,124,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
+495,124,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+496,125,24HS102T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+497,125,24HS102T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+498,125,24HS102T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+499,125,24HS102T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+500,125,24HS102T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+501,125,24HS102T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+502,126,24HS103T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
 503,126,24HS103T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-504,126,24HS103T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-505,126,24HS103T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-506,126,24HS103T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-507,126,24HS103T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-508,127,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-10-02,scheduled
-509,128,24MA201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-510,128,24MA201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-511,128,24MA201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
+504,126,24HS103T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+505,126,24HS103T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+506,126,24HS103T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
+507,126,24HS103T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+508,127,24INT151,2026-27-ODD,Term-Work,Term Work Evaluation,100,100,2026-10-03,scheduled
+509,128,24MA201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+510,128,24MA201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+511,128,24MA201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
 512,128,24MA201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-513,128,24MA201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-514,128,24MA201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+513,128,24MA201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+514,128,24MA201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
 515,129,24CH201T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
-516,129,24CH201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+516,129,24CH201T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
 517,129,24CH201T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-518,129,24CH201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-519,129,24CH201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-520,129,24CH201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-521,130,24CH202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-522,130,24CH202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-523,130,24CH202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-524,130,24CH202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+518,129,24CH201T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+519,129,24CH201T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+520,129,24CH201T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+521,130,24CH202T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+522,130,24CH202T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+523,130,24CH202T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+524,130,24CH202T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
 525,130,24CH202T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
-526,130,24CH202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
+526,130,24CH202T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
 527,131,24CH203T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-528,131,24CH203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
+528,131,24CH203T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-10,graded
 529,131,24CH203T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
 530,131,24CH203T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-531,131,24CH203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+531,131,24CH203T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
 532,131,24CH203T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-533,132,24CH203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
-534,132,24CH203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-535,133,24CH203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-536,133,24CH203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
-537,134,24CH204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+533,132,24CH203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+534,132,24CH203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
+535,133,24CH203P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
+536,133,24CH203P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+537,134,24CH204T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
 538,134,24CH204T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-539,134,24CH204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-540,134,24CH204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-541,134,24CH204T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-542,134,24CH204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-543,135,24CH204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-544,135,24CH204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
-545,136,24CH204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-546,136,24CH204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-547,137,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+539,134,24CH204T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+540,134,24CH204T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+541,134,24CH204T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+542,134,24CH204T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+543,135,24CH204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+544,135,24CH204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
+545,136,24CH204P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+546,136,24CH204P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+547,137,24MA101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
 548,137,24MA101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-549,137,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-550,137,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-551,137,24MA101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+549,137,24MA101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
+550,137,24MA101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
+551,137,24MA101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
 552,137,24MA101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-553,138,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-554,138,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-555,138,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-556,138,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-557,138,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-558,138,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-559,139,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+553,138,24HS101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
+554,138,24HS101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
+555,138,24HS101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+556,138,24HS101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
+557,138,24HS101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+558,138,24HS101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+559,139,24CP101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-01,graded
 560,139,24CP101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
-561,139,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
-562,139,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-15,graded
-563,139,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+561,139,24CP101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+562,139,24CP101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+563,139,24CP101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
 564,139,24CP101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
 565,140,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-566,140,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
-567,141,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-568,141,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
-569,142,24CH101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-570,142,24CH101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-571,142,24CH101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-572,142,24CH101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-573,142,24CH101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
+566,140,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-06,scheduled
+567,141,24CP101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-18,graded
+568,141,24CP101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+569,142,24CH101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+570,142,24CH101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
+571,142,24CH101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+572,142,24CH101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+573,142,24CH101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
 574,142,24CH101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-575,143,24CH101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-20,graded
-576,143,24CH101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-10,scheduled
+575,143,24CH101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+576,143,24CH101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
 577,144,24CH101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-22,graded
-578,144,24CH101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-579,145,24EE101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-580,145,24EE101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-09,graded
-581,145,24EE101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
-582,145,24EE101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-583,145,24EE101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
-584,145,24EE101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-585,146,24EE101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+578,144,24CH101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+579,145,24EE101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
+580,145,24EE101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+581,145,24EE101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+582,145,24EE101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+583,145,24EE101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+584,145,24EE101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+585,146,24EE101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
 586,146,24EE101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-08,scheduled
-587,147,24EE101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-19,graded
-588,147,24EE101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-09,scheduled
-589,148,24BT101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-03,graded
-590,148,24BT101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
+587,147,24EE101P,2026-27-ODD,Lab-CIE,Lab Continuous Evaluation,50,60,2026-08-21,graded
+588,147,24EE101P,2026-27-ODD,Lab-Exam,Lab End Examination,50,40,2026-10-07,scheduled
+589,148,24BT101T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+590,148,24BT101T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
 591,148,24BT101T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
-592,148,24BT101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
-593,148,24BT101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
-594,148,24BT101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
-595,149,24HS104T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
+592,148,24BT101T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+593,148,24BT101T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+594,148,24BT101T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
+595,149,24HS104T,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
 596,149,24HS104T,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
-597,149,24HS104T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-598,149,24HS104T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-599,149,24HS104T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
-600,149,24HS104T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
-601,150,24YOG101,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
-602,150,24YOG101,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
-603,150,24YOG101,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
-604,150,24YOG101,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-12,graded
-605,150,24YOG101,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
-606,150,24YOG101,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+597,149,24HS104T,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
+598,149,24HS104T,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
+599,149,24HS104T,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-04,scheduled
+600,149,24HS104T,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+601,150,24YOG101,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
+602,150,24YOG101,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+603,150,24YOG101,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-23,graded
+604,150,24YOG101,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+605,150,24YOG101,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
+606,150,24YOG101,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-17,scheduled
 607,151,24NSS101,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-04,graded
-608,151,24NSS101,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-07,graded
-609,151,24NSS101,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-24,graded
+608,151,24NSS101,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-11,graded
+609,151,24NSS101,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-21,graded
 610,151,24NSS101,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-11,graded
-611,151,24NSS101,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-02,scheduled
-612,151,24NSS101,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-15,scheduled
-613,152,24NCC101,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-07-02,graded
+611,151,24NSS101,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-05,scheduled
+612,151,24NSS101,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-14,scheduled
+613,152,24NCC101,2026-27-ODD,Quiz-1,Quiz 1,10,5,2026-06-30,graded
 614,152,24NCC101,2026-27-ODD,Assignment-1,Assignment 1,10,7,2026-07-08,graded
-615,152,24NCC101,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-25,graded
-616,152,24NCC101,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-13,graded
-617,152,24NCC101,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-01,scheduled
-618,152,24NCC101,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-13,scheduled
-619,153,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
-620,153,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
-621,153,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-622,153,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
-623,153,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
+615,152,24NCC101,2026-27-ODD,Internal-1,Internal Test 1,20,15,2026-07-22,graded
+616,152,24NCC101,2026-27-ODD,Assignment-2,Assignment 2,10,8,2026-08-14,graded
+617,152,24NCC101,2026-27-ODD,Internal-2,Internal Test 2,20,15,2026-09-03,scheduled
+618,152,24NCC101,2026-27-ODD,End-Sem,End Semester Exam,100,40,2026-10-16,scheduled
+619,153,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+620,153,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+621,153,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
+622,153,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+623,153,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
 624,153,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
 625,154,24MA103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-626,154,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
-627,154,24MA103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
-628,154,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
+626,154,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+627,154,24MA103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+628,154,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
 629,154,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
-630,154,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-631,155,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
-632,155,24CH101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
-633,155,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
-634,155,24CH101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-635,155,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-636,155,24CH101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
-637,156,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-638,156,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
-639,157,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
-640,157,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
-641,158,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-642,158,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+630,154,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
+631,155,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+632,155,24CH101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+633,155,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+634,155,24CH101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+635,155,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
+636,155,24CH101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+637,156,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
+638,156,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
+639,157,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
+640,157,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
+641,158,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
+642,158,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
 643,158,24EE101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
-644,158,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+644,158,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
 645,158,24EE101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
-646,158,24EE101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
-647,159,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
+646,158,24EE101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+647,159,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
 648,159,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
 649,160,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
-650,160,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
-651,161,24BT101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-652,161,24BT101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
-653,161,24BT101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
-654,161,24BT101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
-655,161,24BT101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
+650,160,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+651,161,24BT101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
+652,161,24BT101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+653,161,24BT101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
+654,161,24BT101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
+655,161,24BT101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
 656,161,24BT101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
-657,162,24YOG101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+657,162,24YOG101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
 658,162,24YOG101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
-659,162,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
-660,162,24YOG101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
-661,162,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-662,162,24YOG101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
+659,162,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+660,162,24YOG101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
+661,162,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
+662,162,24YOG101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
 663,163,24NCC101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
 664,163,24NCC101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
 665,163,24NCC101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
-666,163,24NCC101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
-667,163,24NCC101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
-668,163,24NCC101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
-669,164,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
-670,164,24NSS101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
-671,164,24NSS101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
-672,164,24NSS101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
-673,164,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-674,164,24NSS101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
-675,165,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-676,165,24HS104T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+666,163,24NCC101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
+667,163,24NCC101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+668,163,24NCC101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+669,164,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
+670,164,24NSS101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+671,164,24NSS101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+672,164,24NSS101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+673,164,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+674,164,24NSS101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+675,165,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+676,165,24HS104T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
 677,165,24HS104T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-678,165,24HS104T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-679,165,24HS104T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
+678,165,24HS104T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
+679,165,24HS104T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
 680,165,24HS104T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-681,166,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-682,166,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
-683,166,24CP102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
-684,166,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-685,166,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+681,166,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+682,166,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+683,166,24CP102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
+684,166,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
+685,166,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
 686,166,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
-687,167,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
-688,167,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+687,167,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
+688,167,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
 689,168,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
-690,168,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-691,169,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-692,169,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
-693,169,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
-694,169,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-695,169,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-696,169,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
+690,168,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+691,169,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+692,169,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
+693,169,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
+694,169,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+695,169,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
+696,169,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
 697,170,24MA103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-698,170,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
-699,170,24MA103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
-700,170,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
-701,170,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
-702,170,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
-703,171,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
+698,170,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+699,170,24MA103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
+700,170,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+701,170,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+702,170,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+703,171,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
 704,171,24CH101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
-705,171,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
+705,171,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
 706,171,24CH101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-707,171,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
-708,171,24CH101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
-709,172,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
+707,171,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
+708,171,24CH101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+709,172,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
 710,172,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-711,173,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
+711,173,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
 712,173,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-713,174,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-714,174,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+713,174,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
+714,174,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
 715,174,24EE101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
-716,174,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-717,174,24EE101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-718,174,24EE101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+716,174,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+717,174,24EE101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
+718,174,24EE101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
 719,175,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
-720,175,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
-721,176,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
-722,176,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+720,175,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+721,176,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
+722,176,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
 723,177,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
-724,177,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
-725,178,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
-726,178,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
+724,177,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+725,178,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
+726,178,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
 727,179,24YOG101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-728,179,24YOG101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
-729,179,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
-730,179,24YOG101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-731,179,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-732,179,24YOG101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-733,180,24NCC101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-734,180,24NCC101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
-735,180,24NCC101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
+728,179,24YOG101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+729,179,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
+730,179,24YOG101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+731,179,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+732,179,24YOG101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
+733,180,24NCC101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
+734,180,24NCC101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
+735,180,24NCC101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
 736,180,24NCC101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
 737,180,24NCC101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
-738,180,24NCC101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
-739,181,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-740,181,24NSS101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
+738,180,24NCC101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+739,181,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+740,181,24NSS101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
 741,181,24NSS101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
-742,181,24NSS101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
-743,181,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
+742,181,24NSS101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+743,181,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
 744,181,24NSS101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-745,182,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-746,182,24HS104T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
-747,182,24HS104T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-748,182,24HS104T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
+745,182,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+746,182,24HS104T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+747,182,24HS104T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+748,182,24HS104T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
 749,182,24HS104T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
-750,182,24HS104T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
-751,183,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-752,183,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
+750,182,24HS104T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
+751,183,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
+752,183,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
 753,183,24CP102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
-754,183,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
-755,183,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
-756,183,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
-757,184,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
+754,183,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
+755,183,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+756,183,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
+757,184,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
 758,184,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
 759,185,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-760,185,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
-761,186,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
-762,186,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
-763,186,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
-764,186,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
-765,186,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
-766,186,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
+760,185,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
+761,186,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
+762,186,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+763,186,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
+764,186,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
+765,186,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+766,186,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
 767,187,24MA103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
-768,187,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
-769,187,24MA103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-770,187,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-771,187,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
-772,187,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
-773,188,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-774,188,24CH101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
-775,188,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+768,187,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+769,187,24MA103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+770,187,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
+771,187,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+772,187,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
+773,188,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+774,188,24CH101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
+775,188,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
 776,188,24CH101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-777,188,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
+777,188,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
 778,188,24CH101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
-779,189,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
-780,189,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
-781,190,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
-782,190,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
-783,191,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-784,191,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
-785,191,24EE101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-786,191,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-787,191,24EE101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
-788,191,24EE101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
-789,192,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
-790,192,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
-791,193,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
+779,189,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
+780,189,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
+781,190,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
+782,190,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
+783,191,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
+784,191,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+785,191,24EE101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
+786,191,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+787,191,24EE101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+788,191,24EE101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+789,192,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
+790,192,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
+791,193,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
 792,193,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-793,194,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-794,194,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-795,195,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-796,195,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
-797,196,24YOG101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-798,196,24YOG101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
-799,196,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
-800,196,24YOG101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
-801,196,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
-802,196,24YOG101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+793,194,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
+794,194,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+795,195,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
+796,195,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+797,196,24YOG101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+798,196,24YOG101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+799,196,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
+800,196,24YOG101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
+801,196,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+802,196,24YOG101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
 803,197,24NCC101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-804,197,24NCC101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
-805,197,24NCC101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
+804,197,24NCC101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+805,197,24NCC101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
 806,197,24NCC101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-807,197,24NCC101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
+807,197,24NCC101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
 808,197,24NCC101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-809,198,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-810,198,24NSS101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
-811,198,24NSS101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+809,198,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
+810,198,24NSS101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+811,198,24NSS101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
 812,198,24NSS101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-813,198,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
-814,198,24NSS101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
-815,199,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-816,199,24HS104T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
-817,199,24HS104T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-818,199,24HS104T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-819,199,24HS104T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
+813,198,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+814,198,24NSS101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
+815,199,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
+816,199,24HS104T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+817,199,24HS104T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+818,199,24HS104T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+819,199,24HS104T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
 820,199,24HS104T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
-821,200,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+821,200,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
 822,200,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
-823,200,24CP102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
+823,200,24CP102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
 824,200,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
-825,200,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
-826,200,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
-827,201,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
-828,201,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
+825,200,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
+826,200,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
+827,201,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
+828,201,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
 829,202,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
-830,202,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-831,203,24MA103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-832,203,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+830,202,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
+831,203,24MA103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+832,203,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
 833,203,24MA103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
 834,203,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-835,203,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+835,203,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
 836,203,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
-837,204,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-838,204,24CH101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
-839,204,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
-840,204,24CH101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-841,204,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
-842,204,24CH101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
-843,205,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
-844,205,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-845,206,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
+837,204,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+838,204,24CH101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+839,204,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+840,204,24CH101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+841,204,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
+842,204,24CH101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
+843,205,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
+844,205,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
+845,206,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
 846,206,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
-847,207,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-848,207,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
+847,207,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
+848,207,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
 849,207,24CP102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
-850,207,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
-851,207,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
+850,207,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
+851,207,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
 852,207,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-853,208,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
-854,208,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
-855,209,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
+853,208,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
+854,208,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+855,209,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
 856,209,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-857,210,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
-858,210,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
-859,210,24EE101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
-860,210,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+857,210,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
+858,210,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+859,210,24EE101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+860,210,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
 861,210,24EE101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-862,210,24EE101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
-863,211,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-864,211,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
-865,212,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
+862,210,24EE101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
+863,211,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
+864,211,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+865,212,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
 866,212,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
-867,213,24HS103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-868,213,24HS103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
-869,213,24HS103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
-870,213,24HS103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-871,213,24HS103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+867,213,24HS103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+868,213,24HS103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
+869,213,24HS103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+870,213,24HS103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+871,213,24HS103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
 872,213,24HS103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
-873,214,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
+873,214,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
 874,214,24HS104T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
-875,214,24HS104T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
-876,214,24HS104T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+875,214,24HS104T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
+876,214,24HS104T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
 877,214,24HS104T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
 878,214,24HS104T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
-879,215,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-880,215,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+879,215,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+880,215,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
 881,215,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
-882,215,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-883,215,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
-884,215,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
-885,216,24YOG101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-886,216,24YOG101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
-887,216,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
+882,215,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+883,215,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
+884,215,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+885,216,24YOG101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
+886,216,24YOG101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+887,216,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
 888,216,24YOG101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
-889,216,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
-890,216,24YOG101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-891,217,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+889,216,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
+890,216,24YOG101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
+891,217,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
 892,217,24NSS101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
 893,217,24NSS101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
-894,217,24NSS101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
-895,217,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+894,217,24NSS101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+895,217,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
 896,217,24NSS101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-897,218,24NCC101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-898,218,24NCC101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+897,218,24NCC101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+898,218,24NCC101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
 899,218,24NCC101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
-900,218,24NCC101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
-901,218,24NCC101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
-902,218,24NCC101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
-903,219,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-904,219,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
-905,219,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
-906,219,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
-907,219,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+900,218,24NCC101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+901,218,24NCC101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
+902,218,24NCC101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+903,219,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
+904,219,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+905,219,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+906,219,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
+907,219,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
 908,219,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
-909,220,24MA103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-910,220,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+909,220,24MA103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+910,220,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
 911,220,24MA103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
-912,220,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
+912,220,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
 913,220,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
-914,220,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
-915,221,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
-916,221,24CH101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
-917,221,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+914,220,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
+915,221,24CH101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
+916,221,24CH101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+917,221,24CH101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
 918,221,24CH101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
-919,221,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+919,221,24CH101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
 920,221,24CH101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
-921,222,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
-922,222,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
+921,222,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
+922,222,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
 923,223,24CH101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
-924,223,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
-925,224,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-926,224,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
-927,224,24EE101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-928,224,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-929,224,24EE101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+924,223,24CH101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
+925,224,24EE101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
+926,224,24EE101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+927,224,24EE101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+928,224,24EE101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+929,224,24EE101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
 930,224,24EE101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
 931,225,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-932,225,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
-933,226,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
-934,226,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
-935,227,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
-936,227,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
-937,228,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
-938,228,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
-939,229,24YOG101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
-940,229,24YOG101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
-941,229,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
-942,229,24YOG101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-943,229,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+932,225,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
+933,226,24EE101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
+934,226,24EE101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
+935,227,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
+936,227,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
+937,228,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
+938,228,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
+939,229,24YOG101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
+940,229,24YOG101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+941,229,24YOG101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
+942,229,24YOG101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+943,229,24YOG101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
 944,229,24YOG101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
-945,230,24NCC101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
-946,230,24NCC101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
-947,230,24NCC101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
-948,230,24NCC101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
-949,230,24NCC101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-950,230,24NCC101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
-951,231,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-952,231,24NSS101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+945,230,24NCC101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+946,230,24NCC101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
+947,230,24NCC101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+948,230,24NCC101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+949,230,24NCC101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
+950,230,24NCC101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
+951,231,24NSS101,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+952,231,24NSS101,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
 953,231,24NSS101,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-954,231,24NSS101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
-955,231,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
-956,231,24NSS101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
-957,232,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-958,232,24HS104T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
-959,232,24HS104T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
+954,231,24NSS101,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
+955,231,24NSS101,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
+956,231,24NSS101,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
+957,232,24HS104T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+958,232,24HS104T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+959,232,24HS104T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
 960,232,24HS104T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
 961,232,24HS104T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-962,232,24HS104T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
+962,232,24HS104T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
 963,233,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-964,233,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
-965,233,24CP102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-966,233,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+964,233,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-29,graded
+965,233,24CP102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+966,233,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
 967,233,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
-968,233,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-969,234,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-970,234,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
+968,233,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
+969,234,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
+970,234,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
 971,235,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-972,235,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
-973,236,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
-974,236,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
-975,236,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
-976,236,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
-977,236,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
-978,236,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-979,237,24MA103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
-980,237,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
+972,235,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
+973,236,24HS105T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+974,236,24HS105T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
+975,236,24HS105T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
+976,236,24HS105T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
+977,236,24HS105T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
+978,236,24HS105T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
+979,237,24MA103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+980,237,24MA103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
 981,237,24MA103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
-982,237,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
-983,237,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
-984,237,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-985,238,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-986,238,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-30,graded
+982,237,24MA103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
+983,237,24MA103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
+984,237,24MA103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
+985,238,24CP102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
+986,238,24CP102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
 987,238,24CP102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
 988,238,24CP102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
-989,238,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
-990,238,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
-991,239,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
-992,239,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
-993,240,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
-994,240,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
-995,241,24PH103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
+989,238,24CP102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+990,238,24CP102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+991,239,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
+992,239,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
+993,240,24CP102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
+994,240,24CP102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+995,241,24PH103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
 996,241,24PH103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
-997,241,24PH103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
-998,241,24PH103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-02,graded
-999,241,24PH103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-23,graded
-1000,241,24PH103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
-1001,242,24PH103P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
-1002,242,24PH103P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
-1003,243,24PH103P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-1004,243,24PH103P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-1005,244,24ME101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
-1006,244,24ME101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
-1007,245,24ME101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
+997,241,24PH103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-11,graded
+998,241,24PH103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
+999,241,24PH103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
+1000,241,24PH103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
+1001,242,24PH103P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
+1002,242,24PH103P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-27,graded
+1003,243,24PH103P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
+1004,243,24PH103P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
+1005,244,24ME101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-12,graded
+1006,244,24ME101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
+1007,245,24ME101P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-11,graded
 1008,245,24ME101P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-30,graded
-1009,246,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
-1010,246,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-05-01,graded
-1011,247,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-13,graded
-1012,247,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-29,graded
-1013,248,24CV101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-20,graded
-1014,248,24CV101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
-1015,248,24CV101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-09,graded
+1009,246,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-09,graded
+1010,246,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
+1011,247,24ME102P,2025-26-EVEN,Lab-CIE,Lab Continuous Evaluation,50,60,2026-03-10,graded
+1012,247,24ME102P,2025-26-EVEN,Lab-Exam,Lab End Examination,50,40,2026-04-28,graded
+1013,248,24CV101T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+1014,248,24CV101T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
+1015,248,24CV101T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
 1016,248,24CV101T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-03,graded
 1017,248,24CV101T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-24,graded
-1018,248,24CV101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-05,graded
-1019,249,24HS102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-22,graded
-1020,249,24HS102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
-1021,249,24HS102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-12,graded
-1022,249,24HS102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-06,graded
+1018,248,24CV101T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded
+1019,249,24HS102T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-23,graded
+1020,249,24HS102T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-28,graded
+1021,249,24HS102T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+1022,249,24HS102T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
 1023,249,24HS102T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-25,graded
-1024,249,24HS102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-08,graded
-1025,250,24HS103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-19,graded
-1026,250,24HS103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-27,graded
-1027,250,24HS103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-10,graded
-1028,250,24HS103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-05,graded
-1029,250,24HS103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-26,graded
-1030,250,24HS103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-04,graded
+1024,249,24HS102T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-07,graded
+1025,250,24HS103T,2025-26-EVEN,Quiz-1,Quiz 1,10,5,2026-01-21,graded
+1026,250,24HS103T,2025-26-EVEN,Assignment-1,Assignment 1,10,7,2026-01-26,graded
+1027,250,24HS103T,2025-26-EVEN,Internal-1,Internal Test 1,20,15,2026-02-13,graded
+1028,250,24HS103T,2025-26-EVEN,Assignment-2,Assignment 2,10,8,2026-03-04,graded
+1029,250,24HS103T,2025-26-EVEN,Internal-2,Internal Test 2,20,15,2026-03-27,graded
+1030,250,24HS103T,2025-26-EVEN,End-Sem,End Semester Exam,100,40,2026-05-06,graded

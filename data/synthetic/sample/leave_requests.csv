@@ -1,24 +1,33 @@
 id,student_id,roll_no,from_date,to_date,reason,status,applied_on,decided_by,decided_on
-1,3,25BCP003,2026-09-02,2026-09-04,Grandfather's health emergency,pending,2026-08-24,,
-2,5,25BCP005,2026-07-09,2026-07-12,Religious pilgrimage with family,rejected,2026-07-02,1,2026-07-15
-3,7,25BCP007,2026-08-10,2026-08-13,"Fever and viral infection, advised rest by doctor",approved,2026-08-07,1,2026-08-16
-4,13,25BCP013,2026-07-09,2026-07-11,"Sister's wedding, out of town",approved,2026-06-29,2,2026-07-12
-5,14,25BCP014,2026-08-16,2026-08-18,Family function at native place,approved,2026-08-07,2,2026-08-20
-6,20,25BIT004,2026-09-09,2026-09-10,Dental surgery and recovery,pending,2026-09-06,,
-7,26,25BIT010,2026-07-28,2026-07-29,Passport appointment and document verification,pending,2026-07-25,,
-8,28,25BEC002,2026-07-02,2026-07-05,"Sister's wedding, out of town",approved,2026-06-26,12,2026-07-08
-9,34,25BME002,2026-07-09,2026-07-11,"Sister's wedding, out of town",pending,2026-06-29,,
-10,37,25BME005,2026-07-20,2026-07-24,Represented college at inter-university sports meet,rejected,2026-07-11,16,2026-07-26
-11,41,25BCE003,2026-07-20,2026-07-21,Passport appointment and document verification,approved,2026-07-10,19,2026-07-26
-12,46,25BCH002,2026-07-26,2026-07-28,Dental surgery and recovery,approved,2026-07-24,21,2026-07-30
-13,52,26BCP002,2026-07-31,2026-08-04,"Fever and viral infection, advised rest by doctor",approved,2026-07-25,1,2026-08-05
-14,53,26BCP003,2026-07-05,2026-07-08,Passport appointment and document verification,approved,2026-06-27,4,2026-07-10
-15,54,26BCP004,2026-07-11,2026-07-14,Grandfather's health emergency,approved,2026-07-05,2,2026-07-16
-16,61,26BCP011,2026-07-18,2026-07-18,Passport appointment and document verification,approved,2026-07-13,3,2026-07-20
-17,62,26BCP012,2026-08-15,2026-08-15,Represented college at inter-university sports meet,rejected,2026-08-09,2,2026-08-17
-18,72,26BIT006,2026-08-09,2026-08-10,Religious pilgrimage with family,approved,2026-08-03,7,2026-08-15
-19,75,26BIT009,2026-08-04,2026-08-05,Passport appointment and document verification,approved,2026-07-26,8,2026-08-09
-20,77,26BEC001,2026-07-23,2026-07-24,"Fever and viral infection, advised rest by doctor",pending,2026-07-19,,
-21,78,26BEC002,2026-08-19,2026-08-20,Represented college at inter-university sports meet,approved,2026-08-12,12,2026-08-22
-22,79,26BEC003,2026-08-16,2026-08-17,"Fever and viral infection, advised rest by doctor",approved,2026-08-14,9,2026-08-22
-23,92,26BCE004,2026-07-19,2026-07-20,Dental surgery and recovery,approved,2026-07-10,17,2026-07-24
+1,3,25BCP003,2026-09-10,2026-09-11,"Medical - dengue, hospitalised",pending,2026-09-03,,
+2,13,25BCP013,2026-08-13,2026-08-13,"Fever and viral infection, advised rest by doctor",approved,2026-08-04,1,2026-08-17
+3,16,25BCP016,2026-08-15,2026-08-19,Represented college at inter-university sports meet,approved,2026-08-12,3,2026-08-23
+4,21,25BCP021,2026-09-05,2026-09-08,Attending a hackathon at another institute,pending,2026-09-02,,
+5,24,25BIT002,2026-08-15,2026-08-16,Religious pilgrimage with family,approved,2026-08-10,7,2026-08-18
+6,26,25BIT004,2026-09-11,2026-09-14,Passport appointment and document verification,pending,2026-09-04,,
+7,32,25BIT010,2026-07-09,2026-07-12,Passport appointment and document verification,approved,2026-06-30,8,2026-07-15
+8,33,25BEC001,2026-07-06,2026-07-08,Religious pilgrimage with family,rejected,2026-06-27,10,2026-07-09
+9,38,25BEC006,2026-08-16,2026-08-16,Represented college at inter-university sports meet,rejected,2026-08-13,9,2026-08-17
+10,39,25BME001,2026-07-26,2026-07-28,"Sister's wedding, out of town",approved,2026-07-16,16,2026-07-29
+11,44,25BME006,2026-08-19,2026-08-21,Religious pilgrimage with family,rejected,2026-08-12,14,2026-08-26
+12,46,25BCE002,2026-08-01,2026-08-04,"Fever and viral infection, advised rest by doctor",approved,2026-07-30,20,2026-08-08
+13,49,25BCE005,2026-07-10,2026-07-12,"Sister's wedding, out of town",approved,2026-07-06,18,2026-07-15
+14,50,25BCE006,2026-08-11,2026-08-15,Represented college at inter-university sports meet,approved,2026-08-02,18,2026-08-17
+15,56,25BCH006,2026-08-04,2026-08-07,"Medical - dengue, hospitalised",approved,2026-07-28,22,2026-08-12
+16,64,26BCP008,2026-07-01,2026-07-02,"Fever and viral infection, advised rest by doctor",rejected,2026-06-22,1,2026-07-07
+17,65,26BCP009,2026-07-16,2026-07-19,Religious pilgrimage with family,rejected,2026-07-08,1,2026-07-24
+18,71,26BCP015,2026-08-01,2026-08-01,Religious pilgrimage with family,pending,2026-07-27,,
+19,74,26BCP018,2026-08-14,2026-08-17,Passport appointment and document verification,rejected,2026-08-06,3,2026-08-22
+20,76,26BCP020,2026-07-27,2026-07-29,Attending a hackathon at another institute,approved,2026-07-20,4,2026-08-01
+21,82,26BIT004,2026-08-08,2026-08-12,Dental surgery and recovery,approved,2026-08-02,5,2026-08-16
+22,85,26BIT007,2026-07-03,2026-07-04,Family function at native place,approved,2026-07-01,7,2026-07-06
+23,86,26BIT008,2026-07-12,2026-07-15,"Medical - dengue, hospitalised",pending,2026-07-10,,
+24,87,26BIT009,2026-08-17,2026-08-20,Grandfather's health emergency,approved,2026-08-08,7,2026-08-22
+25,89,26BEC001,2026-08-15,2026-08-15,Represented college at inter-university sports meet,rejected,2026-08-10,11,2026-08-16
+26,97,26BME003,2026-07-22,2026-07-26,Dental surgery and recovery,approved,2026-07-20,16,2026-07-31
+27,98,26BME004,2026-07-23,2026-07-24,"Medical - dengue, hospitalised",approved,2026-07-18,16,2026-07-29
+28,99,26BME005,2026-07-28,2026-07-29,Family function at native place,approved,2026-07-18,15,2026-07-31
+29,102,26BCE002,2026-08-19,2026-08-23,"Medical - dengue, hospitalised",approved,2026-08-10,20,2026-08-25
+30,104,26BCE004,2026-08-18,2026-08-22,"Medical - dengue, hospitalised",approved,2026-08-13,17,2026-08-23
+31,109,26BCH003,2026-08-04,2026-08-08,Attending a hackathon at another institute,approved,2026-08-02,22,2026-08-10
+32,110,26BCH004,2026-07-29,2026-07-29,"Medical - dengue, hospitalised",approved,2026-07-24,22,2026-07-31

@@ -69,7 +69,10 @@ STUDENT_DEPARTMENTS = [d for d in DEPARTMENTS if d["code"] != "SH"]
 
 FULL_BATCHES = [2023, 2024, 2025, 2026]
 SAMPLE_BATCHES = [2025, 2026]
-SAMPLE_STUDENT_COUNTS = {"CP": 16, "IT": 10, "EC": 6, "ME": 6, "CE": 6, "CH": 6}
+# CP is 22 (not a rounder 16) so the planted-demo rolls 25BCP017 (the ~68%
+# attendance signature demo) and 25BCP021 (a decide_leave_request target) exist
+# in the sample. 24BCP009 is a 2024-batch roll and stays sample-absent by design.
+SAMPLE_STUDENT_COUNTS = {"CP": 22, "IT": 10, "EC": 6, "ME": 6, "CE": 6, "CH": 6}
 
 FACULTY_TOTAL_FULL = 118          # includes SH
 FACULTY_PER_DEPT_SAMPLE = 4
@@ -1061,6 +1064,10 @@ def main():
 
 def _write_readme(out_dir, tables, n_sess, n_rec, sample):
     d = AD.DEMO
+    present_rolls = set(tables["students"]["roll_no"])
+    leave_rolls = [r for r in d["pending_leave_rolls"] if r in present_rolls]
+    leave_note = "" if len(leave_rolls) == len(d["pending_leave_rolls"]) else \
+        " (others are 2024-batch rolls not present in this dataset)"
     lines = [
         "# UniAssist synthetic dataset",
         "",
@@ -1103,7 +1110,7 @@ def _write_readme(out_dir, tables, n_sess, n_rec, sample):
         f"- **unpaid fees + pending scholarship**: student `{d['fee_roll']}` "
         f"(`fees.status='unpaid'`, `scholarships.status='pending'`).",
         f"- **pending leave requests** (for decide_leave_request): "
-        f"{', '.join(d['pending_leave_rolls'])}.",
+        f"{', '.join(leave_rolls)}{leave_note}.",
     ]
     (out_dir / "README.md").write_text("\n".join(lines), encoding="utf-8")
 

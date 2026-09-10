@@ -20,24 +20,24 @@ Log in with any `university_email` from `students.csv` / `faculty.csv` / `admins
 | classrooms | 85 |
 | faculty | 28 |
 | admins | 7 |
-| students | 100 |
-| users | 135 |
+| students | 112 |
+| users | 147 |
 | course_offerings | 250 |
-| enrollments | 1,632 |
+| enrollments | 1,830 |
 | timetable_slots | 251 |
 | assessments | 1,030 |
-| marks | 6,028 |
-| submissions | 2,232 |
-| results_semester | 50 |
+| marks | 6,754 |
+| submissions | 2,496 |
+| results_semester | 56 |
 | exam_schedule | 294 |
-| fees | 150 |
-| scholarships | 20 |
-| leave_requests | 23 |
-| document_requests | 18 |
+| fees | 168 |
+| scholarships | 14 |
+| leave_requests | 32 |
+| document_requests | 13 |
 | announcements | 33 |
 | academic_calendar | 25 |
 | attendance_sessions | 4,880 |
-| attendance_records | 35,007 |
+| attendance_records | 39,267 |
 
 Not generated here (populated later): `conversations`, `messages`, `documents`, `doc_chunks`, `audit_log` (runtime + RAG ingest); `syllabus_units`, `course_outcomes`, `textbooks`, `course_prerequisites` (Phase-3 PDF extractor).
 
@@ -47,4 +47,4 @@ Not generated here (populated later): `conversations`, `messages`, `documents`, 
 - **~35% Internal-1 fail rate**: `24CS202T` (Digital Logic and Design), current term.
 - **missing Assignment 2**: ~18% of the `24CS201T` cohort, `submissions.status = 'missing'`.
 - **unpaid fees + pending scholarship**: student `25BCP012` (`fees.status='unpaid'`, `scholarships.status='pending'`).
-- **pending leave requests** (for decide_leave_request): 25BCP003, 25BCP021, 24BCP009, 25BIT004.
+- **pending leave requests** (for decide_leave_request): 25BCP003, 25BCP021, 25BIT004 (others are 2024-batch rolls not present in this dataset).

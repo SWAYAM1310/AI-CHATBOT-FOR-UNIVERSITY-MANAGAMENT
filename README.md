@@ -10,9 +10,13 @@ See [`plan.md`](plan.md) for the full architecture and build plan, and
 
 ## Status
 
-Phase 0 — scaffold. Backend skeleton (FastAPI + SQLAlchemy 2.0 + Alembic), Postgres 16
-+ pgvector via Docker, and a Vite/React/TS frontend stub. **No schema or data yet** —
-that is the next part (authoritative models + CSV loader for `data/synthetic/sample/`).
+Phase 1a — database foundation done. 30-table schema (SQLAlchemy 2.0 models derived
+from the actual `data/synthetic/sample/*.csv` headers — see [SCHEMA_MAP.md](SCHEMA_MAP.md)),
+initial Alembic migration (`CREATE EXTENSION vector`, HNSW + GIN + composite indexes),
+and a CSV → Postgres loader. `pytest` (40 tests) checks row counts, FK integrity,
+sequence bumps, the pgvector column, and the planted demo cases.
+
+Next: Phase 1b — JWT auth, `AuthContext`, RBAC decorators, `audit_log`.
 
 ## Stack
 
@@ -36,8 +40,17 @@ python -m venv .venv
 .venv\Scripts\activate                   # Windows;  source .venv/bin/activate elsewhere
 pip install -r requirements.txt
 
-alembic upgrade head                     # no migrations yet — added next part
+alembic upgrade head                     # creates the 30-table schema
+python -m app.seed.load_csv --dataset sample --reset   # load data/synthetic/sample/
+pytest                                   # 40 tests
 uvicorn app.main:app --reload            # http://localhost:8000/health
+```
+
+Phase-0 dependency gates:
+
+```bash
+python -m app.ai.rag.embedder --selftest   # prints configured dim (1024)
+python -m app.main --check-models           # validates Groq model ids (skips w/o key)
 ```
 
 ```bash
