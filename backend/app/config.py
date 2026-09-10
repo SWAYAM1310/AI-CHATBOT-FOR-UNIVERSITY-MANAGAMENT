@@ -27,5 +27,13 @@ class Settings(BaseSettings):
 
     frontend_origin: str = "http://localhost:5173"
 
+    # Auth
+    jwt_secret: str = "dev-insecure-change-me-please-0000000000"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 12 * 60
+
+    # Academic context (matches scripts/academic_data.py)
+    current_term: str = "2026-27-ODD"
+
 
 settings = Settings()

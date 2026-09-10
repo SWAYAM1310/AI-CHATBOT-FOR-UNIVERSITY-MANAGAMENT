@@ -8,6 +8,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
+from app.api import auth as auth_api
+from app.api import me as me_api
 from app.config import settings
 from app.db.session import engine
 
@@ -20,6 +22,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_api.router)
+app.include_router(me_api.router)
 
 
 @app.get("/health")

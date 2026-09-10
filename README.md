@@ -10,13 +10,21 @@ See [`plan.md`](plan.md) for the full architecture and build plan, and
 
 ## Status
 
-Phase 1a — database foundation done. 30-table schema (SQLAlchemy 2.0 models derived
-from the actual `data/synthetic/sample/*.csv` headers — see [SCHEMA_MAP.md](SCHEMA_MAP.md)),
-initial Alembic migration (`CREATE EXTENSION vector`, HNSW + GIN + composite indexes),
-and a CSV → Postgres loader. `pytest` (40 tests) checks row counts, FK integrity,
-sequence bumps, the pgvector column, and the planted demo cases.
+Phase 1b — auth & RBAC done.
 
-Next: Phase 1b — JWT auth, `AuthContext`, RBAC decorators, `audit_log`.
+- **Phase 1a:** 30-table schema (SQLAlchemy 2.0 models from the actual
+  `data/synthetic/sample/*.csv` headers — see [SCHEMA_MAP.md](SCHEMA_MAP.md)),
+  initial Alembic migration (`CREATE EXTENSION vector`, HNSW + GIN + composite
+  indexes), CSV → Postgres loader.
+- **Phase 1b:** `POST /api/auth/login` (email + `uniassist`) → JWT; `AuthContext`
+  built server-side from `users.subject_ref`; the three RBAC layers (tool
+  exposure / execution guard / identity-arg stripping) in
+  [app/ai/tools/registry.py](backend/app/ai/tools/registry.py) with `audit_log`
+  writes; a starter set of RBAC-guarded tools; `GET /api/me`, `GET /api/me/tools`.
+
+`pytest` — 56 tests (load/schema + auth + the RBAC suite, which must stay green).
+
+Next: Phase 2 — tool registry fan-out, Groq provider, the three-call orchestrator.
 
 ## Stack
 
@@ -51,6 +59,15 @@ Phase-0 dependency gates:
 ```bash
 python -m app.ai.rag.embedder --selftest   # prints configured dim (1024)
 python -m app.main --check-models           # validates Groq model ids (skips w/o key)
+```
+
+Try the auth flow (every synthetic user's password is `uniassist`):
+
+```bash
+curl -s localhost:8000/api/auth/login -H 'Content-Type: application/json' \
+  -d '{"email":"25bcp001@sot.pdpu.ac.in","password":"uniassist"}'
+curl -s localhost:8000/api/me       -H "Authorization: Bearer <token>"
+curl -s localhost:8000/api/me/tools -H "Authorization: Bearer <token>"   # RBAC layer 1
 ```
 
 ```bash
