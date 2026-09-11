@@ -259,23 +259,112 @@ Per `plan.md §3`, §4, §6.
   retry, missing-key refusal, and `parse_json_object`. Suite now **89 passed**.
 - Still no Groq key in `.env`, so the live path is unexercised by design.
 
+### Step 3 — DONE (uncommitted): the orchestrator
+- `backend/app/ai/tools/schema.py` — closes the gap step 3 had to close first:
+  `function_schema(spec)` builds the OpenAI function schema by introspecting the
+  tool fn's own signature (`get_type_hints`, `str|None` → `string`, default
+  present → optional), skipping `ctx`/`db`/`**_` **and every `IDENTITY_ARGS`
+  name**, so the model is never shown a `student_id` field to fill in — Layer 3
+  remains the enforcing check. Also `schemas_for(names, role)` (silently drops
+  unknown/off-limits names — Call A is an LLM) and `required_params(spec)`.
+- `backend/app/ai/compact.py` — `compact(result)` → Markdown table, `ROW_CAP=40`,
+  and it states how many rows were hidden (a truncated table the model believes
+  is complete is worse than none). `(no rows)` vs `(no data)` are distinct.
+- `backend/app/ai/prompts/system.py` — `route_system` / `plan_system` /
+  `synthesize_system` + `synthesize_user`. Carries plan.md §3's four rules
+  (role, personalization, grounding, refusal). Rendered router prompt for a
+  student ≈ 2.6k chars ≈ 650 tok, matching §4's ~600 tok budget line.
+- `backend/app/ai/orchestrator.py` — `run_turn(question, ctx, db, history, provider)`
+  → `TurnResult(text, citations, cards, tool_runs, usage, intent, path)`.
+  A route (`json_object=True`) → fast path or B plan (tools=candidate schemas)
+  → execute via `REGISTRY.invoke` → C synthesize (`reasoning_effort='medium'`,
+  **no tools**). `path` is one of `full|fast|smalltalk|confirm`.
+  - Candidate names from Call A are filtered against the registry *and* the
+    role before use; a tool failure becomes a result row, never a 500.
+  - `_confirmation_card()` is the two-phase-confirm hook (a tool returning
+    `needs_confirmation` stops the turn and returns a preview card) — no action
+    tools exist yet, so it is inert today.
+  - `_retrieve()` runs `search_university_policies` through the registry so
+    retrieval is audited too; top-3; `[]` until the Phase-3 ingest.
+  - `_resolve_citations()` keeps only passages the answer actually cited.
+  - **Provider errors propagate on purpose** — retry/backoff is step 4's job.
+  - History trimmed to the last 3 user+assistant pairs.
+- `search_university_policies`'s description lost its "(Placeholder…)" tail: a
+  tool description is model-facing, so the caveat moved to the docstring.
+- `backend/tests/test_orchestrator.py` — 22 tests with a scripted provider
+  (offline, real DB): schema builder incl. "no identity arg in any schema",
+  compaction incl. the row cap, full/fast/smalltalk paths, Call C gets no tools,
+  Call B sees only the candidates, role-filtered router index, hallucinated
+  names dropped, **Layer 2 still denies a planner-requested faculty tool**,
+  **Layer 3 strips a planner-supplied `student_id`**, malformed route reply
+  degrades, citation resolution, history trimming. Suite now **111 passed**.
+
+### Step 4 — DONE (uncommitted): token budget, limiter, 429 backoff
+- `backend/app/ai/budget.py`:
+  - `TokenBucket(rate_per_min, capacity, clock, sleeper)` — thread-safe leaky
+    bucket (FastAPI runs sync endpoints in a threadpool, so concurrent turns
+    really do share it). `take()` returns seconds waited; `charge()` may drive
+    the level negative on purpose (an under-estimate is paid by the next
+    caller); `refund()` returns an over-estimate. Clock/sleeper are injected so
+    tests fake time.
+  - `estimate_tokens(system, messages, tools, max_tokens)` — chars/4 + per-message
+    overhead + an **output allowance**, since TPM counts output too.
+  - `backoff_delay(attempt, retry_after)` — **equal jitter** (half fixed, half
+    random): full jitter can retry instantly and re-trip the limit, no jitter
+    makes concurrent callers retry in lockstep. Honours `retry-after` when the
+    server sent one. `with_backoff(call)` retries **only** `ProviderRateLimited`.
+  - `BudgetedProvider(inner)` — a drop-in `LLMProvider`: estimate → take from
+    the TPM and RPM buckets → call with backoff → reconcile estimate vs the
+    billed usage → meter it. `Meter` tracks calls/usage/waited_seconds/rate_limited
+    (the per-turn numbers for the report; also logged at INFO per call).
+  - `queued_notifier(fn)` — a **ContextVar** context manager, because the
+    provider is process-wide but the UI needing the "queued" state is one
+    caller's. A waiting turn calls it instead of failing; a notifier that raises
+    is swallowed. Waits under 0.5s are not reported.
+  - `get_budgeted_provider()` — process-wide, lazily built (so the app still
+    boots with no key). **The orchestrator now defaults to this**, so the 429
+    path is live for every turn.
+- `app/config.py` + `.env.example` += `LLM_TPM=6000`, `LLM_RPM=25`,
+  `LLM_MAX_RETRIES=4`, `LLM_BACKOFF_BASE=1.0`, `LLM_BACKOFF_CAP=30.0`
+  (below Groq's published ceiling — its limits are per *organisation*).
+- `backend/tests/test_budget.py` — 23 tests on a fake clock that only moves when
+  something sleeps, so a 30s backoff test runs in microseconds: bucket
+  refill/clamp/overdraw/refund, estimation, jitter bounds and the cap, retry
+  then succeed, give up and re-raise, non-429 errors not retried, pass-through,
+  metering, estimate reconciliation both ways, queue-don't-fail, notifier
+  scoping and a notifier that explodes. Plus one orchestrator test running a
+  whole turn through `BudgetedProvider`. Suite now **135 passed**.
+
+### Step 5 — DONE (uncommitted): `POST /api/chat`
+- `backend/app/api/chat.py`, mounted in `main.py`:
+  - `POST /api/chat {message, conversation_id?}` → `run_turn` → `{conversation_id,
+    message_id, text, citations[], cards[], path, intent, usage{tokens_in,tokens_out},
+    queued_seconds}`. First message creates the `conversations` row (title = first
+    60 chars); every turn persists a `user` row and an `assistant` row with
+    `tokens_in/out`, `tool_calls` (the executed runs, incl. any confirm `preview`)
+    and `citations`.
+  - **All-or-nothing per turn**: a provider failure persists nothing, so a
+    client retry does not leave orphan user rows in the transcript.
+  - **Stateless server**: history is rebuilt from `messages` (user/assistant
+    text only — tool tables are not replayed) and trimmed by the orchestrator.
+  - Provider errors → HTTP: exhausted 429 → **503 + `Retry-After`** (provider
+    hint, else 30s); no key → 503; other `ProviderError` → 502. Waits absorbed
+    by `BudgetedProvider` are collected via `queued_notifier` and returned as
+    `queued_seconds` (+ `X-Queued-Seconds` header).
+  - `get_provider()` is a FastAPI dependency so tests override it with the
+    scripted provider — no live key in CI.
+  - Someone else's `conversation_id` is a **404**, not 403 (existence not leaked).
+  - Also `GET /api/chat` (my conversations) and `GET /api/chat/{id}` (transcript,
+    confirm cards rebuilt from stored runs) — small, needed to resume a chat.
+  - Message length capped at 2000 chars; blank messages are 422.
+- `backend/tests/test_chat_api.py` — 11 tests: create + persist both rows with
+  summed usage, owner comes from the JWT, second message replays stored history
+  into Call A, title truncation, list/get/continue are owner-scoped, unknown id
+  404 before touching the model, student→faculty tool via chat still blocked,
+  exhausted 429 = 503 + Retry-After + nothing persisted, no-key 503 / other 502,
+  queued wait reported, auth + validation. Suite now **146 passed**.
+
 ### Remaining steps
-3. `app/ai/orchestrator.py` — the three-call turn: **A route** (`gpt-oss-20b`,
-   compact role-filtered tool index) → **B plan** (`gpt-oss-120b`, full schemas
-   for 2–4 candidates) → execute (RBAC layers 2/3, compact results) → **C
-   synthesize** (`gpt-oss-120b`, no tool schemas, `[[cite:id]]` markers). Fast
-   path when A returns `smalltalk` / one unambiguous no-arg tool.
-   - **Known gap this step must close first:** nothing generates the per-tool
-     JSON schema Call B needs. `ToolSpec` carries only name/description/fn, and
-     the provider takes `tools` already in OpenAI wire format. So step 3 starts
-     with a `ToolSpec → {"type":"function", ...}` builder (introspect the tool
-     fn signature, skipping `ctx`/`db`/`**_`, and skip `IDENTITY_ARGS` so the
-     model is never even shown an identity parameter to fill in).
-   - Also needs `app/ai/prompts/system.py` (plan.md §3's prompt rules).
-4. `app/ai/budget.py` — token accounting, in-process token-bucket limiter,
-   exponential backoff w/ jitter on HTTP 429.
-5. `POST /api/chat` — creates/continues a `conversations` row, persists `messages`
-   with `tokens_in/out`, returns `{text, citations[], cards[]}`.
 6. Tests: mock the provider (no live key needed in CI); assert routing picks the
    right tool, RBAC still blocks, token budget respected.
 7. Once the read catalog is fully wired through the orchestrator, circle back for
