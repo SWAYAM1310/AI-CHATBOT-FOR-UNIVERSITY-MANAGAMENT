@@ -90,7 +90,7 @@ def test_schema_types_and_optionality_come_from_the_signature():
     below = function_schema(REGISTRY.get("list_students_below_attendance"))["function"]
     assert below["parameters"]["properties"]["course_code"] == {"type": "string"}
     assert below["parameters"]["properties"]["threshold"] == {"type": "number"}
-    assert below["parameters"]["required"] == ["course_code"]  # threshold defaults to 75
+    assert below["parameters"]["required"] == []  # course_code optional (all taught courses), threshold defaults to 75
 
 
 def test_identity_arg_never_appears_in_any_schema():
@@ -110,7 +110,8 @@ def test_schemas_for_drops_unknown_and_off_limits_names():
 
 def test_required_params_spots_the_no_argument_fast_path():
     assert required_params(REGISTRY.get("get_my_courses")) == []
-    assert required_params(REGISTRY.get("list_course_students")) == ["course_code"]
+    assert required_params(REGISTRY.get("list_course_students")) == []  # optional since the live-run fix
+    assert required_params(REGISTRY.get("get_course_syllabus")) == ["course"]
 
 
 # --- result compaction ------------------------------------------------------
