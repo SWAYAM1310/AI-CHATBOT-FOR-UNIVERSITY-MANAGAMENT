@@ -228,17 +228,50 @@ Per `plan.md §3`, §4, §6.
   both groups, Layer-3 identity-arg stripping, functional smoke per tool using
   student id **17** = roll `25BCP017`, which has 9 current-term enrollments).
   Full suite now **68 passed** (was 56).
-- Not yet committed — next action is a `git commit` for this step, then move to
-  step 2 (Groq provider).
+- Committed as `db77b18`.
+
+### Step 2 — DONE: the LLM provider layer
+- `backend/app/ai/providers/base.py` — the provider-agnostic contract:
+  `Msg` (TypedDict), `ToolCall`, `Usage` (addable, feeds `messages.tokens_in/out`),
+  `LLMResponse` (text, tool_calls, usage, model, finish_reason, reasoning),
+  the `LLMProvider` Protocol, the error types (`ProviderError`,
+  `ProviderNotConfigured`, `ProviderRateLimited` w/ `retry_after`), and
+  `parse_json_object()` — a fence/prose-tolerant parser for Calls A and B that
+  returns `{}` rather than raising.
+- `backend/app/ai/providers/openai_compat.py` — `OpenAICompatProvider`:
+  - `chat(system, messages, model, tools?, reasoning_effort='low', temperature,
+    max_tokens?, json_object?)`. `max_tokens` → `max_completion_tokens`;
+    `tools` → also sets `tool_choice='auto'`; `json_object` → `response_format`.
+  - **`max_retries=0` on the SDK client on purpose** — backoff w/ jitter belongs
+    to `app/ai/budget.py` (step 4), which feeds the UI's "queued" state.
+  - Error mapping: `RateLimitError` → `ProviderRateLimited` (parses the
+    `retry-after` header); everything else under `openai.APIError` →
+    `ProviderError`. A `BadRequestError` that names `reasoning_effort` retries
+    once without that param, so a local Ollama/vLLM fallback still works.
+  - Accepts an injected `client=` (tests use a fake; no key, no network).
+- `backend/app/ai/providers/__init__.py` — `get_provider()`, `lru_cache`d so one
+  HTTP client is reused. **Must be called per turn, never at import time**: it
+  raises `ProviderNotConfigured` with no key, and the app has to boot without one.
+- `requirements.txt` += `openai>=1.60` (installed 3.13.0 in the venv; it pulls
+  `httpx2`, which also silenced the old TestClient deprecation warning).
+- `backend/tests/test_providers.py` — 21 tests: request shaping, response/usage
+  parsing, malformed tool-args degradation, error mapping, the reasoning_effort
+  retry, missing-key refusal, and `parse_json_object`. Suite now **89 passed**.
+- Still no Groq key in `.env`, so the live path is unexercised by design.
 
 ### Remaining steps
-2. `app/ai/providers/` — `base.py` (Protocol) + `openai_compat.py` (Groq via the
-   `openai` SDK with overridden `base_url`). Add `openai` to requirements.
 3. `app/ai/orchestrator.py` — the three-call turn: **A route** (`gpt-oss-20b`,
    compact role-filtered tool index) → **B plan** (`gpt-oss-120b`, full schemas
    for 2–4 candidates) → execute (RBAC layers 2/3, compact results) → **C
    synthesize** (`gpt-oss-120b`, no tool schemas, `[[cite:id]]` markers). Fast
    path when A returns `smalltalk` / one unambiguous no-arg tool.
+   - **Known gap this step must close first:** nothing generates the per-tool
+     JSON schema Call B needs. `ToolSpec` carries only name/description/fn, and
+     the provider takes `tools` already in OpenAI wire format. So step 3 starts
+     with a `ToolSpec → {"type":"function", ...}` builder (introspect the tool
+     fn signature, skipping `ctx`/`db`/`**_`, and skip `IDENTITY_ARGS` so the
+     model is never even shown an identity parameter to fill in).
+   - Also needs `app/ai/prompts/system.py` (plan.md §3's prompt rules).
 4. `app/ai/budget.py` — token accounting, in-process token-bucket limiter,
    exponential backoff w/ jitter on HTTP 429.
 5. `POST /api/chat` — creates/continues a `conversations` row, persists `messages`
