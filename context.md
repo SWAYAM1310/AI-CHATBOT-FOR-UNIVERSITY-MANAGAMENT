@@ -500,11 +500,60 @@ decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
   `audience_roles`, `effective_date`; paths relative to repo root.
 - requirements: pymupdf, pdfplumber, pyyaml, markdown.
 
+### Step 1 — DONE (uncommitted): manifest + parsers + ingest skeleton
+- `app/ai/rag/manifest.py` — `load_manifest()` → `ManifestEntry(path, title,
+  doc_type, audience_roles, category?, dept_code?, effective_date?)`;
+  `ManifestError` on missing file / unknown doc_type / bad role / duplicate.
+  `entry.source_path` = repo-relative posix path = the key in
+  `documents.source_path`.
+- `app/ai/rag/parsers.py` — `parse_pdf()` → pages (1-based) with NFKC +
+  whitespace `normalize()`; `extract_tables()` via pdfplumber (lazy import).
+- `app/ai/rag/ingest.py` — `ingest(entries, force?, doc_type?)` →
+  `IngestReport`; `ingest_one()` upserts the `Document` (`version` = file
+  SHA-256 → unchanged files skipped), drops old chunks (unlinking
+  `academic_calendar.source_chunk_id` and the parent self-FK first), writes
+  `ChunkDraft`s with `tsv = to_tsvector('english', ...)`, **embedding NULL**.
+  `CHUNKERS: dict[doc_type, Chunker]` — empty for now, `page_chunks` fallback;
+  steps 3/5/6 register into it. One transaction per document. CLI:
+  `python -m app.ai.rag.ingest [--doc-type policy] [--force]`.
+- `search_university_policies` is now real: `websearch_to_tsquery` +
+  `ts_rank_cd`, **filtered by `documents.audience_roles @> role`**, returns
+  `page`. Ranking is crude with page-sized chunks (step 3/4 fix it).
+- Policies ingested: 7 docs, 25 page-chunks. `tests/test_rag_ingest.py` (19):
+  manifest validation, ligature folding, page numbers (§4.2 on p.2), tables,
+  idempotence/force/changed-file, per-file failure isolation, parent links,
+  audience filter. Old "empty doc store" test retargeted. Suite **271 passed**.
+- Note: `documents`/`doc_chunks` are NOT truncated by the CSV loader's
+  `--reset`; the ingest test module truncates them itself.
+
+### Step 2 — DONE (uncommitted): Jina API embedder + vectors in ingest
+- **Model: `jina-embeddings-v5-omni-small` via `https://api.jina.ai/v1/embeddings`**
+  — served by the API, 1024-dim (schema unchanged), supports `task` and
+  `late_chunking`. (v3 = 1024, v4 = 2048 also served.) `api_model_name()`
+  strips a `jinaai/` HF prefix from `EMBEDDING_MODEL`.
+- Config: `jina_api_key`, `jina_base_url`; **settings now read both repo-root
+  `.env` and `backend/.env` (the latter overrides)** — the key lives in
+  `backend/.env`.
+- `app/ai/rag/embedder.py`: `Embedder` Protocol; `JinaEmbedder` —
+  `embed_documents(texts, late_chunking=False)` (one request for a whole
+  late-chunked document, else batches of 32, `task=retrieval.passage`),
+  `embed_query(text)` (`task=retrieval.query`, LRU cache 512 by text hash),
+  retries 429/5xx with Retry-After or `budget.backoff_delay`, `EmbeddingError`
+  / `EmbeddingNotConfigured`, `.calls` / `.tokens_used` meters.
+  `FakeEmbedder` = deterministic hashed bag-of-words (offline tests/CI).
+  `get_embedder()` lazy singleton. `--selftest` does one real call.
+- `ingest(..., embedder=None|Embedder)`: vectors computed **before** the old
+  chunks are dropped; `LATE_CHUNKED = {policy, notice}` → one late-chunked
+  call per document; `embedding_model` recorded. CLI embeds by default when a
+  key is present, `--no-embed` for text-only.
+- Policies re-ingested with real vectors (25 chunks, ~1 call/doc). Dense
+  top-1 already picks the right document for every probe question.
+- `tests/test_rag_embedder.py` (14, MockTransport): task asymmetry, late
+  chunking = one request, batching, cache, retry/backoff bounds, malformed
+  responses, order restoration, no-key, fake determinism, ingest writes
+  vectors / NULL without embedder / failure keeps previous chunks.
+
 ### Remaining steps
-1. Parsers + ingest skeleton (`documents` rows, raw chunks, no embeddings).
-2. Jina API embedder (`embed_documents`/`embed_query`, `late_chunking`,
-   deterministic fake for tests) — **needs `JINA_API_KEY`**; pick v3 (1024-dim,
-   matches schema) unless v4/v5 is served.
 3. Policy chunker (clause-aware) → `doc_chunks` with vectors + `tsv`.
 4. Hybrid retriever (pgvector ∪ ts_rank, RRF, audience filter) + citations;
    wire `_retrieve()` and `search_university_policies`. Signature demo.

@@ -9,16 +9,21 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
+    # repo-root .env is shared with docker-compose; backend/.env (if present)
+    # overrides it and is where per-developer secrets such as JINA_API_KEY live
     model_config = SettingsConfigDict(
-        env_file=REPO_ROOT / ".env",
+        env_file=(REPO_ROOT / ".env", REPO_ROOT / "backend" / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
 
     database_url: str = "postgresql+psycopg://uniassist:uniassist@localhost:5432/uniassist"
 
+    # Embeddings via the Jina API (plan.md §8; no local model)
     embedding_dim: int = 1024
-    embedding_model: str = "jinaai/jina-embeddings-v5-omni-small"
+    embedding_model: str = "jina-embeddings-v3"
+    jina_api_key: str = ""
+    jina_base_url: str = "https://api.jina.ai/v1"
 
     llm_base_url: str = "https://api.groq.com/openai/v1"
     llm_api_key: str = ""
