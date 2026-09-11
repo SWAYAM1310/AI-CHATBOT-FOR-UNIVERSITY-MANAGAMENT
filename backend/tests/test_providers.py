@@ -204,6 +204,35 @@ def test_backend_that_rejects_reasoning_effort_is_retried_without_it():
     assert "reasoning_effort" not in retry
 
 
+GROQ_TOOL_USE_FAILED = (
+    "Error code: 400 - {'error': {'message': 'Tool choice is none, but model called a tool', "
+    "'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"router\"'}}"
+)
+
+
+def test_a_phantom_tool_call_in_a_no_tools_step_is_retried_once_with_a_plain_text_note():
+    """gpt-oss on Groq: the router/answer step 'calls a tool' that is not attached -> 400 tool_use_failed."""
+    from app.ai.providers.openai_compat import NO_TOOLS_NOTE
+
+    provider, client = make_provider(bad_request(GROQ_TOOL_USE_FAILED), fake_reply())
+    out = provider.chat(system="You are the ROUTER.", messages=[{"role": "user", "content": "hi"}], model=MAIN, json_object=True)
+    assert out.text == "hello"
+    first, retry = client.completions.calls
+    assert first["messages"][0]["content"] == "You are the ROUTER."
+    assert retry["messages"][0]["content"] == "You are the ROUTER." + NO_TOOLS_NOTE
+    assert retry["messages"][1:] == first["messages"][1:] and "_no_tools_retry" not in retry
+
+    # a second failure is not retried again; and a step that HAS tools is not retried at all
+    provider, client = make_provider(bad_request(GROQ_TOOL_USE_FAILED), bad_request(GROQ_TOOL_USE_FAILED))
+    with pytest.raises(ProviderError):
+        provider.chat(system="s", messages=[], model=MAIN)
+    assert len(client.completions.calls) == 2
+    provider, client = make_provider(bad_request(GROQ_TOOL_USE_FAILED))
+    with pytest.raises(ProviderError):
+        provider.chat(system="s", messages=[], model=MAIN, tools=[{"type": "function", "function": {"name": "t"}}])
+    assert len(client.completions.calls) == 1
+
+
 def test_other_bad_requests_are_not_retried():
     provider, client = make_provider(bad_request("model `nope` does not exist"))
     with pytest.raises(ProviderError):

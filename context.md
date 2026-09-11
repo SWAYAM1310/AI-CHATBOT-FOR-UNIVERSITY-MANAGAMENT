@@ -1023,6 +1023,16 @@ in `scratchpad/dev_server.py`).
   Live re-run: fast path, `list_missing_submissions {}`, student_table card;
   the follow-up answers 200. The original 502's cause was never captured —
   watch the log (`log.error("LLM provider error …")`) if it recurs.
+- **The 502's cause, captured** (faculty "what course do i teach?", "what is
+  my name?"): Groq **400 `tool_use_failed` — "Tool choice is none, but model
+  called a tool"**. gpt-oss emits a phantom tool call (`router`,
+  `mark_attendance`…) in a step with no tools attached (Call A with
+  `json_object`, or Call C) and Groq rejects the response; it is random per
+  phrasing. Fix in `openai_compat._create`: on that 400, when the payload has
+  no `tools`, retry **once** with `NO_TOOLS_NOTE` appended to the system
+  prompt ("There are no tools in this step…"), logged as a warning; a second
+  failure raises `ProviderError`. Tests in `test_providers.py`. Live re-run:
+  all four faculty questions answer (fast path, right tools).
 - The dev DB `conversations` for user 17 now also hold live turns.
 
 ### Remaining steps (do one at a time; report and ask before committing)

@@ -6,6 +6,8 @@ LLM_BASE_URL and the LLM_MODEL_* ids change.
 """
 from __future__ import annotations
 
+import logging
+
 import json
 from collections.abc import Sequence
 from typing import Any
@@ -23,6 +25,13 @@ from app.ai.providers.base import (
 )
 from app.config import settings
 
+
+log = logging.getLogger(__name__)
+
+NO_TOOLS_NOTE = (
+    "\n\nThere are no tools in this step. Do not emit a tool or function call of any kind; "
+    "write your reply as plain text in the format asked for above."
+)
 
 class OpenAICompatProvider:
     """Implements the LLMProvider Protocol against any OpenAI-compatible endpoint."""
@@ -83,7 +92,7 @@ class OpenAICompatProvider:
 
     def _create(self, payload: dict[str, Any]) -> Any:
         try:
-            return self._client.chat.completions.create(**payload)
+            return self._client.chat.completions.create(**{k: v for k, v in payload.items() if not k.startswith("_")})
         except openai.RateLimitError as exc:
             raise ProviderRateLimited(str(exc), retry_after=_retry_after(exc)) from exc
         except openai.BadRequestError as exc:
@@ -91,6 +100,18 @@ class OpenAICompatProvider:
             if "reasoning_effort" in payload and "reasoning_effort" in str(exc):
                 payload.pop("reasoning_effort")
                 return self._create(payload)
+            # gpt-oss on Groq sometimes "calls a tool" in a step that has none attached
+            # (the router, or the final answer); Groq rejects the whole response with
+            # 400 tool_use_failed. It is random per phrasing: say it plainly and retry once.
+            if "tool_use_failed" in str(exc) and "tools" not in payload and not payload.get("_no_tools_retry"):
+                log.warning("model called a tool in a no-tools step (%s); retrying with a plain-text note", payload["model"])
+                retry = dict(payload)
+                retry["_no_tools_retry"] = True
+                retry["messages"] = [
+                    {**payload["messages"][0], "content": payload["messages"][0]["content"] + NO_TOOLS_NOTE},
+                    *payload["messages"][1:],
+                ]
+                return self._create(retry)
             raise ProviderError(str(exc)) from exc
         except openai.APIError as exc:  # connection, timeout, 5xx, ...
             raise ProviderError(str(exc)) from exc
