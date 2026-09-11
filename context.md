@@ -1,8 +1,8 @@
 # UniAssist — build context (resume here)
 
 Snapshot for picking the work back up. Last updated after **Phase 5a part 3**
-(2026-09-12). Phases 0–4 complete; frontend parts 1–3 done (parts 2–3 and the
-UX audit are **uncommitted**). Next: Phase 5a part 4 (dev tool-trace panel).
+(2026-09-12). Phases 0–4 complete; frontend parts 1–3 committed. Next: Phase 5a part 4
+(dev tool-trace panel).
 
 ---
 
@@ -75,8 +75,8 @@ on an RTX 3050.
 | `c00183f` | 3.6 | calendar + notices corpus, tabular extract → academic_calendar, notice chunker, 373 tests |
 | `c8c6259` | 4 | gap-check: all 40 planned tools present; `run_analytics` gains `failure_rate`, 378 tests |
 | `87bdbcf` | 5a.1 | frontend part 1: API client, login, chat with footnote citations + confirm card |
-| _(uncommitted)_ | 5a.2 | frontend part 2: conversation rail + role-specific suggested prompts + UX audit |
-| _(uncommitted)_ | 5a.3 | typed data cards (backend `app/ai/cards.py` + API `trace`) and their renderers, 380 tests |
+| `f276164` | 5a.2 | frontend part 2: conversation rail + role-specific suggested prompts + UX audit |
+| `7f4fc10` | 5a.3 | typed data cards (backend `app/ai/cards.py` + API `trace`) and their renderers, 380 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
