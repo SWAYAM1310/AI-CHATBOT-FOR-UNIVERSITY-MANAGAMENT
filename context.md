@@ -1,6 +1,8 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after **Phase 1b**.
+Snapshot for picking the work back up. Last updated after **Phase 3 step 2**
+(2026-09-11). Phases 0–2 complete; Phase 3 (RAG) steps 0–2 committed; next is
+**step 3, the clause-aware policy chunker** (see §8 "Remaining steps").
 
 ---
 
@@ -55,6 +57,17 @@ on an RTX 3050.
 | `fb00321` | 0 | Scaffold: `docker-compose.yml`, `backend/` skeleton, `frontend/` Vite stub |
 | `76fb601` | 1a | 30-table schema, initial migration, CSV loader, 40 tests |
 | `3a24ee9` | 1b | JWT auth, AuthContext, 3-layer RBAC + audit log, starter tools, 56 tests |
+| `db77b18` | 2.1 | student SELF read tools + shared tools |
+| `d517520` | 2.2 | OpenAI-compatible LLM provider (Groq default) |
+| `b816420` | 2.3–4 | three-call orchestrator + token budget / 429 backoff |
+| `9c54a8e` | 2.5 | `POST /api/chat` with persisted conversations |
+| `80558dc` | 2.6 | offline CI + no-key guard test |
+| `c3ec74d` | 2.7a | faculty OWN_COURSES tools |
+| `24f1566` | 2.7b | admin UNIVERSITY tools incl. bounded `run_analytics` |
+| `ba8befd` | 2.7c | 8 action tools + two-phase confirm + `POST /api/chat/confirm` |
+| `96ea994` | 3.0 | 7 synthetic policy docs (md + pdf) + `docs/manifest.yaml` |
+| `e117c91` | 3.1 | manifest loader, PDF parsers, ingest skeleton, full-text policy search |
+| `5ad9f5e` | 3.2 | Jina API embedder, vectors in ingest, 285 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -191,6 +204,23 @@ Frontend (stub, not wired to the API yet): `cd frontend && npm install && npm ru
 - `data/synthetic/*.csv` (full ~2M-row set) is git-ignored and reproducible:
   `./backend/.venv/Scripts/python.exe scripts/generate_synthetic_data.py` (no flag
   = full; `--sample` = subset). Seed 42, deterministic.
+- **Secrets:** `backend/.env` holds `JINA_API_KEY` (git-ignored; settings read
+  it on top of the root `.env`). `LLM_API_KEY` (Groq) is still empty — the
+  live LLM path has never been run; everything is tested with scripted
+  providers. Jina IS live: `python -m app.ai.rag.embedder --selftest`.
+- **RAG store state:** `documents` / `doc_chunks` hold the 7 policies as
+  page-level chunks with real v5 vectors (`python -m app.ai.rag.ingest
+  --doc-type policy`). These tables are not touched by the CSV loader's
+  `--reset`; `tests/test_rag_ingest.py` truncates and re-ingests them, and
+  `test_rag_embedder.py` overwrites the attendance doc's vectors with the
+  fake — so **after running the suite, re-run the ingest with `--force`**
+  before a live demo.
+- Run the suite: `cd backend && .venv/Scripts/python.exe -m pytest tests -q
+  -p no:warnings` → 285 passed (~18 s). `python` on PATH is the Windows Store
+  interpreter without the deps — always use the venv one.
+- Editing files from a script on Windows: always pass `encoding="utf-8"` and
+  `newline="
+"`; the default cp1252 codec corrupted a `§` once.
 
 ---
 
@@ -479,7 +509,7 @@ Per `plan.md §3`, §4, §6.
 Per `plan.md §8`. Embeddings via the **Jina API** (not a local model — user's
 decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
 
-### Step 0 — DONE (uncommitted): synthetic policy corpus + manifest
+### Step 0 — DONE: synthetic policy corpus + manifest
 - No policy documents existed in the repo (only 6 curriculum PDFs under
   `data/`). Wrote 7 institution-neutral ("the University" / "School of
   Technology") policies in `docs/policies/*.md`, every number taken from
@@ -500,7 +530,7 @@ decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
   `audience_roles`, `effective_date`; paths relative to repo root.
 - requirements: pymupdf, pdfplumber, pyyaml, markdown.
 
-### Step 1 — DONE (uncommitted): manifest + parsers + ingest skeleton
+### Step 1 — DONE: manifest + parsers + ingest skeleton
 - `app/ai/rag/manifest.py` — `load_manifest()` → `ManifestEntry(path, title,
   doc_type, audience_roles, category?, dept_code?, effective_date?)`;
   `ManifestError` on missing file / unknown doc_type / bad role / duplicate.
@@ -526,7 +556,7 @@ decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
 - Note: `documents`/`doc_chunks` are NOT truncated by the CSV loader's
   `--reset`; the ingest test module truncates them itself.
 
-### Step 2 — DONE (uncommitted): Jina API embedder + vectors in ingest
+### Step 2 — DONE: Jina API embedder + vectors in ingest
 - **Model: `jina-embeddings-v5-omni-small` via `https://api.jina.ai/v1/embeddings`**
   — served by the API, 1024-dim (schema unchanged), supports `task` and
   `late_chunking`. (v3 = 1024, v4 = 2048 also served.) `api_model_name()`
@@ -553,16 +583,29 @@ decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
   responses, order restoration, no-key, fake determinism, ingest writes
   vectors / NULL without embedder / failure keeps previous chunks.
 
-### Remaining steps
-3. Policy chunker (clause-aware) → `doc_chunks` with vectors + `tsv`.
-4. Hybrid retriever (pgvector ∪ ts_rank, RRF, audience filter) + citations;
-   wire `_retrieve()` and `search_university_policies`. Signature demo.
-5. Curriculum chunker + relational extract + exact-lookup tools.
-6. Tabular + notices.
+### Remaining steps (do one at a time; report and ask before committing)
+3. **Policy chunker** — register `CHUNKERS["policy"]` in
+   `app/ai/rag/chunkers/policy.py`: split the parsed text on numbered clauses
+   (`## N.` headings → section titles; `N.N` / `N.N.N` paragraphs), ~400 tokens
+   per chunk, `section` = "§4.2 Minimum attendance…", `page` = the page the
+   clause starts on (map by finding the clause text in `parsed.pages`). Keep
+   the whole document in one late-chunked embed call (already wired). Then
+   `--force` re-ingest and assert "minimum attendance" → Part IV §4.2 p.2.
+4. **Hybrid retriever + citations** — `app/ai/rag/retriever.py`: pgvector
+   cosine top-20 ∪ `ts_rank` top-20 → RRF → top-5, audience pre-filter, parent
+   hydration (for curriculum later); `app/ai/rag/citations.py` resolves
+   `[[cite:<chunk_id>]]` → {doc_title, section, page, snippet}. Wire into the
+   orchestrator's `_retrieve()` (currently returns []) and make
+   `search_university_policies` call it. Call C prompt already has the
+   grounding rule. Signature demo: 68% vs 75%, "7 points short", cite §4.2 p.2.
+5. **Curriculum chunker** — split the 6 syllabus PDFs by course code →
+   parent (course record) / child (unit) chunks (`ChunkDraft.parent` is
+   supported), late-chunk per course; extract courses / syllabus_units /
+   course_outcomes / textbooks to tables (needs a migration — those tables
+   don't exist yet) + exact-lookup tools.
+6. **Tabular + notices** — row extraction (`parsers.extract_tables` exists)
+   with `source_chunk_id`; single-chunk notices.
 
-Phase 2 is complete. Next per plan.md §11 is **Phase 3 — RAG** (manifest
-ingest, three chunkers, hybrid retrieval, citations); `_retrieve()` in the
-orchestrator and `search_university_policies` are the hooks it plugs into.
 
 **To run the live LLM path**, put a Groq key in `backend/.env` as `LLM_API_KEY=...`
 then `python -m app.main --check-models` should pass.
