@@ -1011,6 +1011,18 @@ in `scratchpad/dev_server.py`).
   to a regulation query; when such a tool ran and the router said no RAG,
   that query is retrieved anyway. Live re-run: `[1] §4.2 … p.2`, "67.7 % …
   below the required 75 %". Test added in `test_orchestrator.py`.
+- Third live finding (faculty, "Which of my students have missing
+  submissions?"): no tool ran — `list_missing_submissions` *required*
+  `course_code`, the question named none, the planner emitted no call and
+  Call C said "no data"; the follow-up then hit a bare **502 "LLM provider
+  error"** with the cause unlogged. Fixes: `_faculty_offerings(course_code=None)`
+  → every offering the faculty teaches this term (admin must still name a
+  course) and `course_code` optional on all six course-level faculty tools
+  (descriptions say so); `list_missing_submissions` rows gain `course`; the
+  API now logs provider errors and returns `LLM provider error: <reason>`.
+  Live re-run: fast path, `list_missing_submissions {}`, student_table card;
+  the follow-up answers 200. The original 502's cause was never captured —
+  watch the log (`log.error("LLM provider error …")`) if it recurs.
 - The dev DB `conversations` for user 17 now also hold live turns.
 
 ### Remaining steps (do one at a time; report and ask before committing)

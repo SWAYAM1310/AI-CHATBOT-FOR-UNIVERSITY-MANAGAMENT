@@ -21,6 +21,8 @@ model: the tool's own one-line result is the reply.
 """
 from __future__ import annotations
 
+import logging
+
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -43,6 +45,7 @@ from app.auth.context import AuthContext
 from app.auth.deps import get_auth_context, get_db
 from app.models import Conversation, Message
 
+log = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 MAX_MESSAGE_CHARS = 2000  # a question, not a document — bounds the prompt too
@@ -156,7 +159,8 @@ def chat(
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "LLM provider not configured") from exc
     except ProviderError as exc:
         db.rollback()
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "LLM provider error") from exc
+        log.error("LLM provider error on turn for user %s: %s", ctx.user_id, exc)
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, f"LLM provider error: {str(exc)[:200]}") from exc
 
     if convo is None:
         convo = Conversation(user_id=ctx.user_id, title=question[:TITLE_CHARS])

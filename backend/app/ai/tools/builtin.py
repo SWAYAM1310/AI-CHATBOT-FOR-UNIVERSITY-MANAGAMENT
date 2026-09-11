@@ -95,12 +95,19 @@ def get_my_attendance(*, ctx: AuthContext, db: Session, course: str | None = Non
     return out
 
 
-def _faculty_offerings(db: Session, ctx: AuthContext, course_code: str) -> list[int]:
-    """Offering ids for `course_code` that THIS faculty teaches (OWN_COURSES gate)."""
-    stmt = select(CourseOffering.id).where(
-        CourseOffering.subject_code == course_code,
-        CourseOffering.term == ctx.term,
-    )
+def _faculty_offerings(db: Session, ctx: AuthContext, course_code: str | None) -> list[int]:
+    """Offering ids for `course_code` that THIS faculty teaches (OWN_COURSES gate).
+
+    Without a course code a faculty member gets every offering they teach this
+    term — "which of my students…" needs no course named. An admin must name
+    the course: "every offering in the university" is not a question a
+    course-level tool answers.
+    """
+    stmt = select(CourseOffering.id).where(CourseOffering.term == ctx.term)
+    if course_code:
+        stmt = stmt.where(CourseOffering.subject_code == course_code.strip().upper())
+    elif ctx.role is not Role.FACULTY:
+        return []
     if ctx.role is Role.FACULTY:
         stmt = stmt.where(CourseOffering.faculty_id == ctx.faculty_id)
     return list(db.scalars(stmt))
@@ -108,11 +115,11 @@ def _faculty_offerings(db: Session, ctx: AuthContext, course_code: str) -> list[
 
 @tool(
     name="list_course_students",
-    description="Roster of students enrolled in a course you teach.",
+    description="Roster of students enrolled in a course you teach (omit course_code for all your courses).",
     allowed_roles={Role.FACULTY, Role.ADMIN},
     scope=Scope.OWN_COURSES,
 )
-def list_course_students(*, ctx: AuthContext, db: Session, course_code: str, **_: Any) -> list[dict[str, Any]]:
+def list_course_students(*, ctx: AuthContext, db: Session, course_code: str | None = None, **_: Any) -> list[dict[str, Any]]:
     offerings = _faculty_offerings(db, ctx, course_code)
     if not offerings:
         return []
@@ -127,12 +134,12 @@ def list_course_students(*, ctx: AuthContext, db: Session, course_code: str, **_
 
 @tool(
     name="list_students_below_attendance",
-    description="Students in a course you teach whose attendance is below a threshold (default 75%).",
+    description="Students in a course you teach whose attendance is below a threshold (default 75%); omit course_code for all your courses.",
     allowed_roles={Role.FACULTY, Role.ADMIN},
     scope=Scope.OWN_COURSES,
 )
 def list_students_below_attendance(
-    *, ctx: AuthContext, db: Session, course_code: str, threshold: float = 75.0, **_: Any
+    *, ctx: AuthContext, db: Session, course_code: str | None = None, threshold: float = 75.0, **_: Any
 ) -> list[dict[str, Any]]:
     offerings = _faculty_offerings(db, ctx, course_code)
     if not offerings:

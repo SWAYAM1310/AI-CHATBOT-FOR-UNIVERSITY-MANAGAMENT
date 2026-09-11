@@ -138,12 +138,12 @@ def _attendance_per_student(offerings: list[int]):
 
 @tool(
     name="get_course_attendance_summary",
-    description="Attendance overview for a course you teach: sessions held, class average, and how many students are under 75%.",
+    description="Attendance overview for a course you teach (omit course_code for all your courses): sessions held, class average, and how many students are under 75%.",
     allowed_roles=FACULTY_ROLES,
     scope=Scope.OWN_COURSES,
 )
 def get_course_attendance_summary(
-    *, ctx: AuthContext, db: Session, course_code: str, **_: Any
+    *, ctx: AuthContext, db: Session, course_code: str | None = None, **_: Any
 ) -> dict[str, Any] | None:
     offerings = _faculty_offerings(db, ctx, course_code)
     if not offerings:
@@ -173,12 +173,12 @@ def get_course_attendance_summary(
 
 @tool(
     name="list_missing_submissions",
-    description="Students in a course you teach who have not submitted (or submitted late) an assignment; optionally one assignment by title or type.",
+    description="Students in a course you teach (or all your courses if course_code is omitted) who have not submitted (or submitted late) an assignment; optionally one assignment by title or type.",
     allowed_roles=FACULTY_ROLES,
     scope=Scope.OWN_COURSES,
 )
 def list_missing_submissions(
-    *, ctx: AuthContext, db: Session, course_code: str, assessment: str | None = None, **_: Any
+    *, ctx: AuthContext, db: Session, course_code: str | None = None, assessment: str | None = None, **_: Any
 ) -> list[dict[str, Any]]:
     offerings = _faculty_offerings(db, ctx, course_code)
     if not offerings:
@@ -187,6 +187,7 @@ def list_missing_submissions(
         select(
             Student.roll_no,
             Student.full_name,
+            CourseOffering.subject_code,
             Assessment.type,
             Assessment.title,
             Assessment.due_date,
@@ -194,6 +195,7 @@ def list_missing_submissions(
         )
         .join(Submission, Submission.student_id == Student.id)
         .join(Assessment, Assessment.id == Submission.assessment_id)
+        .join(CourseOffering, CourseOffering.id == Assessment.offering_id)
         .where(
             Assessment.offering_id.in_(offerings),
             Submission.status.in_(("missing", "late")),
@@ -206,6 +208,7 @@ def list_missing_submissions(
         {
             "roll_no": r.roll_no,
             "full_name": r.full_name,
+            "course": r.subject_code,
             "assessment": r.title or r.type,
             "type": r.type,
             "due_date": r.due_date.isoformat() if r.due_date else None,
@@ -217,12 +220,12 @@ def list_missing_submissions(
 
 @tool(
     name="get_course_marks_summary",
-    description="Per-assessment marks statistics for a course you teach (graded count, mean, lowest, highest, absentees); optionally one assessment type.",
+    description="Per-assessment marks statistics for a course you teach (omit course_code for all your courses; graded count, mean, lowest, highest, absentees); optionally one assessment type.",
     allowed_roles=FACULTY_ROLES,
     scope=Scope.OWN_COURSES,
 )
 def get_course_marks_summary(
-    *, ctx: AuthContext, db: Session, course_code: str, assessment_type: str | None = None, **_: Any
+    *, ctx: AuthContext, db: Session, course_code: str | None = None, assessment_type: str | None = None, **_: Any
 ) -> list[dict[str, Any]]:
     offerings = _faculty_offerings(db, ctx, course_code)
     if not offerings:
@@ -263,12 +266,12 @@ def get_course_marks_summary(
 
 @tool(
     name="identify_at_risk_students",
-    description="Students in a course you teach flagged for low attendance (<75%), low marks (<40% on graded work) or missing assignments, with the reasons.",
+    description="Students in a course you teach (all your courses if course_code is omitted) flagged for low attendance (<75%), low marks (<40% on graded work) or missing assignments, with the reasons.",
     allowed_roles=FACULTY_ROLES,
     scope=Scope.OWN_COURSES,
 )
 def identify_at_risk_students(
-    *, ctx: AuthContext, db: Session, course_code: str, **_: Any
+    *, ctx: AuthContext, db: Session, course_code: str | None = None, **_: Any
 ) -> list[dict[str, Any]]:
     offerings = _faculty_offerings(db, ctx, course_code)
     if not offerings:
