@@ -489,6 +489,7 @@ METRICS = (
     "average_marks_percent",
     "fee_collection_rate",
     "backlog_count",
+    "failure_rate",  # % of declared semester results not passed (Fail / ATKT) — the plan.md §11 Phase-4 demo
 )
 
 
@@ -496,7 +497,7 @@ METRICS = (
     name="run_analytics",
     description=(
         "Aggregate one metric (student_count, average_cgpa, average_attendance, average_marks_percent, "
-        "fee_collection_rate, backlog_count) grouped by department, semester, batch or division; "
+        "fee_collection_rate, backlog_count, failure_rate) grouped by department, semester, batch or division; "
         "optionally filtered to one department and/or semester."
     ),
     allowed_roles=ADMIN,
@@ -536,9 +537,14 @@ def run_analytics(
         q = q.join(Fee, and_(Fee.student_id == Student.id, Fee.term == ctx.term)).add_columns(
             (func.sum(Fee.amount_paid) * 100.0 / func.nullif(func.sum(Fee.amount_due), 0)).label("value")
         )
-    else:  # backlog_count
+    elif metric == "backlog_count":
         q = q.join(ResultSemester, ResultSemester.student_id == Student.id).add_columns(
             func.coalesce(func.sum(ResultSemester.backlogs), 0).label("value")
+        )
+    else:  # failure_rate: results not passed (Fail, ATKT) as a percentage of all declared results in the group
+        failed = func.count(ResultSemester.id).filter(func.lower(ResultSemester.result_status) != "pass")
+        q = q.join(ResultSemester, ResultSemester.student_id == Student.id).add_columns(
+            (failed * 100.0 / func.nullif(func.count(ResultSemester.id), 0)).label("value")
         )
 
     rows = db.execute(q.group_by(key).order_by(key))

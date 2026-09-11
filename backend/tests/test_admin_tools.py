@@ -168,3 +168,26 @@ def test_run_analytics_filters_narrow_the_groups(db, admin):
         "run_analytics", admin, db, {"metric": "average_cgpa", "group_by": "semester", "dept": "CP", "semester": 3}
     )
     assert [r["semester"] for r in rows] == [3]
+
+
+def test_run_analytics_failure_rate_is_the_non_pass_share_of_declared_results(db, admin):
+    """The Phase-4 demo (plan.md §11): department failure-rate analysis."""
+    from sqlalchemy import func, select
+
+    from app.models import ResultSemester, Student
+
+    rows = REGISTRY.invoke("run_analytics", admin, db, {"metric": "failure_rate", "group_by": "department"})
+    assert rows and all(0 <= r["value"] <= 100 for r in rows)
+    got = {r["department"]: r["value"] for r in rows}
+    for dept, total, failed in db.execute(
+        select(
+            Student.dept_code,
+            func.count(ResultSemester.id),
+            func.count(ResultSemester.id).filter(func.lower(ResultSemester.result_status) != "pass"),
+        )
+        .join(Student, Student.id == ResultSemester.student_id)
+        .where(Student.is_active.is_(True))
+        .group_by(Student.dept_code)
+    ):
+        assert got[dept] == pytest.approx(round(failed * 100 / total, 2))
+    assert any(v > 0 for v in got.values())  # the sample has ATKT results

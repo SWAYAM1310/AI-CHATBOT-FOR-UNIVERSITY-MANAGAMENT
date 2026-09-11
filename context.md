@@ -1,8 +1,8 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after **Phase 3 step 6**
-(2026-09-11). Phases 0–3 complete (step 6 uncommitted). Next: **Phase 4
-gap-check, then Phase 5 (frontend, eval harness)** — see §8 "Remaining steps".
+Snapshot for picking the work back up. Last updated after the **Phase 4
+gap-check** (2026-09-12). Phases 0–4 complete (gap-check uncommitted). Next:
+**Phase 5a — frontend** (see §8 "Remaining steps"; break it into parts).
 
 ---
 
@@ -72,7 +72,8 @@ on an RTX 3050.
 | `90af19f` | 3.4 | hybrid retriever (RRF) + numbered citations + router `rag_query`, 319 tests |
 | `6ea7bcd` | 3.5a | curriculum parser + parent/child chunker + per-course late chunking, 339 tests |
 | `b5e70b9` | 3.5b | syllabus tables + relational extract + curriculum tools + citable tool passages, 355 tests |
-| _(uncommitted)_ | 3.6 | calendar + notices corpus, tabular extract → academic_calendar, notice chunker, 373 tests |
+| `c00183f` | 3.6 | calendar + notices corpus, tabular extract → academic_calendar, notice chunker, 373 tests |
+| _(uncommitted)_ | 4 | gap-check: all 40 planned tools present; `run_analytics` gains `failure_rate`, 378 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -846,19 +847,32 @@ prompt + `rag_query`) ✔, faculty tools ✔ (2.7a). Not yet run live end-to-end
 (no Groq key) — every turn above was scripted at Call A/C with real tools
 and real vectors.
 
+## 9. Phase 4 — gap-check (DONE 2026-09-12)
+
+plan.md §6 catalog vs `REGISTRY`: **all 40 planned tools registered** (4 shared,
+11 student, 8 faculty, 9 admin, 8 actions) plus 3 extras
+(`get_my_teaching_courses`, `list_pending_leave_requests`,
+`search_curriculum`). Visible per role: student 18, faculty 19, admin 22
+(plan said 12–16; still a small Call-A index). §7 two-phase confirm: HMAC-SHA256
+token over (user, tool, canonical args, exp, nonce), TTL
+`settings.confirm_token_ttl_seconds` = 300, RBAC re-checked at execution, turn
+stops before Call C — all in place since 2.7c.
+
+One gap fixed: the Phase-4 demo "department failure-rate analysis" had no
+metric. `run_analytics` gained **`failure_rate`** = % of a group's declared
+semester results whose `result_status` is not `Pass` (the dataset uses
+`ATKT`, not `Fail`). Sample: CH 16.67, EC 16.67, others 0. Test added in
+`test_admin_tools.py`. Suite **378 passed**.
+
 ### Remaining steps (do one at a time; report and ask before committing)
-7. **Phase 4 gap-check** — plan.md §11 Phase 4 = two-phase confirm, 8 action
-   tools, 9 admin tools, `run_analytics`: all landed in 2.7b/2.7c. Verify
-   against plan.md §6/§7 tool catalog for anything missing; then declare
-   Phase 4 done.
-8. **Phase 5a — frontend** (plan.md §9): Vite React-TS app in `frontend/`
+5a. **Phase 5a — frontend** (plan.md §9): Vite React-TS app in `frontend/`
    (still the template): login (3 roles), chat with `POST /api/chat` +
    `/api/chat/confirm`, conversation sidebar, suggested prompts per role,
    rich cards (`confirm_action`, `citation` chips with `[n]`, `denied`),
    dev tool-trace panel, rate-limit "queued" state.
-9. **Phase 5b — eval harness** (plan.md §10): `eval/golden_set.yaml`,
+5b. **Phase 5b — eval harness** (plan.md §10): `eval/golden_set.yaml`,
    `run_eval.py`, the three experiments (late vs naive chunking, flat vs
    parent–child on curriculum, Matryoshka dims). Needs a Groq key.
-10. **Live smoke test** once `LLM_API_KEY` is set: `python -m app.main
+5c. **Live smoke test** once `LLM_API_KEY` is set: `python -m app.main
     --check-models`, then the signature turns (68% vs 75%; "what's in Unit 3
     of DBMS?"; "when are the end-sem exams?").
