@@ -51,10 +51,9 @@ def _caller_course_codes(db: Session, ctx: AuthContext) -> list[str]:
 
 @tool(
     name="search_university_policies",
-    description=(
-        "Keyword search over ingested university policy documents for relevant passages. "
-        "(Placeholder until the Phase-3 semantic RAG ingest lands.)"
-    ),
+    # the description is model-facing (it is the router's whole view of this tool),
+    # so the Phase-3 "still keyword-only" caveat lives in the docstring, not here
+    description="Search university policy documents for passages relevant to a query.",
     allowed_roles={Role.STUDENT, Role.FACULTY, Role.ADMIN},
     scope=Scope.UNIVERSITY,
 )

@@ -25,6 +25,15 @@ class Settings(BaseSettings):
     llm_model_router: str = "openai/gpt-oss-20b"
     llm_model_main: str = "openai/gpt-oss-120b"
 
+    # Free-tier survival (plan.md §4). Groq limits are per ORGANISATION, not per
+    # user, so these are deliberately below the published ceiling: an evaluator
+    # opening the app mid-demo shares it.
+    llm_tpm: int = 6000  # tokens/minute the limiter will hand out
+    llm_rpm: int = 25  # requests/minute
+    llm_max_retries: int = 4  # attempts after a 429 before giving up
+    llm_backoff_base: float = 1.0  # seconds; doubles each attempt
+    llm_backoff_cap: float = 30.0
+
     frontend_origin: str = "http://localhost:5173"
 
     # Auth
