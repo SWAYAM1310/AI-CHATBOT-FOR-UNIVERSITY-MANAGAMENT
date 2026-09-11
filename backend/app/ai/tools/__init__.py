@@ -9,6 +9,7 @@ confirm action tools are still to come.
 """
 from __future__ import annotations
 
+from app.ai.tools import admin_tools  # noqa: F401  - registers tools on import
 from app.ai.tools import builtin  # noqa: F401  - registers tools on import
 from app.ai.tools import faculty_tools  # noqa: F401  - registers tools on import
 from app.ai.tools import shared_tools  # noqa: F401  - registers tools on import

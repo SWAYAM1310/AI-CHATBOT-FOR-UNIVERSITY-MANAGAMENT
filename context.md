@@ -364,12 +364,71 @@ Per `plan.md §3`, §4, §6.
   exhausted 429 = 503 + Retry-After + nothing persisted, no-key 503 / other 502,
   queued wait reported, auth + validation. Suite now **146 passed**.
 
+### Step 6 — DONE (uncommitted): offline CI
+- `.github/workflows/backend-tests.yml` — pgvector Postgres service →
+  `alembic upgrade head` → `pytest`, with `LLM_API_KEY` **deliberately empty**.
+  A green run is the proof the suite (routing, RBAC, budget) is offline.
+- `backend/tests/test_offline.py` — one guard: with no key the process-wide
+  budgeted provider refuses at construction (`ProviderNotConfigured`) and caches
+  nothing half-built. Note `get_provider` is `lru_cache`d — tests that touch it
+  must `cache_clear()`.
+- The rest of step 6's brief (mock the provider; routing picks the right tool;
+  RBAC still blocks; budget respected) was already covered by
+  `test_orchestrator.py` / `test_budget.py` / `test_chat_api.py`.
+- README updated (was still saying 56 tests). Suite now **147 passed**.
+
+### Step 7a — DONE (uncommitted): faculty OWN_COURSES tools
+- `backend/app/ai/tools/faculty_tools.py` (registered in `tools/__init__.py`):
+  `get_my_teaching_courses` (named so because `get_my_courses` is the student
+  tool and the registry forbids duplicate names; the index is role-filtered so
+  each role sees exactly one), `get_my_teaching_schedule(day?)`,
+  `get_course_attendance_summary(course_code)` → dict or **None**,
+  `list_missing_submissions(course_code, assessment?)` (missing + late),
+  `get_course_marks_summary(course_code, assessment_type?)`,
+  `identify_at_risk_students(course_code)` — attendance <75 / marks <40% of
+  max / missing submissions, with a `reasons` string, worst first.
+- All course tools gate through `builtin._faculty_offerings` (own
+  `faculty_id` from AuthContext) → a course you don't teach yields `[]`/None,
+  never an error. Course tools are `{FACULTY, ADMIN}`; the two "my" tools are
+  faculty-only.
+- **Bug fixed on the way**: `get_my_assignments` filtered
+  `Assessment.type == "Assignment"` but the data has `Assignment-1/-2`, so it
+  always returned `[]` and its test passed vacuously (`all()` on empty). Now
+  `LIKE 'Assignment%'`; test asserts non-empty.
+- `backend/tests/test_faculty_tools.py` — 18 tests: exposure per role, every
+  faculty tool denied + audited for a student, every course tool empty for a
+  non-teacher, **`faculty_id` arg stripped can't borrow a colleague's course**,
+  summary ↔ below-threshold consistency, at-risk ↔ attendance agreement,
+  filters, ordering. Suite now **165 passed**.
+
+### Step 7b — DONE (uncommitted): admin UNIVERSITY tools
+- `backend/app/ai/tools/admin_tools.py` (registered in `tools/__init__.py`),
+  all `{ADMIN}` / `Scope.UNIVERSITY`: `get_enrollment_stats(dept?, semester?)`,
+  `get_department_overview`, `get_course_performance(course?, dept?)`,
+  `list_students(dept?, semester?, division?, min_cgpa?, max_cgpa?, hosteller?)`
+  (capped at 100), `get_university_attendance_report(dept?, semester?,
+  threshold=75)`, `get_faculty_workload(dept?)` (weekly hours from slot
+  durations), `find_available_classrooms(date, start_time, end_time, room_type?)`
+  (weekly timetable overlap; Sunday → `[]`; bad input → `{"error"}` row),
+  `get_fee_collection_summary(dept?, term?)`, `run_analytics(metric, group_by,
+  dept?, semester?)`.
+- **`run_analytics` is bounded by construction**: `METRICS` (student_count,
+  average_cgpa, average_attendance, average_marks_percent, fee_collection_rate,
+  backlog_count) and `GROUP_BY` (department, semester, batch, division) are
+  fixed maps to SQL expressions; anything else returns an `error` row listing
+  what is allowed — no free-form SQL, no injection surface.
+- Tools return `{"error": ...}` dicts for bad input rather than raising, so
+  Call C can explain instead of the orchestrator logging "(tool failed)".
+- `dept`/`course` args are upper-cased (the router often emits "cp").
+- `backend/tests/test_admin_tools.py` — 39 tests: admin-only exposure, denied
+  for student/faculty, aggregates reconciled against raw counts and against
+  the faculty view of the same course, filters/caps/thresholds, classroom
+  overlap + Sunday + bad input, fee arithmetic, **every metric × group_by
+  combination runs**, enum refusal incl. an injection-shaped string.
+  Suite now **204 passed**.
+
 ### Remaining steps
-6. Tests: mock the provider (no live key needed in CI); assert routing picks the
-   right tool, RBAC still blocks, token budget respected.
-7. Once the read catalog is fully wired through the orchestrator, circle back for
-   the faculty (`OWN_COURSES`) and admin (`UNIVERSITY`) tool groups + the
-   two-phase-confirm action tools (`plan.md §6`/§7) — not yet started.
+7c. Action tools + `POST /api/chat/confirm` (two-phase confirm, plan.md §7).
 
 **To run the live LLM path**, put a Groq key in `backend/.env` as `LLM_API_KEY=...`
 then `python -m app.main --check-models` should pass.
