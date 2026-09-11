@@ -7,9 +7,13 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
 
 from app.ai.rag.manifest import ManifestEntry
 from app.ai.rag.parsers import ParsedDocument
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 
 @dataclass(frozen=True)
@@ -31,3 +35,9 @@ def page_chunks(parsed: ParsedDocument, entry: ManifestEntry) -> list[ChunkDraft
 
 
 CHUNKERS: dict[str, Chunker] = {}  # doc_type -> chunker; missing types fall back to page_chunks
+
+# An extractor writes relational rows for a document once its chunk rows exist
+# (`rows` is index-aligned with the drafts the chunker produced, so an extractor
+# can point each row at its source chunk). Same transaction as the chunks.
+Extractor = Callable[["Session", Any, ParsedDocument, ManifestEntry, list[Any]], int]
+EXTRACTORS: dict[str, Extractor] = {}  # doc_type -> extractor; most types have none

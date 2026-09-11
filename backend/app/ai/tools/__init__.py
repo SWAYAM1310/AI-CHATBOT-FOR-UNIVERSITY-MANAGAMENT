@@ -12,6 +12,7 @@ from __future__ import annotations
 from app.ai.tools import action_tools  # noqa: F401  - registers tools on import
 from app.ai.tools import admin_tools  # noqa: F401  - registers tools on import
 from app.ai.tools import builtin  # noqa: F401  - registers tools on import
+from app.ai.tools import curriculum_tools  # noqa: F401  - registers tools on import
 from app.ai.tools import faculty_tools  # noqa: F401  - registers tools on import
 from app.ai.tools import shared_tools  # noqa: F401  - registers tools on import
 from app.ai.tools import student_tools  # noqa: F401  - registers tools on import

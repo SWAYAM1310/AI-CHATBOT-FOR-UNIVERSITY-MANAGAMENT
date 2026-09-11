@@ -1,9 +1,8 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after **Phase 3 step 5a**
-(2026-09-11). Phases 0–2 complete; Phase 3 (RAG) steps 0–4 committed, 5a
-uncommitted; next is **step 5b, curriculum relational extract + tools** (see
-§8 "Remaining steps").
+Snapshot for picking the work back up. Last updated after **Phase 3 step 5b**
+(2026-09-11). Phases 0–2 complete; Phase 3 (RAG) steps 0–5a committed, 5b
+uncommitted; next is **step 6, tabular + notices** (see §8 "Remaining steps").
 
 ---
 
@@ -71,7 +70,8 @@ on an RTX 3050.
 | `5ad9f5e` | 3.2 | Jina API embedder, vectors in ingest, 285 tests |
 | `150d524` | 3.3 | clause-aware policy chunker, 305 tests |
 | `90af19f` | 3.4 | hybrid retriever (RRF) + numbered citations + router `rag_query`, 319 tests |
-| _(uncommitted)_ | 3.5a | curriculum parser + parent/child chunker + per-course late chunking, 339 tests |
+| `6ea7bcd` | 3.5a | curriculum parser + parent/child chunker + per-course late chunking, 339 tests |
+| _(uncommitted)_ | 3.5b | syllabus tables + relational extract + curriculum tools + citable tool passages, 355 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -724,18 +724,74 @@ decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
   CP PDF: 88 records / full fields, DBMS Unit 3 p35 is a child of the DBMS
   parent. Suite **339 passed**.
 
+### Step 5b — DONE: relational extract + curriculum tools
+- **Migration `cc3862737634`** (reversible; `alembic check` still reports the
+  pre-existing `use_alter` FK false positive, unrelated): `syllabus_courses`
+  (document_id CASCADE, dept_code, `code` as printed / NULL for placeholders,
+  `subject_code` FK→subjects nullable, title, `title_key`, L/T/P, credits
+  Numeric(3,1), objectives ARRAY, page, source_chunk_id SET NULL),
+  `syllabus_units` (number, title, hours, topics, page), `course_outcomes`
+  (number, text), `textbooks` (position, citation) — children CASCADE on
+  course, each with `source_chunk_id`. Models in `app/models/syllabus.py`.
+- `chunkers/base.py`: `EXTRACTORS[doc_type]` — `fn(db, document, parsed,
+  entry, rows)` run by `ingest_one` after `_write_chunks` (which now returns
+  the rows, index-aligned with drafts) in the same transaction; `_drop_chunks`
+  deletes the document's `syllabus_courses` first (children cascade).
+- `chunkers/curriculum.py`: `build()` returns `(drafts, records)` with
+  `rec.draft` / `unit.draft` / `outcomes_draft` / `books_draft` indices;
+  `extract_courses` writes the four tables. **Linking to `subjects` is by
+  name first** (`title_key`: lowercase, drop `(For …)` qualifiers,
+  punctuation, `lab`→`laboratory`, `– I`/`-1`→`1`, crude singular), several
+  same-name subjects → the one in this dept's `curriculum` table wins, and
+  the printed code is trusted only if the dataset's subject of that code has
+  a similar name (Jaccard ≥ 0.6). Reason: the PDF's `24CS202T` is DBMS, the
+  dataset's `24CS202T` is Digital Logic. Result: 352/407 linked; CP DBMS →
+  `24CS201T` (what the student's own records show).
+- Parser fixes found on the way: furniture `B. Tech. … Engineering,` /
+  `Department of … Engineering` / `UG Curriculum (…)` / `Semester 6`; title
+  junk `Course Code: XXXX …`, `XXXXXX IC Technology`, `2nd Semester UG_2_T(…)`;
+  `24ECE***T` placeholders; **interstitial programme-structure tables**
+  (`COURSE STRUCTURE …`, `Category Course` / `… Course Name Theory …`
+  header rows) now end the record above (`rec.trailing`) and join the
+  "Programme structure" chunks instead of the previous course's books.
+  Curriculum corpus is now **2487 chunks**.
+- `ingest_one` → `_reusable_vectors`: a forced re-run whose chunk texts are
+  identical (same count/content/model, all vectors present) **reuses the
+  stored vectors** — an extractor-only change costs 0 Jina calls (~20 s vs
+  5.5 min). Any text difference re-embeds the whole document (late chunking
+  needs each family embedded together).
+- `app/ai/tools/curriculum_tools.py` (all roles, UNIVERSITY scope):
+  `get_course_syllabus(course, unit?)` — resolves dataset `subject_code`
+  first, then printed code, then `title_key`, then ILIKE; caller's dept
+  first; >1 distinct title → `{"matches": [...], "hint"}`; returns course,
+  department, subject_code, credits, scheme, `source` ("<doc>, p.N"),
+  `chunk_id`, objectives / units (`Unit N: title (h hrs): topics || …`) /
+  outcomes / textbooks as pre-joined strings (compact() flattens nested
+  values), or just `unit` when asked. `search_curriculum(query)` →
+  `retrieve(doc_types=("curriculum",), exclude_sections=("Programme
+  structure",))` (new `exclude_sections` param) with `parent`.
+- Orchestrator: `PASSAGE_TOOLS = {search_university_policies,
+  search_curriculum}` — their hits are kept on `ToolRun.passages`,
+  `_merge_passages` adds them to the citable passage list (dedupe by
+  chunk_id) and those runs are dropped from the "Tool results" block.
+  Prompt: "Document passages", `(course record: <label> | <scheme>)` line
+  for hits with a parent, grounding rule extended to syllabus details.
+- **conftest**: `_preserve_doc_store` now snapshots/restores the four
+  extract tables too, and runs **before** `_loaded_db` (the CSV loader's
+  `TRUNCATE subjects CASCADE` was emptying `syllabus_courses` before the
+  snapshot). Verified after a full run: 226 + 2487 chunks with vectors, 407
+  courses, 352 linked.
+- Tests: `tests/test_rag_curriculum_extract.py` (16) — title_key variants,
+  link precedence (name → dept → plausible code), extract rows + source
+  chunks + counts, DBMS→24CS201T with unit rows citing their chunks,
+  re-ingest without duplicates, vector reuse (0 extra fake calls), structure
+  table between records, tool by name/code/unit + disambiguation + unknown,
+  search_curriculum parent + no structure pages, `_merge_passages`, a
+  scripted turn where a planned `search_curriculum` call becomes passages.
+  `test_rag_embedder` exploding embedder now uses its own model name (reuse
+  would otherwise skip the API). Suite **355 passed**.
+
 ### Remaining steps (do one at a time; report and ask before committing)
-5b. **Curriculum relational extract + tools** — migration for
-   `syllabus_courses(document_id, code?, title, dept_code, L/T/P/C,
-   objectives, parent_chunk_id, page)`, `syllabus_units`, `course_outcomes`,
-   `textbooks` (all `source_chunk_id`); fill them in `ingest_one` from
-   `parse_courses` (re-run `parse_courses` or have the chunker return records;
-   `_drop_chunks` must clear these rows first). Match to `subjects` by
-   normalised **name** (codes differ). Tools: `get_course_syllabus(course)`
-   (code or name; caller's dept first) → units/COs/books/credits exact;
-   `search_curriculum(query)` → `retrieve(doc_types=("curriculum",))`
-   minus "Programme structure" chunks, parent hydrated, same citation
-   shape. Re-ingest curricula (`--force`, ~5.5 min) after the migration.
 6. **Tabular + notices** — row extraction (`parsers.extract_tables` exists)
    with `source_chunk_id`; single-chunk notices.
 

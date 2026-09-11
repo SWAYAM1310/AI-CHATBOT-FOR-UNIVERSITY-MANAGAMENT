@@ -49,5 +49,11 @@ from app.models.ai import (  # noqa: F401
     Document,
     Message,
 )
+from app.models.syllabus import (  # noqa: F401
+    CourseOutcome,
+    SyllabusCourse,
+    SyllabusUnit,
+    Textbook,
+)
 
 __all__ = ["Base"]

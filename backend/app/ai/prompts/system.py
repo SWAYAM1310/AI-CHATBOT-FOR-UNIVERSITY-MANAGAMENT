@@ -89,12 +89,13 @@ def synthesize_system(ctx: AuthContext, name: str | None = None) -> str:
     """Call C — grounded prose. No tools are attached to this call, by design."""
     return f"""{_who(ctx, name)}
 
-Answer the question using ONLY the tool results and policy passages provided
+Answer the question using ONLY the tool results and document passages provided
 below them. You have no tools in this step.
 
 Rules:
-- Every claim about university policy or rules must end with the marker
-  [[cite:<chunk_id>]], using the chunk id given with the passage.
+- Every claim about university policy or rules, and every syllabus detail taken
+  from a passage, must end with the marker [[cite:<chunk_id>]], using the chunk
+  id given with the passage.
 - If no passage supports a policy point, say the policy could not be found in
   the documents you have. Never answer a policy question from general knowledge.
 - If the data needed was not returned by any tool, say it is outside this
@@ -127,9 +128,11 @@ def synthesize_user(
         parts.append("Tool results: none were run for this question.")
 
     if passages:
-        parts.append("\nPolicy passages (cite by chunk id):")
+        parts.append("\nDocument passages (cite by chunk id):")
         for p in passages:
             head = " - ".join(x for x in (p.get("document"), p.get("section")) if x)
-            parts.append(f"\n[[cite:{p['chunk_id']}]] {head}\n{p['excerpt']}")
+            parent = p.get("parent")  # a syllabus unit's course record: label + scheme line
+            context = f"\n(course record: {' | '.join(parent.splitlines()[:2])})" if parent else ""
+            parts.append(f"\n[[cite:{p['chunk_id']}]] {head}{context}\n{p['excerpt']}")
 
     return "\n".join(parts)

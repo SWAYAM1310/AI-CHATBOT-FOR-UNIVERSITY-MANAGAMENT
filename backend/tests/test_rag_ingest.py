@@ -165,7 +165,7 @@ def test_parent_links_resolve_by_draft_index(db, policies):
     monkeypatch_drafts = [ChunkDraft("parent text", page=1), ChunkDraft("child text", page=1, parent=0)]
     doc = db.scalars(select(Document).where(Document.source_path == att.source_path)).one()
     ingest_mod._drop_chunks(db, doc.id)
-    assert ingest_mod._write_chunks(db, doc.id, monkeypatch_drafts) == 2
+    assert len(ingest_mod._write_chunks(db, doc.id, monkeypatch_drafts)) == 2
     parent, child = db.scalars(select(DocChunk).where(DocChunk.document_id == doc.id).order_by(DocChunk.id)).all()
     assert child.parent_chunk_id == parent.id and parent.parent_chunk_id is None
     db.rollback()

@@ -45,6 +45,7 @@ HISTORY_TURNS = 3  # plan.md §4: bounded growth
 MAX_CANDIDATES = 4  # plan.md §3: Call A narrows to 2-4
 MAX_TOOL_CALLS = 3  # a runaway plan must not fan out into the DB
 RAG_TOOL = "search_university_policies"
+PASSAGE_TOOLS = {RAG_TOOL, "search_curriculum"}  # retrieval tools: their hits become citable passages
 RAG_TOP_K = 5  # one clause per chunk (~65 tokens): all five retrieved passages fit comfortably
 
 
@@ -58,6 +59,7 @@ class ToolRun:
     ok: bool = True
     error: str | None = None
     preview: dict[str, Any] | None = None  # set by a two-phase-confirm action tool
+    passages: list[dict[str, Any]] | None = None  # set by a retrieval tool (PASSAGE_TOOLS)
 
     def as_prompt_block(self) -> dict[str, Any]:
         return {"name": self.name, "args": self.args, "markdown": self.markdown}
@@ -153,6 +155,7 @@ def run_turn(
         )
 
     passages = _retrieve(rag_query, ctx, db) if needs_rag else []
+    passages = _merge_passages(passages, runs)
 
     # --- Call C: synthesize (no tools attached, by design) ------------------
     final = provider.chat(
@@ -162,7 +165,7 @@ def run_turn(
             {
                 "role": "user",
                 "content": synthesize_user(
-                    question, [r.as_prompt_block() for r in runs], passages
+                    question, [r.as_prompt_block() for r in runs if r.passages is None], passages
                 ),
             },
         ],
@@ -220,7 +223,27 @@ def _execute(name: str, args: dict[str, Any], ctx: AuthContext, db: Session) -> 
         return ToolRun(name, args, "(tool failed)", ok=False, error=str(exc))
 
     preview = result if isinstance(result, dict) and result.get("needs_confirmation") else None
-    return ToolRun(name, args, compact(result), preview=preview)
+    passages = None
+    if name in PASSAGE_TOOLS and isinstance(result, list):
+        passages = [h for h in result if isinstance(h, dict) and "chunk_id" in h]
+    return ToolRun(name, args, compact(result), preview=preview, passages=passages)
+
+
+def _merge_passages(passages: list[dict[str, Any]], runs: list[ToolRun]) -> list[dict[str, Any]]:
+    """Retrieval-tool hits join the passage list (deduplicated by chunk id), so the answer can cite them.
+
+    Those runs are then left out of the "Tool results" block: a passage carries
+    a chunk id, a markdown table of the same text would not.
+    """
+    out = list(passages)
+    seen = {str(p.get("chunk_id")) for p in out}
+    for run in runs:
+        for hit in run.passages or []:
+            key = str(hit.get("chunk_id"))
+            if key not in seen:
+                seen.add(key)
+                out.append(hit)
+    return out
 
 
 def _confirmation_card(runs: list[ToolRun]) -> dict[str, Any] | None:

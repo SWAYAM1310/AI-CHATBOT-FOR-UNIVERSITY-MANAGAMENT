@@ -36,12 +36,12 @@ from pathlib import Path
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session
 
-from app.ai.rag.chunkers.base import CHUNKERS, Chunker, ChunkDraft, page_chunks  # noqa: F401  (re-exported)
+from app.ai.rag.chunkers.base import CHUNKERS, EXTRACTORS, Chunker, ChunkDraft, page_chunks  # noqa: F401  (re-exported)
 from app.ai.rag.embedder import Embedder, EmbeddingNotConfigured, get_embedder
 from app.ai.rag.manifest import DEFAULT_MANIFEST, ManifestEntry, load_manifest
 from app.ai.rag.parsers import parse_pdf
 from app.db.session import SessionLocal
-from app.models import AcademicCalendarEvent, DocChunk, Document
+from app.models import AcademicCalendarEvent, DocChunk, Document, SyllabusCourse
 
 log = logging.getLogger(__name__)
 
@@ -122,11 +122,42 @@ def ingest_one(
 
     parsed = parse_pdf(entry.path)
     drafts = CHUNKERS.get(entry.doc_type, page_chunks)(parsed, entry)
-    vectors = _embed(embedder, entry.doc_type, drafts)  # before the drop: an API failure changes nothing
+    vectors, model = _reusable_vectors(db, doc.id, drafts, embedder)
+    if vectors is None:
+        vectors = _embed(embedder, entry.doc_type, drafts)  # before the drop: an API failure changes nothing
+        model = embedder.model if embedder else None
     _drop_chunks(db, doc.id)
-    rows = _write_chunks(db, doc.id, drafts, vectors, embedder.model if embedder else None)
+    rows = _write_chunks(db, doc.id, drafts, vectors, model)
+    extractor = EXTRACTORS.get(entry.doc_type)
+    if extractor is not None:
+        extractor(db, doc, parsed, entry, rows)
     db.commit()
-    return rows
+    return len(rows)
+
+
+def _reusable_vectors(
+    db: Session, document_id: int, drafts: list[ChunkDraft], embedder: Embedder | None
+) -> tuple[list[list[float]] | None, str | None]:
+    """The stored vectors, when a forced re-run produced exactly the same chunk texts.
+
+    A chunker or extractor change that leaves the text untouched (the common
+    reason to `--force`) should not cost another pass through the embedding API.
+    Only an exact match — same count, same contents, same model, every vector
+    present — qualifies; anything else re-embeds.
+    """
+    if embedder is None:
+        return None, None
+    rows = db.execute(
+        select(DocChunk.content, DocChunk.embedding, DocChunk.embedding_model)
+        .where(DocChunk.document_id == document_id)
+        .order_by(DocChunk.id)
+    ).all()
+    if len(rows) != len(drafts) or not rows:
+        return None, None
+    if any(r.embedding is None or r.embedding_model != embedder.model or r.content != d.content for r, d in zip(rows, drafts)):
+        return None, None
+    log.info("chunk texts unchanged; reusing %d stored vectors", len(rows))
+    return [list(r.embedding) for r in rows], embedder.model
 
 
 def _embed(embedder: Embedder | None, doc_type: str, drafts: list[ChunkDraft]) -> list[list[float]] | None:
@@ -167,6 +198,8 @@ def _drop_chunks(db: Session, document_id: int) -> None:
         .where(AcademicCalendarEvent.source_chunk_id.in_(ids))
         .values(source_chunk_id=None)
     )
+    # relational extracts (curriculum) hang off the document; their children cascade
+    db.execute(delete(SyllabusCourse).where(SyllabusCourse.document_id == document_id))
     # children reference parents within the same document: clear the self-FK first
     db.execute(update(DocChunk).where(DocChunk.document_id == document_id).values(parent_chunk_id=None))
     db.execute(delete(DocChunk).where(DocChunk.document_id == document_id))
@@ -178,7 +211,8 @@ def _write_chunks(
     drafts: list[ChunkDraft],
     vectors: list[list[float]] | None = None,
     model: str | None = None,
-) -> int:
+) -> list[DocChunk]:
+    """Insert the drafts; returns the rows in draft order (ids assigned, parent links set)."""
     rows: list[DocChunk] = []
     for i, d in enumerate(drafts):
         row = DocChunk(
@@ -197,7 +231,7 @@ def _write_chunks(
         if d.parent is not None:
             row.parent_chunk_id = rows[d.parent].id
     db.flush()
-    return len(rows)
+    return rows
 
 
 def main() -> int:

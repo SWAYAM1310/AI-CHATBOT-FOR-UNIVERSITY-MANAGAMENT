@@ -24,19 +24,26 @@ books), each child carrying the course label so it reads on its own. Ingest
 embeds parent + children together, late-chunked per course: a unit's vector
 knows which course it belongs to and nothing else (§8).
 
-Programme-structure tables before the first record also contain "Teaching
-Scheme" as a column header; an anchor with no course sections and no code
-before the next anchor is not a record and stays in the preface, which is
-kept as plain page chunks.
+Programme-structure tables (before the first record, and between semesters
+in some PDFs) also contain "Teaching Scheme" as a column header; an anchor
+with no course sections before the next anchor is not a record. Structure
+lines are kept as plain "Programme structure" page chunks, never as part of
+the course above them.
 """
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
 
-from app.ai.rag.chunkers.base import CHUNKERS, ChunkDraft
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.ai.rag.chunkers.base import CHUNKERS, EXTRACTORS, ChunkDraft
 from app.ai.rag.manifest import ManifestEntry
 from app.ai.rag.parsers import ParsedDocument
+from app.models import CourseOutcome, Curriculum, Document, Subject, SyllabusCourse, SyllabusUnit, Textbook
+
+STRUCTURE_SECTION = "Programme structure"  # preface page chunks; the curriculum search tool skips these
 
 _CODE_TOKEN = re.compile(r"(?<![\w-])(\d{2}[A-Z]{2,4}(?:\d{3}|[xX]{3}|\*{3})[A-Z]?)(?![\w-])")
 _CODE_PLACEHOLDER = re.compile(r"<\s*course\s*code\s*>", re.I)
@@ -62,7 +69,14 @@ _BULLET = re.compile(r"^[•Ø‣▪–\-\d.)-]+\s*")  # incl. Symbol-font
 _WRAP_END = re.compile(r"[,(/&\-–]$|\b(and|for|of|in|to)$", re.I)
 _PAGE_FURNITURE = re.compile(
     r"^(pandit\s+deendayal\s+energy\s+university\b.*|school\s+of\s+technology"
-    r"|b\.?\s*tech\.?\s.*engineering|semester\s*[–-]\s*[IVX]+|academic\s+year\s*:.*)$",
+    r"|b\.?\s*tech\.?\s.*engineering[,.]?|department\s+of\s+.*engineering|ug\s+curriculum\s*\(.*\)"
+    r"|semester\s*[–-]?\s*([IVX]+|\d+)|academic\s+year\s*:.*)$",
+    re.I,
+)
+# a programme-structure table between two course records: ends the record above it
+_STRUCTURE_HEAD = re.compile(
+    r"^(course\s+structure\b|category\s+course$|(category\s+)?(semester\s+)?course\s+name\s+theory\b"
+    r"|sr\.?\s*no\.?\s+(course\s+)?code\b)",
     re.I,
 )
 _TITLE_LOOKBACK = 3  # lines above the anchor that may hold code + title
@@ -77,6 +91,7 @@ class Unit:
     hours: int | None
     body: str
     page: int
+    draft: int | None = None  # index of this unit's chunk, set by build()
 
 
 @dataclass
@@ -94,6 +109,10 @@ class CourseRecord:
     books: list[str] = field(default_factory=list)
     outcomes_page: int | None = None
     books_page: int | None = None
+    trailing: list[Line] = field(default_factory=list)  # structure-table lines after the record, if any
+    draft: int | None = None  # index of the parent chunk, set by build()
+    outcomes_draft: int | None = None
+    books_draft: int | None = None
 
     @property
     def label(self) -> str:
@@ -132,8 +151,14 @@ def _code_in(line: str) -> str | None:
     return "" if _CODE_PLACEHOLDER.search(line) else None
 
 
+_TITLE_JUNK = re.compile(
+    r"^(course\s*code\s*:?\s*[xX*]*\s*|[xX]{4,}\s+|\d(st|nd|rd|th)\s+semester\s+|UG_\S+\s+)+", re.I
+)  # "Course Code: XXXX Machine Learning", "XXXXXX IC Technology", "2nd Semester UG_2_T(CE/ICT) Programming"
+
+
 def _strip_code(line: str) -> str:
-    return _CODE_PLACEHOLDER.sub("", _CODE_TOKEN.sub("", line)).strip(" <>*")  # "< Title >" is a template placeholder
+    line = _CODE_PLACEHOLDER.sub("", _CODE_TOKEN.sub("", line))
+    return _TITLE_JUNK.sub("", line).strip(" <>*")  # "< Title >" is a template placeholder
 
 
 def _wrapped(prev: str, cur: str) -> bool:
@@ -171,7 +196,10 @@ def parse_courses(parsed: ParsedDocument) -> tuple[list[Line], list[CourseRecord
             continue  # a structure table's column header, not a course
         starts.append(_head_start(lines, anchor, starts[-1] + 1 if starts else 0))
     records = [_parse_record(lines[s:e]) for s, e in zip(starts, [*starts[1:], len(lines)])]
-    return lines[: starts[0]] if starts else lines, records
+    structure = lines[: starts[0]] if starts else lines
+    for rec in records:
+        structure.extend(rec.trailing)
+    return structure, records
 
 
 def _parse_record(lines: list[Line]) -> CourseRecord:
@@ -208,7 +236,10 @@ def _parse_record(lines: list[Line]) -> CourseRecord:
             rec.books = _parse_books(buf)
         unit = None
 
-    for page, t in lines[i:]:
+    for k, (page, t) in enumerate(lines[i:], start=i):
+        if _STRUCTURE_HEAD.match(t):
+            rec.trailing = lines[k:]  # a structure table follows; it is not part of this course
+            break
         if _section_start(t):
             close()
             buf = []
@@ -336,7 +367,8 @@ def parent_text(rec: CourseRecord) -> str:
     return "\n".join(parts)
 
 
-def curriculum_chunks(parsed: ParsedDocument, entry: ManifestEntry) -> list[ChunkDraft]:
+def build(parsed: ParsedDocument, entry: ManifestEntry) -> tuple[list[ChunkDraft], list[CourseRecord]]:
+    """Drafts for the document plus the records behind them, each annotated with its draft indices."""
     preface, records = parse_courses(parsed)
     drafts: list[ChunkDraft] = []
 
@@ -344,28 +376,133 @@ def curriculum_chunks(parsed: ParsedDocument, entry: ManifestEntry) -> list[Chun
     for page, t in preface:
         by_page.setdefault(page, []).append(t)
     for page, texts in by_page.items():
-        drafts.append(ChunkDraft(content="\n".join(texts), page=page, section="Programme structure"))
+        drafts.append(ChunkDraft(content="\n".join(texts), page=page, section=STRUCTURE_SECTION))
 
     for rec in records:
-        parent = len(drafts)
+        rec.draft = len(drafts)
         drafts.append(ChunkDraft(content=parent_text(rec), page=rec.page, section=rec.label))
         for u in rec.units:
             head = f"{rec.label} / Unit {u.number}: {u.title}".rstrip(": ")
             hours = f" ({u.hours} hrs)" if u.hours else ""
-            drafts.append(ChunkDraft(content=f"{head}{hours}\n{u.body}".strip(), page=u.page, section=head, parent=parent))
+            u.draft = len(drafts)
+            drafts.append(ChunkDraft(content=f"{head}{hours}\n{u.body}".strip(), page=u.page, section=head, parent=rec.draft))
         if rec.outcomes:
             body = "\n".join(f"CO{n}: {t}" for n, t in rec.outcomes)
+            rec.outcomes_draft = len(drafts)
             drafts.append(
                 ChunkDraft(content=f"{rec.label} / Course outcomes\n{body}", page=rec.outcomes_page or rec.page,
-                           section=f"{rec.label} / Course outcomes", parent=parent)
+                           section=f"{rec.label} / Course outcomes", parent=rec.draft)
             )
         if rec.books:
             body = "\n".join(f"{i}. {b}" for i, b in enumerate(rec.books, 1))
+            rec.books_draft = len(drafts)
             drafts.append(
                 ChunkDraft(content=f"{rec.label} / Text and reference books\n{body}", page=rec.books_page or rec.page,
-                           section=f"{rec.label} / Books", parent=parent)
+                           section=f"{rec.label} / Books", parent=rec.draft)
             )
-    return drafts
+    return drafts, records
+
+
+def curriculum_chunks(parsed: ParsedDocument, entry: ManifestEntry) -> list[ChunkDraft]:
+    return build(parsed, entry)[0]
+
+
+# --- relational extract -----------------------------------------------------
+
+_PAREN = re.compile(r"\(.*?\)")  # "(For CS, ICT)" audience qualifiers
+_NON_ALNUM = re.compile(r"[^a-z0-9]+")
+
+
+def title_key(title: str) -> str:
+    """Normalised title for matching a syllabus record to a `subjects` row by name."""
+    key = _NON_ALNUM.sub(" ", _PAREN.sub(" ", title.lower()))
+    key = " ".join(key.split())
+    key = re.sub(r"\blab\b", "laboratory", key)
+    key = re.sub(r"\b(ii|2)$", "2", key)  # "– II" / "-2" suffixes name the same course
+    key = re.sub(r"\b(i|1)$", "1", key)
+    return " ".join(w[:-1] if len(w) > 3 and w.endswith("s") and not w.endswith("ss") else w for w in key.split())
+
+
+def extract_courses(db: Session, document: Document, parsed: ParsedDocument, entry: ManifestEntry, rows: list) -> int:
+    """Write syllabus_courses / syllabus_units / course_outcomes / textbooks for one document.
+
+    `rows` are the freshly written chunk rows, index-aligned with the drafts
+    `build()` produced, so every row can cite the chunk it came from. Runs in
+    the ingest transaction; `_drop_chunks` removed the previous extract.
+    """
+    _, records = build(parsed, entry)
+    by_name = _subject_codes_by_name(db)
+    dept_subjects = set(db.scalars(select(Curriculum.subject_code).where(Curriculum.dept_code == entry.dept_code)))
+    for rec in records:
+        subject_code = _link_subject(db, rec, by_name, dept_subjects)
+        course = SyllabusCourse(
+            document_id=document.id,
+            dept_code=entry.dept_code,
+            code=rec.code,
+            subject_code=subject_code,
+            title=rec.title,
+            title_key=title_key(rec.title),
+            lecture_hours=rec.lecture,
+            tutorial_hours=rec.tutorial,
+            practical_hours=rec.practical,
+            credits=rec.credits,
+            objectives=rec.objectives or None,
+            page=rec.page,
+            source_chunk_id=rows[rec.draft].id if rec.draft is not None else None,
+        )
+        db.add(course)
+        db.flush()
+        db.add_all(
+            SyllabusUnit(
+                course_id=course.id, number=u.number, title=u.title or None, hours=u.hours, topics=u.body or None,
+                page=u.page, source_chunk_id=rows[u.draft].id if u.draft is not None else None,
+            )
+            for u in rec.units
+        )
+        co_chunk = rows[rec.outcomes_draft].id if rec.outcomes_draft is not None else None
+        db.add_all(CourseOutcome(course_id=course.id, number=n, text=t, source_chunk_id=co_chunk) for n, t in rec.outcomes)
+        book_chunk = rows[rec.books_draft].id if rec.books_draft is not None else None
+        db.add_all(
+            Textbook(course_id=course.id, position=i, citation=b, source_chunk_id=book_chunk)
+            for i, b in enumerate(rec.books, 1)
+        )
+    db.flush()
+    return len(records)
+
+
+def _link_subject(db: Session, rec: CourseRecord, by_name: dict[str, list[str]], dept_subjects: set[str]) -> str | None:
+    """The `subjects` row this record describes, or None.
+
+    Name first: the generated dataset reused the PDFs' names but not their codes,
+    so a code that exists in `subjects` can name a different course (the PDF's
+    24CS202T is DBMS; the dataset's is Digital Logic). When several subjects
+    share a name (DBMS is taught to CP and EC under different codes) the one in
+    this department's `curriculum` wins. The printed code is trusted only when
+    the two names largely agree.
+    """
+    key = title_key(rec.title)
+    candidates = by_name.get(key, [])
+    if candidates:
+        return next((c for c in candidates if c in dept_subjects), candidates[0])
+    if rec.code:
+        subject = db.get(Subject, rec.code)
+        if subject is not None and _similar(key, title_key(subject.subject_name)):
+            return rec.code
+    return None
+
+
+def _similar(a: str, b: str) -> bool:
+    """Do two title keys share most of their words?"""
+    wa, wb = set(a.split()), set(b.split())
+    return bool(wa and wb) and len(wa & wb) / len(wa | wb) >= 0.6
+
+
+def _subject_codes_by_name(db: Session) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for code, name in db.execute(select(Subject.subject_code, Subject.subject_name).order_by(Subject.subject_code)):
+        out.setdefault(title_key(name), []).append(code)
+    return out
 
 
 CHUNKERS["curriculum"] = curriculum_chunks
+EXTRACTORS["curriculum"] = extract_courses

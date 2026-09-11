@@ -14,10 +14,11 @@ from app.models import User
 from app.seed.load_csv import LOAD_ORDER, load
 
 SAMPLE_DIR = REPO_ROOT / "data" / "synthetic" / "sample"
+DOC_STORE_EXTRACT_TABLES = ("syllabus_courses", "syllabus_units", "course_outcomes", "textbooks")
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _loaded_db() -> None:
+def _loaded_db(_preserve_doc_store) -> None:
     """Ensure a freshly loaded sample DB before any test runs."""
     load("sample", reset=True)
     with engine.begin() as c:
@@ -25,21 +26,24 @@ def _loaded_db() -> None:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _preserve_doc_store(_loaded_db) -> None:
+def _preserve_doc_store() -> None:
     """Put the ingested corpus back the way it was after the session.
 
     The RAG tests truncate `documents` / `doc_chunks` and re-ingest with no or a
     fake embedder; without this, one `pytest` run leaves the dev database with
-    NULL or fake vectors until the next `--force` ingest with a real key.
+    NULL or fake vectors until the next `--force` ingest with a real key. The
+    snapshot is taken before the sample reload: its `TRUNCATE ... CASCADE` of
+    `subjects` would otherwise already have emptied `syllabus_courses`.
     """
     with engine.begin() as c:
         docs = c.execute(text("SELECT * FROM documents")).mappings().all()
         chunks = c.execute(text("SELECT * FROM doc_chunks")).mappings().all()
+        extract = {t: c.execute(text(f"SELECT * FROM {t}")).mappings().all() for t in DOC_STORE_EXTRACT_TABLES}
         cal_links = c.execute(text("SELECT id, source_chunk_id FROM academic_calendar WHERE source_chunk_id IS NOT NULL")).mappings().all()
     yield
     with engine.begin() as c:
         c.execute(text("UPDATE academic_calendar SET source_chunk_id = NULL"))
-        c.execute(text("TRUNCATE doc_chunks, documents RESTART IDENTITY CASCADE"))
+        c.execute(text("TRUNCATE doc_chunks, documents RESTART IDENTITY CASCADE"))  # cascades to the extract tables
         if docs:
             c.execute(text(_insert_sql("documents", docs[0].keys())), [dict(r) for r in docs])
         if chunks:
@@ -49,7 +53,10 @@ def _preserve_doc_store(_loaded_db) -> None:
             links = [{"id": r["id"], "parent": r["parent_chunk_id"]} for r in chunks if r["parent_chunk_id"] is not None]
             if links:
                 c.execute(text("UPDATE doc_chunks SET parent_chunk_id = :parent WHERE id = :id"), links)
-        for t in ("documents", "doc_chunks"):
+        for t in DOC_STORE_EXTRACT_TABLES:  # parents (courses) before children
+            if extract[t]:
+                c.execute(text(_insert_sql(t, extract[t][0].keys())), [dict(r) for r in extract[t]])
+        for t in ("documents", "doc_chunks", *DOC_STORE_EXTRACT_TABLES):
             c.execute(text(f"SELECT setval(pg_get_serial_sequence('{t}', 'id'), COALESCE(MAX(id), 1)) FROM {t}"))
         for r in cal_links:
             c.execute(text("UPDATE academic_calendar SET source_chunk_id = :cid WHERE id = :id"), dict(r))

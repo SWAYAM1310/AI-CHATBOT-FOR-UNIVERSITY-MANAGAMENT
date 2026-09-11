@@ -31,7 +31,7 @@ import re
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
-from sqlalchemy import Select, desc, func, select
+from sqlalchemy import Select, desc, func, or_, select
 from sqlalchemy.orm import Session, aliased
 
 from app.ai.rag.embedder import Embedder, EmbeddingError, get_embedder
@@ -92,6 +92,7 @@ def retrieve(
     k: int = TOP_K,
     candidates: int = CANDIDATES,
     doc_types: Sequence[str] | None = None,
+    exclude_sections: Sequence[str] | None = None,
     embedder: Embedder | None = None,
 ) -> list[Hit]:
     """Top-k chunks for `query` that `role` may read, dense ∪ sparse fused by RRF."""
@@ -107,6 +108,8 @@ def retrieve(
         )
         if doc_types:
             stmt = stmt.where(Document.doc_type.in_(list(doc_types)))
+        if exclude_sections:  # e.g. a syllabus's programme-structure pages: big, and answered exactly elsewhere
+            stmt = stmt.where(or_(DocChunk.section.is_(None), DocChunk.section.not_in(list(exclude_sections))))
         return stmt
 
     dense = _dense_candidates(db, base(), query, candidates, embedder)

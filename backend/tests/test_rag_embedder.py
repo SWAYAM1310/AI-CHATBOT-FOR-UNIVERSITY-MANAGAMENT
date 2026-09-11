@@ -211,6 +211,10 @@ def test_embedding_failure_keeps_the_previous_chunks(db):
     before = sorted(db.scalars(select(DocChunk.id).where(DocChunk.document_id == doc.id)))
 
     class Exploding(FakeEmbedder):
+        def __init__(self):
+            super().__init__()
+            self.model = "exploding"  # not the stored vectors' model, so they cannot be reused: the API is hit
+
         def embed_documents(self, texts, *, late_chunking=False):
             raise EmbeddingError("quota")
 
