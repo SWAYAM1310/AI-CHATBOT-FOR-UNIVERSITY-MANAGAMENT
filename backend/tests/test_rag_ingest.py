@@ -1,4 +1,4 @@
-"""Phase 3 step 1 — manifest, parsers, ingest skeleton, full-text policy search.
+"""Phase 3 steps 1 & 3 — manifest, parsers, ingest, full-text policy search.
 
 Runs against the 7 synthetic policy PDFs in docs/policies/pdf (a few seconds).
 The curriculum PDFs are excluded here: 500 pages of parsing is for the CLI.
@@ -23,6 +23,7 @@ from tests.conftest import make_ctx
 
 ATTENDANCE_PDF = REPO_ROOT / "docs" / "policies" / "pdf" / "attendance_regulations.pdf"
 EXAM_PDF = REPO_ROOT / "docs" / "policies" / "pdf" / "examination_regulations.pdf"
+ATTENDANCE_CHUNKS = 40  # preamble + 39 top-level clauses (sub-clauses fold into their parent)
 
 
 @pytest.fixture(scope="module")
@@ -105,23 +106,30 @@ def test_tables_come_out_as_rows():
 
 # --- ingest ---------------------------------------------------------------------
 
-def test_documents_and_page_chunks_are_written(db, policies):
+def test_documents_and_clause_chunks_are_written(db, policies):
     docs = db.scalars(select(Document).order_by(Document.id)).all()
     assert {d.source_path for d in docs} == {e.source_path for e in policies}
     for d in docs:
         assert d.doc_type == "policy" and d.version and len(d.version) == 64
         assert d.audience_roles == ["student", "faculty", "admin"]
     att = next(d for d in docs if d.source_path.endswith("attendance_regulations.pdf"))
-    chunks = db.scalars(select(DocChunk).where(DocChunk.document_id == att.id).order_by(DocChunk.page)).all()
-    assert [c.page for c in chunks] == [1, 2, 3, 4]
+    chunks = db.scalars(select(DocChunk).where(DocChunk.document_id == att.id).order_by(DocChunk.id)).all()
+    assert len(chunks) == ATTENDANCE_CHUNKS
+    assert sorted({c.page for c in chunks}) == [1, 2, 3, 4]
     assert all(c.embedding is None and c.tsv is not None for c in chunks)
+
+
+def test_page_chunks_is_the_fallback_for_unregistered_types(policies, monkeypatch):
+    att = next(e for e in policies if e.path == ATTENDANCE_PDF)
+    monkeypatch.delitem(ingest_mod.CHUNKERS, "policy")
+    assert [c.page for c in ingest_mod.CHUNKERS.get("policy", page_chunks)(parse_pdf(att.path), att)] == [1, 2, 3, 4]
 
 
 def test_reingest_is_a_noop_unless_forced_or_changed(db, policies):
     att = next(e for e in policies if e.path == ATTENDANCE_PDF)
     before = db.scalar(select(func.max(DocChunk.id)))
     assert ingest_one(att, db) is None  # unchanged
-    assert ingest_one(att, db, force=True) == 4  # rewritten
+    assert ingest_one(att, db, force=True) == ATTENDANCE_CHUNKS  # rewritten
     assert db.scalar(select(func.max(DocChunk.id))) > before
     assert db.scalar(select(func.count(Document.id)).where(Document.source_path == att.source_path)) == 1
 
@@ -130,7 +138,7 @@ def test_a_changed_file_is_rechunked_and_its_metadata_refreshed(db, policies, mo
     att = next(e for e in policies if e.path == ATTENDANCE_PDF)
     monkeypatch.setattr(ingest_mod, "file_digest", lambda _p: "0" * 64)
     retitled = ManifestEntry(**{**att.__dict__, "title": "Renamed"})
-    assert ingest_one(retitled, db) == 4
+    assert ingest_one(retitled, db) == ATTENDANCE_CHUNKS
     doc = db.scalars(select(Document).where(Document.source_path == att.source_path)).one()
     assert (doc.title, doc.version) == ("Renamed", "0" * 64)
     monkeypatch.undo()

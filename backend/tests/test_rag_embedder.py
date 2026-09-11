@@ -183,23 +183,24 @@ def _attendance():
 
 def test_ingest_writes_vectors_and_model_and_late_chunks_policies(db):
     fake = FakeEmbedder()
-    assert ingest_one(_attendance(), db, force=True, embedder=fake) == 4
+    assert ingest_one(_attendance(), db, force=True, embedder=fake) == 40  # clause chunks
     doc = db.scalars(select(Document).where(Document.source_path == _attendance().source_path)).one()
     chunks = db.scalars(select(DocChunk).where(DocChunk.document_id == doc.id)).all()
     assert all(c.embedding is not None and len(c.embedding) == settings.embedding_dim for c in chunks)
     assert {c.embedding_model for c in chunks} == {"fake"}
     assert fake.calls == 1  # one late-chunked call for the whole policy
 
-    # a nearest-neighbour query over the fake vectors lands on the page with those words
+    # a nearest-neighbour query over the fake vectors lands among the condonation clauses
+    # (a hashed bag-of-words fake: the short preamble can sneak into the top few on a collision)
     v = fake.embed_query("condonation medical grounds hospitalisation certificate")
-    nearest = db.scalar(
-        select(DocChunk.page).where(DocChunk.document_id == doc.id).order_by(DocChunk.embedding.cosine_distance(v)).limit(1)
-    )
-    assert nearest in (2, 3)  # §5.3 straddles the page break
+    nearest = db.scalars(
+        select(DocChunk.section).where(DocChunk.document_id == doc.id).order_by(DocChunk.embedding.cosine_distance(v)).limit(3)
+    ).all()
+    assert sum(s.startswith("§5.") for s in nearest) >= 2, nearest
 
 
 def test_ingest_without_an_embedder_leaves_vectors_null(db):
-    assert ingest_one(_attendance(), db, force=True, embedder=None) == 4
+    assert ingest_one(_attendance(), db, force=True, embedder=None) == 40
     doc = db.scalars(select(Document).where(Document.source_path == _attendance().source_path)).one()
     assert db.scalar(select(DocChunk.embedding).where(DocChunk.document_id == doc.id).limit(1)) is None
 

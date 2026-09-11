@@ -9,11 +9,11 @@ Idempotent: `documents.version` holds the SHA-256 of the file, so an unchanged
 file is skipped and a changed one has its chunks replaced. Each document is its
 own transaction — one bad PDF does not lose the rest.
 
-Chunking dispatches on `doc_type` through CHUNKERS. This step ships only the
-page-level fallback (one chunk per page, no embedding); the clause-aware policy
-chunker, the curriculum parent/child chunker and the tabular extractor register
-themselves here as they land. `tsv` is populated on every chunk regardless, so
-full-text search works from the first ingest.
+Chunking dispatches on `doc_type` through CHUNKERS, populated by the modules in
+`app.ai.rag.chunkers` (policy: clause-aware; curriculum and tabular land in later
+steps). Types without a chunker fall back to one chunk per page. `tsv` is
+populated on every chunk regardless, so full-text search works from the first
+ingest.
 
 Embedding is one call per document for late-chunked types (LATE_CHUNKED): the
 chunks go up together, in order, so each vector carries the whole document's
@@ -33,9 +33,10 @@ from pathlib import Path
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session
 
+from app.ai.rag.chunkers.base import CHUNKERS, Chunker, ChunkDraft, page_chunks  # noqa: F401  (re-exported)
 from app.ai.rag.embedder import Embedder, EmbeddingNotConfigured, get_embedder
 from app.ai.rag.manifest import DEFAULT_MANIFEST, ManifestEntry, load_manifest
-from app.ai.rag.parsers import ParsedDocument, parse_pdf
+from app.ai.rag.parsers import parse_pdf
 from app.db.session import SessionLocal
 from app.models import AcademicCalendarEvent, DocChunk, Document
 
@@ -43,27 +44,6 @@ log = logging.getLogger(__name__)
 
 TS_CONFIG = "english"
 LATE_CHUNKED = {"policy", "notice"}  # whole document fits one context window
-
-
-@dataclass(frozen=True)
-class ChunkDraft:
-    """A chunk before it has a row: what a chunker produces."""
-
-    content: str
-    page: int | None = None
-    section: str | None = None
-    parent: int | None = None  # index into the same draft list, for parent/child chunkers
-
-
-Chunker = Callable[[ParsedDocument, ManifestEntry], list[ChunkDraft]]
-
-
-def page_chunks(parsed: ParsedDocument, entry: ManifestEntry) -> list[ChunkDraft]:
-    """The fallback: one chunk per non-empty page."""
-    return [ChunkDraft(content=p.text, page=p.number) for p in parsed.pages if p.text]
-
-
-CHUNKERS: dict[str, Chunker] = {}  # doc_type -> chunker; missing types fall back to page_chunks
 
 
 @dataclass
