@@ -23,6 +23,7 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
   const [busy, setBusy] = useState(false)
   const [conversations, setConversations] = useState<ConversationOut[]>([])
   const [railOpen, setRailOpen] = useState(false)
+  const [showTrace, setShowTrace] = useState<boolean>(() => readFlag(TRACE_KEY))
   const endRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -58,7 +59,9 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
       { id: answerId, role: 'assistant', text: '', citations: [], cards: [], pending: true },
     ])
     try {
-      const out: ChatOut = await api.chat(message, conversationId)
+      const out: ChatOut = await chatWithOneRetry(message, conversationId, (seconds) =>
+        patch(answerId, { queuedSeconds: seconds }),
+      )
       if (out.conversation_id !== conversationId) {
         setConversationId(out.conversation_id)
         refreshConversations() // a new conversation was opened by this turn
@@ -145,6 +148,17 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
         <span className="wordmark">UniAssist</span>
         <span className="caller">{who}</span>
         <span className="topbar-actions">
+          <label className="trace-toggle">
+            <input
+              type="checkbox"
+              checked={showTrace}
+              onChange={(e) => {
+                setShowTrace(e.target.checked)
+                writeFlag(TRACE_KEY, e.target.checked)
+              }}
+            />
+            Trace
+          </label>
           <button type="button" className="linklike" onClick={onSignOut}>
             Sign out
           </button>
@@ -169,7 +183,13 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
           </div>
         ) : (
           turns.map((t) => (
-            <Message key={t.id} turn={t} onConfirm={(card) => confirm(t.id, card)} onCancel={() => cancel(t.id)} />
+            <Message
+              key={t.id}
+              turn={t}
+              showTrace={showTrace}
+              onConfirm={(card) => confirm(t.id, card)}
+              onCancel={() => cancel(t.id)}
+            />
           ))
         )}
         <div ref={endRef} />
@@ -193,6 +213,45 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
       </form>
     </div>
   )
+}
+
+const TRACE_KEY = 'uniassist.trace'
+const MAX_AUTO_WAIT = 20 // seconds: longer than this and the person should decide
+
+function readFlag(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === '1'
+  } catch {
+    return false
+  }
+}
+
+function writeFlag(key: string, on: boolean) {
+  try {
+    localStorage.setItem(key, on ? '1' : '0')
+  } catch {
+    // storage unavailable: the toggle lasts for this tab only
+  }
+}
+
+// A 429 with a short Retry-After is a queue, not a failure: wait it out once,
+// showing the wait, then send again. Anything longer surfaces as an error.
+async function chatWithOneRetry(
+  message: string,
+  conversationId: number | null,
+  onQueued: (seconds: number) => void,
+): Promise<ChatOut> {
+  try {
+    return await api.chat(message, conversationId)
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 429 && err.retryAfter && err.retryAfter <= MAX_AUTO_WAIT) {
+      onQueued(err.retryAfter)
+      await new Promise((r) => setTimeout(r, err.retryAfter! * 1000))
+      const out = await api.chat(message, conversationId)
+      return { ...out, queued_seconds: out.queued_seconds + err.retryAfter }
+    }
+    throw err
+  }
 }
 
 function describeCaller(session: Session, me: Me | null): string {

@@ -1,32 +1,30 @@
-# React + TypeScript + Vite
+# UniAssist — frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + Vite + TypeScript, no other runtime dependencies. The dev server
+proxies `/api` and `/health` to the backend on `http://localhost:8000`.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # type-check + production bundle in dist/
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Sign in with any synthetic account (password `uniassist`); the sign-in page
+lists one per role. The **Trace** toggle in the top bar shows, under every
+answer, which path the turn took, which tools ran (and which were refused),
+and the token cost — for the viva, off by default.
+
+Source map:
+
+| file | what it is |
+|---|---|
+| `src/api.ts` | fetch wrapper: bearer token, `ApiError{status, retryAfter}` |
+| `src/session.ts` | the signed-in session in `localStorage` |
+| `src/App.tsx` | sign-in gate; loads `/api/me` |
+| `src/Login.tsx` | sign-in form + demo accounts |
+| `src/Chat.tsx` | turns, send / confirm / cancel, one-shot retry on 429, the Trace toggle |
+| `src/Rail.tsx` | suggested prompts per role, conversation history |
+| `src/Message.tsx` | prose with `[n]` → footnotes, confirm card |
+| `src/Cards.tsx` | attendance / marks / timetable / student table / denied cards |
+| `src/Trace.tsx` | the dev trace panel |
+| `src/index.css` | the one stylesheet (tokens at the top) |

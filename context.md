@@ -1,8 +1,8 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after **Phase 5a part 3**
-(2026-09-12). Phases 0–4 complete; frontend parts 1–3 committed. Next: Phase 5a part 4
-(dev tool-trace panel).
+Snapshot for picking the work back up. Last updated after **Phase 5a part 4**
+(2026-09-12). Phases 0–4 complete; **Phase 5a (frontend) complete** (part 4
+uncommitted). Next: Phase 5b (eval harness) — needs a Groq key — or 5c.
 
 ---
 
@@ -77,6 +77,7 @@ on an RTX 3050.
 | `87bdbcf` | 5a.1 | frontend part 1: API client, login, chat with footnote citations + confirm card |
 | `f276164` | 5a.2 | frontend part 2: conversation rail + role-specific suggested prompts + UX audit |
 | `7f4fc10` | 5a.3 | typed data cards (backend `app/ai/cards.py` + API `trace`) and their renderers, 380 tests |
+| _(uncommitted)_ | 5a.4 | dev tool-trace panel, 429 auto-retry, frontend README |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -961,12 +962,29 @@ dependencies beyond React; Google Fonts in `index.html`; Vite proxies
   (API tests: attendance card + trace on a turn, cards replayed from the
   transcript, forced `list_students` for a student → `denied` card).
 
+### Part 4 — DONE: tool-trace panel + queued retry
+- `src/Trace.tsx`: `<details>` under each answer — summary line
+  ("router → tool → answer (planner skipped) · 1 tool call · 1170 tokens"),
+  then path, intent, tool runs (`ok` green / `refused by RBAC` red / failed),
+  tokens in/out and any rate-limit wait. Shown only when the **Trace**
+  checkbox in the top bar is on (`localStorage` `uniassist.trace`); stored
+  transcripts carry it too (path "stored" = "from the saved transcript").
+- `Chat.tsx` `chatWithOneRetry`: a 429 with `Retry-After ≤ 20 s` shows
+  "Queued — the assistant is busy, retrying in N s" on the pending turn,
+  waits, resends once, and adds the wait to `queued_seconds`; longer waits
+  surface as the error message. `frontend/README.md` replaced with run
+  instructions + a source map.
+- Verified with Playwright: hidden by default, toggle remembered across
+  reload, panel content, trace on a reopened conversation; no page errors.
+
+Phase 5a deliverables vs plan.md §9: chat-first layout ✔, sidebar with
+history + role prompts ✔, rich cards (attendance/student_table/timetable/
+marks/confirm/citation/denied) ✔ (`syllabus` unit accordion not built —
+syllabus answers come as prose + a passage footnote), tool trace ✔,
+rate-limit UX ✔. Live end-to-end still unrun (no Groq key; canned provider
+in `scratchpad/dev_server.py`).
+
 ### Remaining steps (do one at a time; report and ask before committing)
-5a.4. **Dev tool-trace panel** — `Turn.trace` is already on every assistant
-   turn; add a collapsible "Trace" disclosure per answer (path, intent, tool
-   runs with ok/denied, tokens) behind a header toggle, hidden by default.
-   Rate-limit "queued" state exists (`queuedSeconds` line); a 429 shows the
-   retry hint — consider auto-retry after `Retry-After`.
 5b. **Eval harness** (plan.md §10): `eval/golden_set.yaml`, `run_eval.py`, the
    three experiments. Needs a Groq key.
 5c. **Live smoke test** once `LLM_API_KEY` is set.

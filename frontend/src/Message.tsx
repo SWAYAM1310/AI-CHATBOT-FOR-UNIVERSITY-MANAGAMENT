@@ -1,4 +1,5 @@
 import { DataCard } from './Cards'
+import { Trace } from './Trace'
 import type { ConfirmCard, Turn } from './types'
 
 // Assistant text arrives as plain prose with [n] markers. Paragraphs are
@@ -6,10 +7,12 @@ import type { ConfirmCard, Turn } from './types'
 // (short tables come through as Markdown pipes, which read fine as text).
 export function Message({
   turn,
+  showTrace,
   onConfirm,
   onCancel,
 }: {
   turn: Turn
+  showTrace: boolean
   onConfirm: (card: ConfirmCard) => void
   onCancel: () => void
 }) {
@@ -24,7 +27,7 @@ export function Message({
     return (
       <article className="msg msg-assistant pending" aria-busy="true">
         <p className="thinking">
-          <span>Working on it</span>
+          <span>{turn.queuedSeconds ? `Queued — the assistant is busy, retrying in ${turn.queuedSeconds}s` : 'Working on it'}</span>
           <span className="dot" aria-hidden="true" />
           <span className="dot" aria-hidden="true" />
           <span className="dot" aria-hidden="true" />
@@ -64,6 +67,7 @@ export function Message({
           ))}
         </ol>
       )}
+      {showTrace && turn.trace && <Trace trace={turn.trace} queuedSeconds={turn.queuedSeconds} />}
     </article>
   )
 }
