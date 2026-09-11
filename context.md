@@ -1002,6 +1002,15 @@ in `scratchpad/dev_server.py`).
   it and the answer had no footnote. `citations._CITE` now also accepts
   `【cite:id】` and `[cite:id]` (test added). Re-check on the next live run
   that footnotes appear.
+- Second live finding (via the UI, "Am I short on attendance in any
+  course?"): the 20b router returned `needs_rag: false`, so no passage was
+  retrieved and the model rightly said the rule "could not be found". Fix:
+  **`POLICY_CONTEXT`** in the orchestrator — a map from personal-record tools
+  (`get_my_attendance`, `get_my_fees`, `get_my_marks`, `get_my_results`,
+  `get_my_scholarships`, `get_my_leave_requests`, faculty attendance tools)
+  to a regulation query; when such a tool ran and the router said no RAG,
+  that query is retrieved anyway. Live re-run: `[1] §4.2 … p.2`, "67.7 % …
+  below the required 75 %". Test added in `test_orchestrator.py`.
 - The dev DB `conversations` for user 17 now also hold live turns.
 
 ### Remaining steps (do one at a time; report and ask before committing)

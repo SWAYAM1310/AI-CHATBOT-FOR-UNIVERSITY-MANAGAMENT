@@ -332,3 +332,16 @@ def test_history_is_trimmed_to_the_last_three_turns(student_ctx, db):
     sent = provider.calls[0]["messages"]
     assert len(sent) == 7  # 6 history messages + this question
     assert sent[0]["content"] == "m6"
+
+
+def test_a_personal_record_tool_pulls_its_regulation_even_when_the_router_says_no_rag(student_ctx, db, monkeypatch):
+    seen: list[str] = []
+    monkeypatch.setattr("app.ai.orchestrator._retrieve", lambda q, *a, **k: seen.append(q) or [])
+    provider = ScriptedProvider(route(tools=["get_my_attendance"], needs_rag=False), answer())
+    run_turn(question="am I short on attendance?", ctx=student_ctx, db=db, provider=provider)
+    assert seen and "attendance" in seen[0] and "eligibility" in seen[0]
+
+    seen.clear()
+    provider = ScriptedProvider(route(intent="smalltalk"), answer("hi"))
+    run_turn(question="hi", ctx=student_ctx, db=db, provider=provider)
+    assert seen == []  # no tool with a policy counterpart, no retrieval

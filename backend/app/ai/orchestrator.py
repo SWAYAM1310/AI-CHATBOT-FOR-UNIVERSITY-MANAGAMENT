@@ -47,6 +47,20 @@ MAX_CANDIDATES = 4  # plan.md §3: Call A narrows to 2-4
 MAX_TOOL_CALLS = 3  # a runaway plan must not fan out into the DB
 RAG_TOOL = "search_university_policies"
 PASSAGE_TOOLS = {RAG_TOOL, "search_curriculum"}  # retrieval tools: their hits become citable passages
+# Personal-record tools whose numbers need a regulation next to them. When one of
+# these ran, the matching rule is retrieved even if the router said needs_rag=false:
+# the small router model does not always spot the policy dimension, and the
+# comparison ("7 points short") is the point of the product.
+POLICY_CONTEXT = {
+    "get_my_attendance": "minimum attendance percentage required for end-semester examination eligibility and condonation",
+    "get_course_attendance_summary": "minimum attendance percentage required for end-semester examination eligibility",
+    "list_students_below_attendance": "minimum attendance percentage required for end-semester examination eligibility and condonation",
+    "get_my_fees": "semester fee due date, late fee per week and overdue consequences",
+    "get_my_marks": "minimum marks for passing and assessment weightage",
+    "get_my_results": "grading, grade points and backlogs",
+    "get_my_scholarships": "scholarship eligibility, application window and disbursement",
+    "get_my_leave_requests": "student leave limits and approval",
+}
 RAG_TOP_K = 5  # one clause per chunk (~65 tokens): all five retrieved passages fit comfortably
 
 
@@ -157,7 +171,11 @@ def run_turn(
         )
     data_cards = [c for r in runs for c in r.cards]
 
-    passages = _retrieve(rag_query, ctx, db) if needs_rag else []
+    if not needs_rag:
+        # a personal-record tool ran whose figures only mean something against a rule
+        # (68% against the 75% floor): fetch that rule whatever the router decided
+        rag_query = next((POLICY_CONTEXT[r.name] for r in runs if r.ok and r.name in POLICY_CONTEXT), "")
+    passages = _retrieve(rag_query, ctx, db) if rag_query else []
     passages = _merge_passages(passages, runs)
 
     # --- Call C: synthesize (no tools attached, by design) ------------------
