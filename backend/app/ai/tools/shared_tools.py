@@ -1,16 +1,18 @@
 """Tools shared across all three roles (plan.md §6).
 
-`search_university_policies` is a keyword-match placeholder: `doc_chunks` is only
-populated by the Phase-3 RAG ingest, so it returns an empty list until then —
-the tool shape (and its citation-friendly result fields) is already final.
+`search_university_policies` is Postgres full-text search over `doc_chunks`
+(populated by `app.ai.rag.ingest`), pre-filtered by the caller's role against
+`documents.audience_roles`. The hybrid dense+sparse retriever with RRF replaces
+the ranking later in Phase 3; the tool shape and its citation fields are final.
 """
 from __future__ import annotations
 
 from typing import Any
 
-from sqlalchemy import and_, desc, or_, select
+from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.orm import Session
 
+from app.ai.rag.ingest import TS_CONFIG
 from app.auth.context import AuthContext, Role
 from app.ai.tools.registry import Scope, tool
 from app.models import (
@@ -48,6 +50,9 @@ def _caller_course_codes(db: Session, ctx: AuthContext) -> list[str]:
         return []
     return list(db.scalars(stmt.distinct()))
 
+POLICY_HITS = 5
+EXCERPT_CHARS = 300
+
 
 @tool(
     name="search_university_policies",
@@ -58,14 +63,32 @@ def _caller_course_codes(db: Session, ctx: AuthContext) -> list[str]:
     scope=Scope.UNIVERSITY,
 )
 def search_university_policies(*, ctx: AuthContext, db: Session, query: str, **_: Any) -> list[dict[str, Any]]:
+    tsq = func.websearch_to_tsquery(TS_CONFIG, query)
     rows = db.execute(
-        select(DocChunk.id, DocChunk.content, DocChunk.section, Document.title)
+        select(
+            DocChunk.id,
+            DocChunk.content,
+            DocChunk.section,
+            DocChunk.page,
+            Document.title,
+            func.ts_rank_cd(DocChunk.tsv, tsq).label("rank"),
+        )
         .join(Document, Document.id == DocChunk.document_id)
-        .where(DocChunk.content.ilike(f"%{query}%"))
-        .limit(5)
+        .where(
+            DocChunk.tsv.op("@@")(tsq),
+            Document.audience_roles.any(ctx.role.value),  # Layer-1 for documents
+        )
+        .order_by(desc("rank"), DocChunk.id)
+        .limit(POLICY_HITS)
     )
     return [
-        {"chunk_id": r.id, "document": r.title, "section": r.section, "excerpt": r.content[:300]}
+        {
+            "chunk_id": r.id,
+            "document": r.title,
+            "section": r.section,
+            "page": r.page,
+            "excerpt": r.content[:EXCERPT_CHARS],
+        }
         for r in rows
     ]
 

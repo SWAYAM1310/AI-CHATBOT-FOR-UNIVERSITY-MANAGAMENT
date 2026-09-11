@@ -125,11 +125,14 @@ def test_get_academic_calendar_returns_current_term_events():
     assert {"event", "event_type", "start_date"} <= rows[0].keys()
 
 
-def test_search_university_policies_runs_with_empty_doc_store():
+def test_search_university_policies_has_the_citation_shape():
+    """Ranking and corpus coverage are tested in test_rag_ingest; here only the contract."""
     ctx = make_ctx("student", subject_id=DEMO_STUDENT_ID)
     with SessionLocal() as db:
         rows = REGISTRY.invoke("search_university_policies", ctx, db, {"query": "attendance"})
-    assert rows == []  # doc_chunks is only populated by the Phase-3 RAG ingest
+    assert isinstance(rows, list)
+    for r in rows:
+        assert {"chunk_id", "document", "section", "page", "excerpt"} <= r.keys()
 
 
 def test_get_my_announcements_runs_for_every_role():
