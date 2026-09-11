@@ -40,6 +40,20 @@ export interface ConfirmCard {
 
 export type Card = ConfirmCard | { type: string; [k: string]: unknown }
 
+export interface ToolRunOut {
+  name: string
+  args: Record<string, unknown>
+  ok: boolean
+  error: string | null
+}
+
+export interface Trace {
+  path: string
+  intent: string
+  tool_runs: ToolRunOut[]
+  usage: { tokens_in: number; tokens_out: number }
+}
+
 export interface ChatOut {
   conversation_id: number
   message_id: number
@@ -50,6 +64,7 @@ export interface ChatOut {
   intent: string
   usage: { tokens_in: number; tokens_out: number }
   queued_seconds: number
+  trace: Trace
 }
 
 export interface ConfirmOut {
@@ -69,6 +84,7 @@ export interface MessageOut {
   tokens_in: number | null
   tokens_out: number | null
   created_at: string
+  tool_runs: ToolRunOut[]
 }
 
 export interface ConversationOut {
@@ -90,4 +106,5 @@ export interface Turn {
   error?: string
   // set once a confirm card has been answered, so it renders as settled
   outcome?: { text: string; ok: boolean }
+  trace?: Trace  // the dev tool-trace panel reads this; hidden by default
 }

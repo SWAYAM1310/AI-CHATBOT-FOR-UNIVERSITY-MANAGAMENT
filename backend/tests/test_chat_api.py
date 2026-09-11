@@ -79,7 +79,12 @@ def test_first_message_creates_conversation_and_persists_both_rows(scripted):
     body = r.json()
     assert body["text"] == "You are at 68% in 24CS201T."
     assert body["path"] == "fast"
-    assert body["cards"] == [] and body["citations"] == []
+    assert body["citations"] == []
+    (card,) = body["cards"]  # the attendance tool result also arrives as a typed card (step 5a.3)
+    assert card["type"] == "attendance" and card["threshold"] == 75
+    assert {"course", "name", "attended", "total", "percent"} <= set(card["rows"][0])
+    assert body["trace"]["path"] == "fast" and [t["name"] for t in body["trace"]["tool_runs"]] == ["get_my_attendance"]
+    assert body["trace"]["tool_runs"][0]["ok"] is True and body["trace"]["usage"] == body["usage"]
     # Call A + Call C usage summed into the one assistant row
     assert body["usage"] == {"tokens_in": 520, "tokens_out": 110}
     assert body["queued_seconds"] == 0
@@ -233,3 +238,34 @@ def test_requires_token_and_rejects_empty_or_oversized_messages(scripted):
     too_long = "x" * (chat_api.MAX_MESSAGE_CHARS + 1)
     assert client.post("/api/chat", json={"message": too_long}, headers=_headers()).status_code == 422
     assert scripted.calls == []
+
+
+# --- typed cards (step 5a.3) ----------------------------------------------------
+
+def test_data_cards_are_stored_with_the_turn_and_replayed_in_the_transcript(scripted):
+    scripted.responses += [route(tools=["get_my_attendance"]), answer("You are at 68%.")]
+    live = client.post("/api/chat", json={"message": "attendance?"}, headers=_headers()).json()
+    assert [c["type"] for c in live["cards"]] == ["attendance"]
+
+    stored = client.get(f"/api/chat/{live['conversation_id']}", headers=_headers()).json()
+    reply = next(m for m in stored if m["role"] == "assistant")
+    assert reply["cards"] == live["cards"]
+    assert reply["tool_runs"] == [{"name": "get_my_attendance", "args": {}, "ok": True, "error": None}]
+
+
+def test_a_denied_tool_becomes_a_denied_card(scripted):
+    # a student asking for an admin tool: the registry refuses, the turn continues, the UI gets a signal
+    scripted.responses += [
+        route(tools=["get_my_attendance"]),
+        answer("That report is outside your access level."),
+    ]
+    from app.ai import orchestrator as orch
+
+    original = orch._candidate_names
+    orch._candidate_names = lambda names, role: ["list_students"]  # force a tool the role may not run
+    try:
+        body = client.post("/api/chat", json={"message": "list all students"}, headers=_headers()).json()
+    finally:
+        orch._candidate_names = original
+    assert body["cards"] == [{"type": "denied", "tool": "list_students"}]
+    assert body["trace"]["tool_runs"][0]["error"] == "denied"

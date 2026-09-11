@@ -67,6 +67,15 @@ class UsageOut(BaseModel):
     tokens_out: int
 
 
+class TraceOut(BaseModel):
+    """What the turn did, for the dev tool-trace panel: never shown by default."""
+
+    path: str
+    intent: str
+    tool_runs: list[dict[str, Any]]  # {name, args, ok, error}
+    usage: UsageOut
+
+
 class ChatOut(BaseModel):
     conversation_id: int
     message_id: int
@@ -77,6 +86,7 @@ class ChatOut(BaseModel):
     intent: str
     usage: UsageOut
     queued_seconds: float
+    trace: TraceOut
 
 
 class ConfirmIn(BaseModel):
@@ -101,6 +111,7 @@ class MessageOut(BaseModel):
     tokens_in: int | None
     tokens_out: int | None
     created_at: str
+    tool_runs: list[dict[str, Any]] = []  # {name, args, ok, error} of the stored turn
 
 
 class ConversationOut(BaseModel):
@@ -179,6 +190,12 @@ def chat(
         intent=result.intent,
         usage=UsageOut(tokens_in=result.usage.tokens_in, tokens_out=result.usage.tokens_out),
         queued_seconds=queued,
+        trace=TraceOut(
+            path=result.path,
+            intent=result.intent,
+            tool_runs=[{"name": r.name, "args": r.args, "ok": r.ok, "error": r.error} for r in result.tool_runs],
+            usage=UsageOut(tokens_in=result.usage.tokens_in, tokens_out=result.usage.tokens_out),
+        ),
     )
 
 
@@ -263,6 +280,7 @@ def get_conversation(
             content=m.content,
             citations=list(m.citations or []),
             cards=_cards_from_runs(m.tool_calls),
+            tool_runs=_runs_summary(m.tool_calls),
             tokens_in=m.tokens_in,
             tokens_out=m.tokens_out,
             created_at=m.created_at.isoformat(),
@@ -312,17 +330,32 @@ def _runs_json(result: TurnResult) -> list[dict[str, Any]]:
             "ok": r.ok,
             "error": r.error,
             "preview": r.preview,
+            "cards": r.cards or None,
         }
         for r in result.tool_runs
     ]
 
 
 def _cards_from_runs(runs: Any) -> list[dict[str, Any]]:
-    """Rebuild the confirm card a stored turn stopped on, for the transcript view."""
+    """Rebuild a stored turn's cards for the transcript: the confirm card it stopped on, or its data cards."""
+    if not isinstance(runs, list):
+        return []
+    out: list[dict[str, Any]] = []
+    for r in runs:
+        if not isinstance(r, dict):
+            continue
+        if r.get("ok") and isinstance(r.get("preview"), dict):
+            out.append({"type": "confirm", "tool": r["name"], "args": r.get("args", {}), **r["preview"]})
+        elif isinstance(r.get("cards"), list):
+            out.extend(c for c in r["cards"] if isinstance(c, dict))
+    return out
+
+
+def _runs_summary(runs: Any) -> list[dict[str, Any]]:
     if not isinstance(runs, list):
         return []
     return [
-        {"type": "confirm", "tool": r["name"], "args": r.get("args", {}), **r["preview"]}
+        {"name": r.get("name"), "args": r.get("args", {}), "ok": r.get("ok"), "error": r.get("error")}
         for r in runs
-        if isinstance(r, dict) and r.get("ok") and isinstance(r.get("preview"), dict)
+        if isinstance(r, dict)
     ]

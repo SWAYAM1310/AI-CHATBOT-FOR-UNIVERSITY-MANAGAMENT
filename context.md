@@ -1,8 +1,8 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after **Phase 5a part 1**
-(2026-09-12). Phases 0–4 complete and committed; frontend part 1 is
-**uncommitted**. Next: Phase 5a part 2 (conversation rail + suggested prompts).
+Snapshot for picking the work back up. Last updated after **Phase 5a part 3**
+(2026-09-12). Phases 0–4 complete; frontend parts 1–3 done (parts 2–3 and the
+UX audit are **uncommitted**). Next: Phase 5a part 4 (dev tool-trace panel).
 
 ---
 
@@ -74,7 +74,9 @@ on an RTX 3050.
 | `b5e70b9` | 3.5b | syllabus tables + relational extract + curriculum tools + citable tool passages, 355 tests |
 | `c00183f` | 3.6 | calendar + notices corpus, tabular extract → academic_calendar, notice chunker, 373 tests |
 | `c8c6259` | 4 | gap-check: all 40 planned tools present; `run_analytics` gains `failure_rate`, 378 tests |
-| _(uncommitted)_ | 5a.1 | frontend part 1: API client, login, chat with footnote citations + confirm card |
+| `87bdbcf` | 5a.1 | frontend part 1: API client, login, chat with footnote citations + confirm card |
+| _(uncommitted)_ | 5a.2 | frontend part 2: conversation rail + role-specific suggested prompts + UX audit |
+| _(uncommitted)_ | 5a.3 | typed data cards (backend `app/ai/cards.py` + API `trace`) and their renderers, 380 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -903,20 +905,68 @@ dependencies beyond React; Google Fonts in `index.html`; Vite proxies
   scratchpad demo server is not in the repo (consider
   `backend/scripts/dev_server_demo.py` if useful for the viva).
 
+### Part 2 — DONE: conversation rail + suggested prompts
+- `src/Rail.tsx`: `SUGGESTIONS[role]` (5 per role; each hits a different
+  path — own records, a cited regulation, the syllabus, an action), the
+  `New conversation` button, and the history list (`GET /api/chat`,
+  title = first question, short date, active row highlighted).
+- `Chat.tsx`: `refreshConversations` on mount and whenever a turn opens a
+  new conversation; `openConversation` loads the stored transcript (user +
+  assistant rows with citations/cards); a suggestion click sends it. Caller
+  line now uses `profile.full_name` → "Isha Kanani (Student)".
+- Layout: CSS grid `260px | 1fr` (top / rail+main / rail+composer); under
+  800px the rail is a fixed overlay opened by a "Menu" button in the top bar
+  and closed by "Close" / any action.
+- Verified with Playwright (`scratchpad/ui_rail.py`): suggestion → answer
+  with footnotes, history grows and highlights, New → reopen restores 2 turns
+  + 2 footnotes, mobile overlay opens/closes; no page errors. Build clean.
+  Note: the dev DB's `conversations` carry leftovers from `test_chat_api`
+  ("hi", "xxxx…") — they are user 17's; harmless, but the API test suite
+  could clean up after itself.
+
+### UX audit pass (ui-ux-pro-max, 2026-09-12) — applied on top of part 2
+- Design-system query confirmed the direction (institutional navy/green +
+  serif reading voice); its "landing page" pattern/style rows were a
+  misroute for a signed-in tool and were ignored.
+- Contrast computed for every text pair in use: all ≥ 5.3:1 (amber 4.24 is
+  border-only). Fixes applied: body 15→16px; buttons `min-height` 40px, 44px
+  under `pointer: coarse` (rail rows, Send, top-bar links); 150 ms hover
+  transitions incl. a darker primary; "Working on it" with three pulsing dots
+  (animation only under `prefers-reduced-motion: no-preference`,
+  `aria-busy`). Verified at 375px: no horizontal overflow, target heights
+  40 / 56. Not done: dark mode (single light theme by design for now).
+
+### Part 3 — DONE: typed data cards
+- Backend `app/ai/cards.py` — `cards_for(name, result, ok, error)` maps tool
+  results to cards by tool name: `attendance` (`get_my_attendance`; rows +
+  `threshold: 75`), `marks` (`get_my_marks`), `timetable`
+  (`get_my_timetable`, `get_my_teaching_schedule`), `student_table`
+  (`list_students`, `list_course_students`, `list_students_below_attendance`,
+  `identify_at_risk_students`, `list_missing_submissions`; columns + row
+  arrays, capped at 100 with `total`), `denied` (`error == "denied"`).
+  `ToolRun.cards` is filled in `_execute`; `TurnResult.cards` = the confirm
+  card (turn stops) or the data cards. Stored in `messages.tool_calls[*].cards`
+  → `_cards_from_runs` replays them in `GET /api/chat/{id}`.
+- API: `ChatOut.trace = {path, intent, tool_runs[{name,args,ok,error}],
+  usage}` (for part 4); `MessageOut.tool_runs` for stored turns.
+- Frontend `src/Cards.tsx` — `DataCard` dispatch: attendance bars with the
+  75% line (short courses red, `role="img"` labels), marks bars grouped by
+  course, timetable day grid (labs amber), student table (click-to-sort with
+  `aria-sort`, "Download CSV"), denied note (red: "Not available to your
+  role… the server refused it before any data was read"), unknown → JSON.
+  `Turn.trace` carried from `ChatOut.trace` / stored `tool_runs`.
+- Verified with Playwright + the canned backend: attendance (DBMS 67.7% red vs
+  the line), timetable, marks for the student; faculty "who is below 75%" →
+  sortable table (sort by percent → 63.6 first). Backend suite **380 passed**
+  (API tests: attendance card + trace on a turn, cards replayed from the
+  transcript, forced `list_students` for a student → `denied` card).
+
 ### Remaining steps (do one at a time; report and ask before committing)
-5a.2. **Conversation rail** — list `GET /api/chat`, open a past transcript
-   (`openConversation` exists), 4–5 role-specific suggested prompts for the
-   empty state (student: attendance, marks, fees, Unit 3 of DBMS, apply for
-   leave; faculty: below-75% in a course, mark attendance, pending leaves;
-   admin: failure rate by department, publish notice), collapse on mobile.
-5a.3. **Rich cards** — `denied` treatment (needs a signal from the API: expose
-   tool_runs' `error == "denied"` or a `denied: true` flag on ChatOut),
-   attendance bars with the 75% line, timetable grid, student table (the
-   backend must return typed `cards` for these; today only `confirm` exists —
-   decide whether the orchestrator emits cards from tool results or the UI
-   parses the Markdown tables).
-5a.4. **Dev tool-trace panel** — needs `ChatOut.trace` (tool_runs names/args/
-   ok/error, path, intent, usage); collapsible, hidden by default.
+5a.4. **Dev tool-trace panel** — `Turn.trace` is already on every assistant
+   turn; add a collapsible "Trace" disclosure per answer (path, intent, tool
+   runs with ok/denied, tokens) behind a header toggle, hidden by default.
+   Rate-limit "queued" state exists (`queuedSeconds` line); a 429 shows the
+   retry hint — consider auto-retry after `Retry-After`.
 5b. **Eval harness** (plan.md §10): `eval/golden_set.yaml`, `run_eval.py`, the
    three experiments. Needs a Groq key.
 5c. **Live smoke test** once `LLM_API_KEY` is set.

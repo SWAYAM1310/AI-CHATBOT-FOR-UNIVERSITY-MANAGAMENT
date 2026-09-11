@@ -24,6 +24,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.ai.budget import get_budgeted_provider
+from app.ai.cards import cards_for
 from app.ai.compact import compact
 from app.ai.prompts.system import (
     plan_system,
@@ -60,6 +61,7 @@ class ToolRun:
     error: str | None = None
     preview: dict[str, Any] | None = None  # set by a two-phase-confirm action tool
     passages: list[dict[str, Any]] | None = None  # set by a retrieval tool (PASSAGE_TOOLS)
+    cards: list[dict[str, Any]] = field(default_factory=list)  # typed cards for the UI (app.ai.cards)
 
     def as_prompt_block(self) -> dict[str, Any]:
         return {"name": self.name, "args": self.args, "markdown": self.markdown}
@@ -153,6 +155,7 @@ def run_turn(
         return TurnResult(
             cards=[card], tool_runs=runs, usage=usage, intent=intent, path="confirm"
         )
+    data_cards = [c for r in runs for c in r.cards]
 
     passages = _retrieve(rag_query, ctx, db) if needs_rag else []
     passages = _merge_passages(passages, runs)
@@ -178,6 +181,7 @@ def run_turn(
     return TurnResult(
         text=text,
         citations=citations,
+        cards=data_cards,
         tool_runs=runs,
         usage=usage,
         intent=intent,
@@ -211,8 +215,11 @@ def _execute(name: str, args: dict[str, Any], ctx: AuthContext, db: Session) -> 
     try:
         result = REGISTRY.invoke(name, ctx, db, args)
     except ToolDenied:
-        # already audited as 'denied'; Call C turns this into the refusal rule
-        return ToolRun(name, args, "(not available to this caller)", ok=False, error="denied")
+        # already audited as 'denied'; Call C turns this into the refusal rule, the UI into a denied card
+        return ToolRun(
+            name, args, "(not available to this caller)", ok=False, error="denied",
+            cards=cards_for(name, None, ok=False, error="denied"),
+        )
     except KeyError:
         return ToolRun(name, args, "(no such tool)", ok=False, error="unknown_tool")
     except TypeError as exc:  # the model invented an argument the tool doesn't take
@@ -229,7 +236,10 @@ def _execute(name: str, args: dict[str, Any], ctx: AuthContext, db: Session) -> 
     elif isinstance(result, dict) and isinstance(result.get("passages"), list):
         # a data tool that also names the document its rows came from (the calendar)
         passages = [h for h in result["passages"] if isinstance(h, dict) and "chunk_id" in h]
-    return ToolRun(name, args, compact(result), preview=preview, passages=passages)
+    return ToolRun(
+        name, args, compact(result), preview=preview, passages=passages,
+        cards=cards_for(name, result, ok=True, error=None),
+    )
 
 
 def _merge_passages(passages: list[dict[str, Any]], runs: list[ToolRun]) -> list[dict[str, Any]]:
