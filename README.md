@@ -22,9 +22,18 @@ Phase 1b — auth & RBAC done.
   [app/ai/tools/registry.py](backend/app/ai/tools/registry.py) with `audit_log`
   writes; a starter set of RBAC-guarded tools; `GET /api/me`, `GET /api/me/tools`.
 
-`pytest` — 56 tests (load/schema + auth + the RBAC suite, which must stay green).
+- **Phase 2 (steps 1–6):** student/shared read tools; an OpenAI-compatible
+  provider (Groq by default); the three-call orchestrator
+  ([app/ai/orchestrator.py](backend/app/ai/orchestrator.py)) — route → plan →
+  execute → synthesize; a shared token-bucket limiter + 429 backoff + per-turn
+  meter ([app/ai/budget.py](backend/app/ai/budget.py)); `POST /api/chat` with
+  persisted conversations ([app/api/chat.py](backend/app/api/chat.py)).
 
-Next: Phase 2 — tool registry fan-out, Groq provider, the three-call orchestrator.
+`pytest` — 147 tests, **fully offline**: every LLM call goes through a scripted
+provider, and CI ([backend-tests.yml](.github/workflows/backend-tests.yml)) runs
+the suite with `LLM_API_KEY` unset on purpose. The RBAC suite must stay green.
+
+Next: Phase 2 step 7 — faculty/admin tool groups + two-phase-confirm action tools.
 
 ## Stack
 
@@ -50,7 +59,7 @@ pip install -r requirements.txt
 
 alembic upgrade head                     # creates the 30-table schema
 python -m app.seed.load_csv --dataset sample --reset   # load data/synthetic/sample/
-pytest                                   # 40 tests
+pytest                                   # 147 tests, no LLM key needed
 uvicorn app.main:app --reload            # http://localhost:8000/health
 ```
 
