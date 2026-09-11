@@ -1,8 +1,9 @@
-"""Render docs/policies/*.md to docs/policies/pdf/*.pdf.
+"""Render the synthetic corpus: docs/{policies,calendar,notices}/*.md -> <dir>/pdf/*.pdf.
 
-The Markdown files are the source of truth for the synthetic policy corpus;
-the PDFs exist so that Phase-3 ingest exercises the real PDF parser path
-(page numbers in citations, layout extraction) rather than a Markdown shortcut.
+The Markdown files are the source of truth for the synthetic policy, calendar
+and notice documents; the PDFs exist so that Phase-3 ingest exercises the real
+PDF parser path (page numbers in citations, table extraction) rather than a
+Markdown shortcut.
 
     backend/.venv/Scripts/python.exe scripts/render_policies.py
 
@@ -18,8 +19,7 @@ import markdown
 import pymupdf
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "docs" / "policies"
-OUT = SRC / "pdf"
+SOURCES = [ROOT / "docs" / d for d in ("policies", "calendar", "notices")]
 
 PAGE = pymupdf.paper_rect("a4")
 MARGIN = 56  # 20 mm
@@ -52,15 +52,18 @@ def render(md_path: Path, pdf_path: Path) -> int:
 
 
 def main() -> int:
-    OUT.mkdir(parents=True, exist_ok=True)
-    sources = sorted(SRC.glob("*.md"))
-    if not sources:
-        print(f"no markdown under {SRC}", file=sys.stderr)
+    rendered = 0
+    for src in SOURCES:
+        out = src / "pdf"
+        out.mkdir(parents=True, exist_ok=True)
+        for md in sorted(src.glob("*.md")):
+            pdf = out / (md.stem + ".pdf")
+            pages = render(md, pdf)
+            print(f"{md.name:38s} -> {pdf.relative_to(ROOT)}  ({pages} pages)")
+            rendered += 1
+    if not rendered:
+        print(f"no markdown under {', '.join(str(s) for s in SOURCES)}", file=sys.stderr)
         return 1
-    for md in sources:
-        pdf = OUT / (md.stem + ".pdf")
-        pages = render(md, pdf)
-        print(f"{md.name:38s} -> {pdf.relative_to(ROOT)}  ({pages} pages)")
     return 0
 
 

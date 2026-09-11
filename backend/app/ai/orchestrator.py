@@ -165,7 +165,7 @@ def run_turn(
             {
                 "role": "user",
                 "content": synthesize_user(
-                    question, [r.as_prompt_block() for r in runs if r.passages is None], passages
+                    question, [r.as_prompt_block() for r in runs if r.name not in PASSAGE_TOOLS], passages
                 ),
             },
         ],
@@ -226,6 +226,9 @@ def _execute(name: str, args: dict[str, Any], ctx: AuthContext, db: Session) -> 
     passages = None
     if name in PASSAGE_TOOLS and isinstance(result, list):
         passages = [h for h in result if isinstance(h, dict) and "chunk_id" in h]
+    elif isinstance(result, dict) and isinstance(result.get("passages"), list):
+        # a data tool that also names the document its rows came from (the calendar)
+        passages = [h for h in result["passages"] if isinstance(h, dict) and "chunk_id" in h]
     return ToolRun(name, args, compact(result), preview=preview, passages=passages)
 
 

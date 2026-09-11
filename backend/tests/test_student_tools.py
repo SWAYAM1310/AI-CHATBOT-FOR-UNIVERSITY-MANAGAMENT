@@ -120,9 +120,11 @@ def test_get_my_scholarships_and_leave_requests_run_for_any_student():
 def test_get_academic_calendar_returns_current_term_events():
     ctx = make_ctx("student", subject_id=DEMO_STUDENT_ID)
     with SessionLocal() as db:
-        rows = REGISTRY.invoke("get_academic_calendar", ctx, db, {})
+        result = REGISTRY.invoke("get_academic_calendar", ctx, db, {})
+    rows = result["rows"]
     assert len(rows) > 0
     assert {"event", "event_type", "start_date"} <= rows[0].keys()
+    assert isinstance(result["passages"], list)  # the calendar PDF chunks the rows came from (step 6)
 
 
 def test_search_university_policies_has_the_citation_shape():

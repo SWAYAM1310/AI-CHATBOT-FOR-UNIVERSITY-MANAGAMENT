@@ -53,8 +53,8 @@ def db():
 
 def test_manifest_loads_every_declared_file():
     entries = load_manifest(DEFAULT_MANIFEST)
-    assert len(entries) == 13
-    assert {e.doc_type for e in entries} == {"policy", "curriculum"}
+    assert len(entries) == 18  # 7 policies, 1 calendar, 4 notices, 6 curricula
+    assert {e.doc_type for e in entries} == {"policy", "curriculum", "tabular", "notice"}
     assert all(e.path.is_file() for e in entries)
     assert all(not e.source_path.startswith("/") and "\\" not in e.source_path for e in entries)
     att = next(e for e in entries if e.path == ATTENDANCE_PDF)

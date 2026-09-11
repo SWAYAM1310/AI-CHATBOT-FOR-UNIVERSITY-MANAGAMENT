@@ -19,6 +19,8 @@ from app.models import (
     AcademicCalendarEvent,
     Announcement,
     CourseOffering,
+    DocChunk,
+    Document,
     Enrollment,
     Faculty,
     Student,
@@ -49,7 +51,8 @@ def _caller_course_codes(db: Session, ctx: AuthContext) -> list[str]:
     return list(db.scalars(stmt.distinct()))
 
 POLICY_HITS = 5
-POLICY_DOC_TYPES = ("policy", "notice")  # syllabus chunks answer curriculum questions through their own tools
+EXCERPT_CHARS = 300  # for a data tool's source passages: the rows are already in the result
+POLICY_DOC_TYPES = ("policy", "notice", "tabular")  # syllabus chunks answer curriculum questions through their own tools; tabular = the calendar fallback
 
 
 @tool(
@@ -78,7 +81,8 @@ def get_academic_calendar(
     if event_type:
         q = q.where(AcademicCalendarEvent.event_type == event_type)
     q = q.order_by(AcademicCalendarEvent.start_date)
-    return [
+    events = db.scalars(q).all()
+    rows = [
         {
             "event": r.event,
             "event_type": r.event_type,
@@ -86,7 +90,24 @@ def get_academic_calendar(
             "end_date": r.end_date.isoformat() if r.end_date else None,
             "applies_to": r.applies_to,
         }
-        for r in db.scalars(q)
+        for r in events
+    ]
+    # the calendar PDF chunks these rows were extracted from, so the answer can cite the calendar
+    return {"rows": rows, "passages": _source_passages(db, {r.source_chunk_id for r in events if r.source_chunk_id})}
+
+
+def _source_passages(db: Session, chunk_ids: set[int]) -> list[dict[str, Any]]:
+    if not chunk_ids:
+        return []
+    found = db.execute(
+        select(DocChunk.id, Document.title, DocChunk.section, DocChunk.page, DocChunk.content)
+        .join(Document, Document.id == DocChunk.document_id)
+        .where(DocChunk.id.in_(chunk_ids))
+        .order_by(DocChunk.id)
+    ).all()
+    return [
+        {"chunk_id": r.id, "document": r.title, "section": r.section, "page": r.page, "excerpt": r.content[:EXCERPT_CHARS]}
+        for r in found
     ]
 
 

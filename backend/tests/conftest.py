@@ -39,10 +39,11 @@ def _preserve_doc_store() -> None:
         docs = c.execute(text("SELECT * FROM documents")).mappings().all()
         chunks = c.execute(text("SELECT * FROM doc_chunks")).mappings().all()
         extract = {t: c.execute(text(f"SELECT * FROM {t}")).mappings().all() for t in DOC_STORE_EXTRACT_TABLES}
-        cal_links = c.execute(text("SELECT id, source_chunk_id FROM academic_calendar WHERE source_chunk_id IS NOT NULL")).mappings().all()
+        calendar = c.execute(text("SELECT * FROM academic_calendar ORDER BY id")).mappings().all()
     yield
     with engine.begin() as c:
-        c.execute(text("UPDATE academic_calendar SET source_chunk_id = NULL"))
+        # the calendar is CSV-loaded but the tabular ingest links (and tests mutate) its rows: restore it whole
+        c.execute(text("TRUNCATE academic_calendar RESTART IDENTITY"))
         c.execute(text("TRUNCATE doc_chunks, documents RESTART IDENTITY CASCADE"))  # cascades to the extract tables
         if docs:
             c.execute(text(_insert_sql("documents", docs[0].keys())), [dict(r) for r in docs])
@@ -56,10 +57,10 @@ def _preserve_doc_store() -> None:
         for t in DOC_STORE_EXTRACT_TABLES:  # parents (courses) before children
             if extract[t]:
                 c.execute(text(_insert_sql(t, extract[t][0].keys())), [dict(r) for r in extract[t]])
-        for t in ("documents", "doc_chunks", *DOC_STORE_EXTRACT_TABLES):
+        if calendar:
+            c.execute(text(_insert_sql("academic_calendar", calendar[0].keys())), [dict(r) for r in calendar])
+        for t in ("documents", "doc_chunks", "academic_calendar", *DOC_STORE_EXTRACT_TABLES):
             c.execute(text(f"SELECT setval(pg_get_serial_sequence('{t}', 'id'), COALESCE(MAX(id), 1)) FROM {t}"))
-        for r in cal_links:
-            c.execute(text("UPDATE academic_calendar SET source_chunk_id = :cid WHERE id = :id"), dict(r))
 
 
 def _insert_sql(table: str, columns) -> str:

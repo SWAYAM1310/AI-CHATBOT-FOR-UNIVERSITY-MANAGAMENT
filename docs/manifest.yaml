@@ -61,6 +61,43 @@ documents:
     audience_roles: [student, faculty, admin]
     effective_date: 2026-06-16
 
+  # --- academic calendar (synthetic; source in docs/calendar/) -------------------
+  - path: docs/calendar/pdf/academic_calendar_2026_27.pdf
+    title: Academic Calendar 2026-27 (AC/2026-27)
+    doc_type: tabular
+    category: calendar
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-06-16
+
+  # --- notices (synthetic; sources in docs/notices/) ------------------------------
+  - path: docs/notices/pdf/fee_payment_reminder.pdf
+    title: "Notice FO/N/2026/07: Odd Semester 2026-27 fee payment — last date 12 September 2026"
+    doc_type: notice
+    category: fees
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-08-28
+
+  - path: docs/notices/pdf/internal_test_2_schedule.pdf
+    title: "Notice COE/N/2026/11: Internal Test 2, Odd Semester 2026-27"
+    doc_type: notice
+    category: examination
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-09-08
+
+  - path: docs/notices/pdf/anti_ragging_helpline.pdf
+    title: "Notice DSA/N/2026/03: Anti-ragging measures and helpline"
+    doc_type: notice
+    category: conduct
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-06-12
+
+  - path: docs/notices/pdf/faculty_marks_entry_deadline.pdf
+    title: "Circular DA/C/2026/19: Internal Test 1 marks entry and attendance corrections"
+    doc_type: notice
+    category: examination
+    audience_roles: [faculty, admin]
+    effective_date: 2026-08-26
+
   # --- curricula (real university PDFs already in data/) ----------------------
   - path: data/btech-ce-syllabus-2025.pdf
     title: B.Tech Computer Engineering Syllabus 2025

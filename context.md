@@ -1,8 +1,8 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after **Phase 3 step 5b**
-(2026-09-11). Phases 0–2 complete; Phase 3 (RAG) steps 0–5a committed, 5b
-uncommitted; next is **step 6, tabular + notices** (see §8 "Remaining steps").
+Snapshot for picking the work back up. Last updated after **Phase 3 step 6**
+(2026-09-11). Phases 0–3 complete (step 6 uncommitted). Next: **Phase 4
+gap-check, then Phase 5 (frontend, eval harness)** — see §8 "Remaining steps".
 
 ---
 
@@ -71,7 +71,8 @@ on an RTX 3050.
 | `150d524` | 3.3 | clause-aware policy chunker, 305 tests |
 | `90af19f` | 3.4 | hybrid retriever (RRF) + numbered citations + router `rag_query`, 319 tests |
 | `6ea7bcd` | 3.5a | curriculum parser + parent/child chunker + per-course late chunking, 339 tests |
-| _(uncommitted)_ | 3.5b | syllabus tables + relational extract + curriculum tools + citable tool passages, 355 tests |
+| `b5e70b9` | 3.5b | syllabus tables + relational extract + curriculum tools + citable tool passages, 355 tests |
+| _(uncommitted)_ | 3.6 | calendar + notices corpus, tabular extract → academic_calendar, notice chunker, 373 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -791,13 +792,73 @@ decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
   `test_rag_embedder` exploding embedder now uses its own model name (reuse
   would otherwise skip the API). Suite **355 passed**.
 
+### Step 6 — DONE: tabular (calendar) + notices
+- **Sources** (synthetic, every date from `academic_calendar.csv` / the
+  policies): `docs/calendar/academic_calendar_2026_27.md` (two tables, 25
+  events, notes) and `docs/notices/{fee_payment_reminder, internal_test_2_
+  schedule, anti_ragging_helpline, faculty_marks_entry_deadline}.md` (the
+  last is `audience_roles: [faculty, admin]`). `scripts/render_policies.py`
+  now renders all of `docs/{policies,calendar,notices}` → `<dir>/pdf/`.
+  Manifest: 18 entries (7 policy, 1 tabular `category: calendar`, 4 notice,
+  6 curriculum).
+- **`parsers.extract_tables` now uses PyMuPDF `page.find_tables()`**
+  (pdfplumber dropped the first row after a page break; requirement removed)
+  + `clean_tables()`: drop columns empty in every row (phantom rulings on a
+  continued table), merge rows whose first cell is empty (a wrapped cell
+  split the row), cell newlines → spaces. The calendar comes out as 25 clean
+  6-column rows.
+- `chunkers/tabular.py`: `build()` → page chunks for the prose + one chunk
+  per table (`section="Table N (<headers>)"`, rows rendered `Event: …;
+  Type: …; From: …`), a header-less continuation table inherits the previous
+  header when widths agree. `extract_calendar` (only `category == "calendar"`):
+  header → column map (event/type/from|start|date/to|end/applies/term),
+  `parse_date` (d Month YYYY, d Mon YYYY, ISO, d/m/Y, d-m-Y), **upsert
+  `academic_calendar` by (event, start_date)**, sets `source_chunk_id` to the
+  table chunk. Result: 25/25 rows linked. Registered as `EXTRACTORS["tabular"]`.
+- `chunkers/notice.py`: one chunk, `section` = first line (the heading).
+- `search_university_policies` now searches `("policy", "notice", "tabular")`
+  — notices and the calendar chunks are the low-priority fallback; RRF keeps
+  clauses on top. Audience filter verified: the faculty circular is invisible
+  to a student, rank 1 for faculty.
+- `get_academic_calendar` returns `{"rows": [...], "passages": [...]}` —
+  the calendar-table chunks its rows came from (`excerpt` = first 300 chars).
+  Orchestrator `_execute` picks up a dict's `passages` (a *data* tool that
+  names its source), keeps the run in "Tool results" (only `PASSAGE_TOOLS`
+  runs are moved out), so a dates answer can cite the calendar PDF.
+- **conftest restore bugs fixed** (they were silently emptying the extract
+  after every `pytest`): the calendar re-link statement used `:cid` for a
+  `source_chunk_id` key (aborted the whole restore transaction); the
+  `academic_calendar` table is now snapshotted/restored whole (tests delete
+  and re-insert rows). Verified after a full run: 2723 chunks, 25/25 calendar
+  links, 407 courses.
+- Tests: `tests/test_rag_tabular_notice.py` (18) — clean_tables, parse_date,
+  PDF tables keep the page-break row, tabular chunks + header inheritance,
+  notice chunk, calendar upsert with source chunks, re-ingest corrects a
+  changed row and re-inserts a deleted one, non-calendar tabular extracts
+  nothing, audience + notice/calendar coverage in policy search, calendar
+  tool passages, a scripted turn citing the calendar. `test_rag_ingest`
+  manifest count → 18. Suite **373 passed**.
+
+**Phase 3 deliverable check (plan.md §11):** manifest-driven ingest ✔, all
+three chunkers (+ notice) ✔, curriculum extraction to DB ✔, hybrid
+retrieval + parent hydration ✔, citations ✔, personalized synthesis (Call C
+prompt + `rag_query`) ✔, faculty tools ✔ (2.7a). Not yet run live end-to-end
+(no Groq key) — every turn above was scripted at Call A/C with real tools
+and real vectors.
+
 ### Remaining steps (do one at a time; report and ask before committing)
-6. **Tabular + notices** — row extraction (`parsers.extract_tables` exists)
-   with `source_chunk_id`; single-chunk notices.
-
-
-**To run the live LLM path**, put a Groq key in `backend/.env` as `LLM_API_KEY=...`
-then `python -m app.main --check-models` should pass.
-
-Full plan file (local, not in repo):
-`C:\Users\ASUS\.claude\plans\now-i-want-you-resilient-rose.md`.
+7. **Phase 4 gap-check** — plan.md §11 Phase 4 = two-phase confirm, 8 action
+   tools, 9 admin tools, `run_analytics`: all landed in 2.7b/2.7c. Verify
+   against plan.md §6/§7 tool catalog for anything missing; then declare
+   Phase 4 done.
+8. **Phase 5a — frontend** (plan.md §9): Vite React-TS app in `frontend/`
+   (still the template): login (3 roles), chat with `POST /api/chat` +
+   `/api/chat/confirm`, conversation sidebar, suggested prompts per role,
+   rich cards (`confirm_action`, `citation` chips with `[n]`, `denied`),
+   dev tool-trace panel, rate-limit "queued" state.
+9. **Phase 5b — eval harness** (plan.md §10): `eval/golden_set.yaml`,
+   `run_eval.py`, the three experiments (late vs naive chunking, flat vs
+   parent–child on curriculum, Matryoshka dims). Needs a Groq key.
+10. **Live smoke test** once `LLM_API_KEY` is set: `python -m app.main
+    --check-models`, then the signature turns (68% vs 75%; "what's in Unit 3
+    of DBMS?"; "when are the end-sem exams?").
