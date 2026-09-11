@@ -18,7 +18,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
-_CITE = re.compile(r"\s*\[\[cite:\s*([^\]]+?)\s*\]\]")
+# [[cite:id]] as instructed; also 【cite:id】 and [cite:id], which gpt-oss produces in the wild
+_CITE = re.compile(r"\s*(?:\[\[|【|\[)\s*cite:\s*([^\]】]+?)\s*(?:\]\]|】|\])")
 SNIPPET_CHARS = 300
 
 

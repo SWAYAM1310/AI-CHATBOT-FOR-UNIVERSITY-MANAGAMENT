@@ -1,8 +1,9 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after **Phase 5a part 4**
-(2026-09-12). Phases 0–4 complete; **Phase 5a (frontend) complete** (part 4
-uncommitted). Next: Phase 5b (eval harness) — needs a Groq key — or 5c.
+Snapshot for picking the work back up. Last updated **2026-09-12, after the first
+live Groq turn**. Phases 0–5a complete and pushed. Groq key is set; the live
+path works. Next: **5c live smoke test** (remaining signature turns through the
+UI), then **5b eval harness**.
 
 ---
 
@@ -44,8 +45,15 @@ on an RTX 3050.
   Postgres container is therefore mapped to **host port 5433** — do not change back.
 - Run backend commands from `backend/` using the venv interpreter:
   `./.venv/Scripts/python.exe -m ...`
-- No Groq API key set yet (`LLM_API_KEY` empty). Only needed from Phase 2 to run
-  the LLM path live; Phase-0 model gate skips cleanly without it.
+- **Groq key is set** (2026-09-12) in `backend/.env` as `LLM_API_KEY` (that file
+  overrides the repo-root `.env`, whose `LLM_API_KEY` stays empty). `python -m
+  app.main --check-models` passes for `openai/gpt-oss-120b` + `-20b`. Note:
+  Groq's edge returns **403 to urllib's default User-Agent** — the gate now
+  sends `User-Agent: uniassist/0.1`; the OpenAI-SDK provider was never affected.
+- **Run the app**: `docker compose up -d` (DB, host port 5433) · `cd backend &&
+  ./.venv/Scripts/python.exe -m uvicorn app.main:app --port 8000` · `cd frontend
+  && npm run dev` → http://localhost:5173 (Vite proxies `/api`). Demo accounts
+  on the sign-in page, password `uniassist`.
 
 ---
 
@@ -77,7 +85,8 @@ on an RTX 3050.
 | `87bdbcf` | 5a.1 | frontend part 1: API client, login, chat with footnote citations + confirm card |
 | `f276164` | 5a.2 | frontend part 2: conversation rail + role-specific suggested prompts + UX audit |
 | `7f4fc10` | 5a.3 | typed data cards (backend `app/ai/cards.py` + API `trace`) and their renderers, 380 tests |
-| _(uncommitted)_ | 5a.4 | dev tool-trace panel, 429 auto-retry, frontend README |
+| `ebd590d` | 5a.4 | dev tool-trace panel, 429 auto-retry, frontend README (pushed; origin was 11 commits behind) |
+| _(uncommitted)_ | 5c.0 | model gate User-Agent fix; cite-marker variants (`【cite:id】`, `[cite:id]`) resolved |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -984,7 +993,24 @@ syllabus answers come as prose + a passage footnote), tool trace ✔,
 rate-limit UX ✔. Live end-to-end still unrun (no Groq key; canned provider
 in `scratchpad/dev_server.py`).
 
+## 11. Live runs (Groq, from 2026-09-12)
+
+- First live turn, student 17, "am I short on attendance?" → path `fast`,
+  `get_my_attendance`, 1936 in / 478 out tokens, attendance card, a correct
+  table + "short only in 24CS201T at 67.7%". **Finding:** gpt-oss-120b wrote
+  the marker as `【cite:31128】` (full-width brackets) → the resolver missed
+  it and the answer had no footnote. `citations._CITE` now also accepts
+  `【cite:id】` and `[cite:id]` (test added). Re-check on the next live run
+  that footnotes appear.
+- The dev DB `conversations` for user 17 now also hold live turns.
+
 ### Remaining steps (do one at a time; report and ask before committing)
+5c. **Live smoke test through the UI** — with the real backend on :8000:
+   the 68%-vs-75% question (expect §4.2 p.2 footnote), "what's in Unit 3 of
+   DBMS?", "when are the end-sem exams?" (calendar card + calendar citation),
+   "apply for leave …" (confirm → execute), faculty "who is below 75%", admin
+   "failure rate by department". Watch Groq 429s (free tier ~30 req/min; a
+   turn is 2–3 calls) and the router's `rag_query` quality.
 5b. **Eval harness** (plan.md §10): `eval/golden_set.yaml`, `run_eval.py`, the
    three experiments. Needs a Groq key.
 5c. **Live smoke test** once `LLM_API_KEY` is set.

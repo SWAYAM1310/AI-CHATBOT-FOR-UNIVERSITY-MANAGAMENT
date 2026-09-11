@@ -53,7 +53,10 @@ def check_models() -> int:
         return 0
 
     url = settings.llm_base_url.rstrip("/") + "/models"
-    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {settings.llm_api_key}"})
+    # Groq's edge answers 403 to urllib's default "Python-urllib" agent; any real one passes
+    req = urllib.request.Request(
+        url, headers={"Authorization": f"Bearer {settings.llm_api_key}", "User-Agent": "uniassist/0.1"}
+    )
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
             available = {m["id"] for m in json.load(resp).get("data", [])}

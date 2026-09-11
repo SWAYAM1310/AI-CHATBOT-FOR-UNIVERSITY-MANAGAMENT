@@ -175,6 +175,12 @@ def test_unknown_markers_are_dropped_and_spacing_tidied():
     assert [c["chunk_id"] for c in cites] == [12]
 
 
+def test_marker_variants_the_model_actually_emits_are_resolved():
+    text_, cites = resolve("Rule【cite:11】 and rule [cite:12] and rule [[cite: 11 ]].", PASSAGES)
+    assert text_ == "Rule [1] and rule [2] and rule [1]."
+    assert [c["chunk_id"] for c in cites] == [11, 12]
+
+
 def test_text_without_markers_is_untouched():
     assert resolve("Hello there.", PASSAGES) == ("Hello there.", [])
     assert resolve("No passages [[cite:11]]", []) == ("No passages", [])
