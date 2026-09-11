@@ -1,9 +1,10 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated **2026-09-12, after the first
-live Groq turn**. Phases 0–5a complete and pushed. Groq key is set; the live
-path works. Next: **5c live smoke test** (remaining signature turns through the
-UI), then **5b eval harness**.
+Snapshot for picking the work back up. Last updated **2026-09-12, during the
+live smoke test (5c)**. Phases 0–5a complete, everything committed and pushed
+(`89c5ecc`). Groq key set; live path works for student and faculty. Three live
+bugs found and fixed so far (§11). Next: keep smoke-testing (admin role, the
+confirm flow live, curriculum questions), then **5b eval harness**.
 
 ---
 
@@ -86,7 +87,10 @@ on an RTX 3050.
 | `f276164` | 5a.2 | frontend part 2: conversation rail + role-specific suggested prompts + UX audit |
 | `7f4fc10` | 5a.3 | typed data cards (backend `app/ai/cards.py` + API `trace`) and their renderers, 380 tests |
 | `ebd590d` | 5a.4 | dev tool-trace panel, 429 auto-retry, frontend README (pushed; origin was 11 commits behind) |
-| _(uncommitted)_ | 5c.0 | model gate User-Agent fix; cite-marker variants (`【cite:id】`, `[cite:id]`) resolved |
+| `b86d93c` | 5c.0 | model gate User-Agent fix; cite-marker variants (`【cite:id】`, `[cite:id]`) resolved |
+| `f5c716b` | 5c.1 | `POLICY_CONTEXT`: personal-record tools always pull their regulation |
+| `7cc5438`, `380eba5` | 5c.2 | faculty course tools accept no course (all taught); provider errors logged |
+| `89c5ecc` | 5c.3 | provider retries once with a no-tools note on Groq `tool_use_failed`, 383 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -1035,13 +1039,22 @@ in `scratchpad/dev_server.py`).
   all four faculty questions answer (fast path, right tools).
 - The dev DB `conversations` for user 17 now also hold live turns.
 
+### Live smoke test status (5c, in progress)
+Done live and correct: student "Am I short on attendance in any course?"
+(§4.2 p.2 footnote + attendance card); faculty "Which of my students have
+missing submissions?" (student_table), "what course do i teach?", "what is
+my name?", "who is below 75% attendance?", "show my teaching schedule".
+Still to run live: "what's in Unit 3 of DBMS?" (search_curriculum /
+get_course_syllabus + passage footnote), "when are the end-sem exams?"
+(calendar rows + calendar citation), "apply for leave …" through the UI
+(confirm → execute), admin "failure rate by department" / "publish a notice",
+a smalltalk turn, and a student asking for something outside their role
+(expect the refusal rule; a `denied` card only if a tool is refused at
+execution). Watch Groq 429s (free tier; a turn is 2–3 calls) and whether the
+no-tools retry warning appears in the backend log.
+
 ### Remaining steps (do one at a time; report and ask before committing)
-5c. **Live smoke test through the UI** — with the real backend on :8000:
-   the 68%-vs-75% question (expect §4.2 p.2 footnote), "what's in Unit 3 of
-   DBMS?", "when are the end-sem exams?" (calendar card + calendar citation),
-   "apply for leave …" (confirm → execute), faculty "who is below 75%", admin
-   "failure rate by department". Watch Groq 429s (free tier ~30 req/min; a
-   turn is 2–3 calls) and the router's `rag_query` quality.
+5c. **Finish the live smoke test** (list above); fix what it finds.
 5b. **Eval harness** (plan.md §10): `eval/golden_set.yaml`, `run_eval.py`, the
    three experiments. Needs a Groq key.
 5c. **Live smoke test** once `LLM_API_KEY` is set.
