@@ -12,6 +12,12 @@ Rate limiting is *reported*, never hidden. A wait the budgeted provider absorbed
 comes back as `queued_seconds` in the response; a 429 that outlives its retries
 becomes a 503 with a Retry-After header rather than a 500, which is what lets
 the UI show "queued" instead of "error".
+
+POST /api/chat/confirm is the second half of an action turn (plan.md §7). It
+takes the signed token off the confirm card, re-runs the tool through the
+registry with `confirmed=True` — so RBAC is re-checked at execution time and a
+role change between preview and click still denies — and never talks to the
+model: the tool's own one-line result is the reply.
 """
 from __future__ import annotations
 
@@ -24,6 +30,8 @@ from sqlalchemy.orm import Session
 
 from app.ai.budget import get_budgeted_provider, queued_notifier
 from app.ai.orchestrator import TurnResult, run_turn
+from app.ai.tools import confirm
+from app.ai.tools.registry import REGISTRY, ToolDenied
 from app.ai.providers import (
     LLMProvider,
     Msg,
@@ -69,6 +77,19 @@ class ChatOut(BaseModel):
     intent: str
     usage: UsageOut
     queued_seconds: float
+
+
+class ConfirmIn(BaseModel):
+    token: str = Field(min_length=1, max_length=4096)
+    conversation_id: int | None = None  # where to file the outcome, if anywhere
+
+
+class ConfirmOut(BaseModel):
+    tool: str
+    text: str
+    result: dict[str, Any]
+    conversation_id: int | None
+    message_id: int | None
 
 
 class MessageOut(BaseModel):
@@ -158,6 +179,59 @@ def chat(
         intent=result.intent,
         usage=UsageOut(tokens_in=result.usage.tokens_in, tokens_out=result.usage.tokens_out),
         queued_seconds=queued,
+    )
+
+
+@router.post("/confirm", response_model=ConfirmOut)
+def confirm_action(
+    body: ConfirmIn,
+    ctx: AuthContext = Depends(get_auth_context),
+    db: Session = Depends(get_db),
+) -> ConfirmOut:
+    try:
+        tool_name, args = confirm.verify(body.token, user_id=ctx.user_id)
+    except confirm.TokenExpired as exc:
+        raise HTTPException(status.HTTP_410_GONE, "confirmation window closed — ask again") from exc
+    except confirm.TokenUsed as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, "this action was already confirmed") from exc
+    except confirm.ConfirmError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "invalid confirmation token") from exc
+
+    convo = _own_conversation(db, ctx, body.conversation_id) if body.conversation_id else None
+
+    try:
+        result = REGISTRY.invoke(tool_name, ctx, db, args, confirmed=True)
+    except ToolDenied as exc:  # role changed since the preview; audited as 'denied'
+        db.rollback()
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "not permitted for your role") from exc
+    except (KeyError, ValueError) as exc:  # token names something that is not an action tool
+        db.rollback()
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "invalid confirmation token") from exc
+
+    if not isinstance(result, dict) or not result.get("done"):
+        db.rollback()
+        reason = result.get("error", "could not complete") if isinstance(result, dict) else "could not complete"
+        raise HTTPException(status.HTTP_409_CONFLICT, reason)
+
+    text = str(result.get("message") or "Done.")
+    reply = None
+    if convo is not None:
+        reply = Message(
+            conversation_id=convo.id,
+            role="assistant",
+            content=text,
+            tool_calls=[{"name": tool_name, "args": args, "ok": True, "error": None, "preview": None, "executed": True}],
+        )
+        db.add(reply)
+    db.commit()
+    confirm.consume(body.token)  # only once the write is durable
+
+    return ConfirmOut(
+        tool=tool_name,
+        text=text,
+        result=result,
+        conversation_id=convo.id if convo else None,
+        message_id=reply.id if reply else None,
     )
 
 

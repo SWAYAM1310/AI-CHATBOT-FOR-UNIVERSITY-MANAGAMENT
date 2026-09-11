@@ -20,7 +20,7 @@ from typing import Any
 from app.auth.context import Role
 from app.ai.tools.registry import IDENTITY_ARGS, REGISTRY, ToolSpec
 
-INJECTED = frozenset({"ctx", "db"})
+INJECTED = frozenset({"ctx", "db", "confirmed"})
 
 _JSON_TYPES: dict[Any, str] = {
     str: "string",

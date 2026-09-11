@@ -22,18 +22,23 @@ Phase 1b — auth & RBAC done.
   [app/ai/tools/registry.py](backend/app/ai/tools/registry.py) with `audit_log`
   writes; a starter set of RBAC-guarded tools; `GET /api/me`, `GET /api/me/tools`.
 
-- **Phase 2 (steps 1–6):** student/shared read tools; an OpenAI-compatible
-  provider (Groq by default); the three-call orchestrator
+- **Phase 2:** the full 40-tool catalog (student SELF, shared, faculty
+  OWN_COURSES, admin UNIVERSITY incl. the enum-bounded `run_analytics`); an
+  OpenAI-compatible provider (Groq by default); the three-call orchestrator
   ([app/ai/orchestrator.py](backend/app/ai/orchestrator.py)) — route → plan →
   execute → synthesize; a shared token-bucket limiter + 429 backoff + per-turn
   meter ([app/ai/budget.py](backend/app/ai/budget.py)); `POST /api/chat` with
-  persisted conversations ([app/api/chat.py](backend/app/api/chat.py)).
+  persisted conversations ([app/api/chat.py](backend/app/api/chat.py)); the 8
+  action tools behind two-phase confirmation — preview + HMAC-signed 5-minute
+  token, then `POST /api/chat/confirm` re-checks RBAC and executes
+  ([app/ai/tools/action_tools.py](backend/app/ai/tools/action_tools.py),
+  [app/ai/tools/confirm.py](backend/app/ai/tools/confirm.py)).
 
-`pytest` — 147 tests, **fully offline**: every LLM call goes through a scripted
+`pytest` — 252 tests, **fully offline**: every LLM call goes through a scripted
 provider, and CI ([backend-tests.yml](.github/workflows/backend-tests.yml)) runs
 the suite with `LLM_API_KEY` unset on purpose. The RBAC suite must stay green.
 
-Next: Phase 2 step 7 — faculty/admin tool groups + two-phase-confirm action tools.
+Next: Phase 3 — RAG (manifest-driven ingest, chunkers, hybrid retrieval, citations).
 
 ## Stack
 
@@ -59,7 +64,7 @@ pip install -r requirements.txt
 
 alembic upgrade head                     # creates the 30-table schema
 python -m app.seed.load_csv --dataset sample --reset   # load data/synthetic/sample/
-pytest                                   # 147 tests, no LLM key needed
+pytest                                   # 252 tests, no LLM key needed
 uvicorn app.main:app --reload            # http://localhost:8000/health
 ```
 

@@ -207,11 +207,11 @@ All five are asserted by `backend/tests/test_load.py`.
 
 ---
 
-## 7. Phase 2 — the orchestrator (in progress)
+## 7. Phase 2 — the orchestrator (complete; step 7c uncommitted)
 
 Per `plan.md §3`, §4, §6.
 
-### Step 1 — DONE (uncommitted): student + shared read tools
+### Step 1 — DONE: student + shared read tools
 - `backend/app/ai/tools/student_tools.py` — the 9 student `SELF`-scope read
   tools: `get_my_courses`, `get_my_timetable(day?)`, `get_my_marks(assessment_type?)`,
   `get_my_results(semester?)`, `get_my_exam_schedule`, `get_my_assignments(status?)`,
@@ -259,7 +259,7 @@ Per `plan.md §3`, §4, §6.
   retry, missing-key refusal, and `parse_json_object`. Suite now **89 passed**.
 - Still no Groq key in `.env`, so the live path is unexercised by design.
 
-### Step 3 — DONE (uncommitted): the orchestrator
+### Step 3 — DONE: the orchestrator
 - `backend/app/ai/tools/schema.py` — closes the gap step 3 had to close first:
   `function_schema(spec)` builds the OpenAI function schema by introspecting the
   tool fn's own signature (`get_type_hints`, `str|None` → `string`, default
@@ -299,7 +299,7 @@ Per `plan.md §3`, §4, §6.
   **Layer 3 strips a planner-supplied `student_id`**, malformed route reply
   degrades, citation resolution, history trimming. Suite now **111 passed**.
 
-### Step 4 — DONE (uncommitted): token budget, limiter, 429 backoff
+### Step 4 — DONE: token budget, limiter, 429 backoff
 - `backend/app/ai/budget.py`:
   - `TokenBucket(rate_per_min, capacity, clock, sleeper)` — thread-safe leaky
     bucket (FastAPI runs sync endpoints in a threadpool, so concurrent turns
@@ -335,7 +335,7 @@ Per `plan.md §3`, §4, §6.
   scoping and a notifier that explodes. Plus one orchestrator test running a
   whole turn through `BudgetedProvider`. Suite now **135 passed**.
 
-### Step 5 — DONE (uncommitted): `POST /api/chat`
+### Step 5 — DONE: `POST /api/chat`
 - `backend/app/api/chat.py`, mounted in `main.py`:
   - `POST /api/chat {message, conversation_id?}` → `run_turn` → `{conversation_id,
     message_id, text, citations[], cards[], path, intent, usage{tokens_in,tokens_out},
@@ -364,7 +364,7 @@ Per `plan.md §3`, §4, §6.
   exhausted 429 = 503 + Retry-After + nothing persisted, no-key 503 / other 502,
   queued wait reported, auth + validation. Suite now **146 passed**.
 
-### Step 6 — DONE (uncommitted): offline CI
+### Step 6 — DONE: offline CI
 - `.github/workflows/backend-tests.yml` — pgvector Postgres service →
   `alembic upgrade head` → `pytest`, with `LLM_API_KEY` **deliberately empty**.
   A green run is the proof the suite (routing, RBAC, budget) is offline.
@@ -377,7 +377,7 @@ Per `plan.md §3`, §4, §6.
   `test_orchestrator.py` / `test_budget.py` / `test_chat_api.py`.
 - README updated (was still saying 56 tests). Suite now **147 passed**.
 
-### Step 7a — DONE (uncommitted): faculty OWN_COURSES tools
+### Step 7a — DONE: faculty OWN_COURSES tools
 - `backend/app/ai/tools/faculty_tools.py` (registered in `tools/__init__.py`):
   `get_my_teaching_courses` (named so because `get_my_courses` is the student
   tool and the registry forbids duplicate names; the index is role-filtered so
@@ -401,7 +401,7 @@ Per `plan.md §3`, §4, §6.
   summary ↔ below-threshold consistency, at-risk ↔ attendance agreement,
   filters, ordering. Suite now **165 passed**.
 
-### Step 7b — DONE (uncommitted): admin UNIVERSITY tools
+### Step 7b — DONE: admin UNIVERSITY tools
 - `backend/app/ai/tools/admin_tools.py` (registered in `tools/__init__.py`),
   all `{ADMIN}` / `Scope.UNIVERSITY`: `get_enrollment_stats(dept?, semester?)`,
   `get_department_overview`, `get_course_performance(course?, dept?)`,
@@ -427,8 +427,57 @@ Per `plan.md §3`, §4, §6.
   combination runs**, enum refusal incl. an injection-shaped string.
   Suite now **204 passed**.
 
+### Step 7c — DONE (uncommitted): action tools + two-phase confirm
+- **Registry** (`tools/registry.py`): `ToolSpec.action` flag; `invoke(...,
+  confirmed=False)` is a keyword of *invoke*, not a tool arg — a model-emitted
+  `"confirmed": true` is popped and ignored, and `confirmed=True` is injected
+  only into action tools (else `ValueError`). Phase-2 audit decision is
+  `"confirmed"`. `schema.py` never emits `confirmed`.
+- **`tools/confirm.py`**: `sign(user_id, tool, args)` → `<b64 payload>.<hmac>`
+  over `(u, t, canonical args, exp, nonce)`; key = HMAC(jwt_secret,
+  "uniassist-confirm-v1"); TTL `settings.confirm_token_ttl_seconds` (300).
+  `verify(token, user_id, now?)` → `(tool, args)` or `TokenInvalid` /
+  `TokenExpired` / `TokenUsed`; `consume(token)` retires the nonce (in-process
+  set — a restart re-opens at most one TTL of replay, and every tool
+  re-validates anyway). `pending(ctx, tool, args, preview)` is what a tool
+  returns instead of writing.
+- **`tools/action_tools.py`** — one code path per tool: validate → preview →
+  `pending(...)` unless `confirmed`, then write + `{"done": True, "message"}`.
+  Validation errors are `{"error": ...}`. Student (SELF): `apply_for_leave(from,
+  to, reason)` (future, ≤10 days, no overlap with pending/approved),
+  `request_document(doc_type, purpose?)` (fuzzy match to the 7 known types, no
+  duplicate open request). Faculty (OWN_COURSES): `mark_attendance(course_code,
+  date, absent_roll_nos?, slot_no?, division?, lab_group?)` (everyone present
+  except the list; refuses future date / unknown roll / already recorded),
+  `enter_marks(course_code, assessment, marks{roll: score})` (upsert, 0..max),
+  `post_announcement(course_code, title, body)` (scope=course, audience=student).
+  Faculty (OWN_DEPARTMENT): `list_pending_leave_requests` (read; HOD only) and
+  `decide_leave_request(leave_request_id, approve|reject)` (HOD of the
+  student's dept only). Admin (UNIVERSITY): `publish_notice(title, body,
+  audience=all|student|faculty, dept?)`, `manage_user(email,
+  activate|deactivate|reset_password)` (not self; reset returns a temp password).
+- **`POST /api/chat/confirm {token, conversation_id?}`** in `api/chat.py`:
+  verify (400 invalid / 410 expired / 409 used) → `_own_conversation` (404) →
+  `REGISTRY.invoke(..., confirmed=True)` (403 on `ToolDenied` — RBAC re-checked
+  at execution) → tool `error` → 409 with the reason, token left unconsumed →
+  commit → optional assistant `Message` (content = tool message,
+  `tool_calls=[{..., "executed": True}]`) → `consume`. **No LLM call.**
+- Data facts used by tests: faculty 4 = HOD CP, 5 = HOD IT; leave request #4
+  is pending for 25BCP021 (CP); student 17's user email
+  `25bcp017@sot.pdpu.ac.in`.
+- Tests: `test_action_tools.py` (40) — 8 flagged actions, `confirmed` absent
+  from every schema, model-supplied flag dropped, denial with confirmed, token
+  round-trip/tamper/user-binding/expiry/single-use, **preview pass writes
+  nothing for all 8**, per-tool validation + execution + a replay refused by
+  re-validation; `test_confirm_api.py` (8) — chat turn stops on the card
+  (2 model calls), card survives transcript reload, confirm executes with no
+  model call and files an assistant row, 409 on reuse, 400/410/403/404 paths,
+  stale-facts 409. Tests undo their own writes. Suite now **252 passed**.
+
 ### Remaining steps
-7c. Action tools + `POST /api/chat/confirm` (two-phase confirm, plan.md §7).
+Phase 2 is complete. Next per plan.md §11 is **Phase 3 — RAG** (manifest
+ingest, three chunkers, hybrid retrieval, citations); `_retrieve()` in the
+orchestrator and `search_university_policies` are the hooks it plugs into.
 
 **To run the live LLM path**, put a Groq key in `backend/.env` as `LLM_API_KEY=...`
 then `python -m app.main --check-models` should pass.

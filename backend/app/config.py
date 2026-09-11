@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     jwt_secret: str = "dev-insecure-change-me-please-0000000000"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 12 * 60
+    confirm_token_ttl_seconds: int = 300  # two-phase confirm (plan.md §7)
 
     # Academic context (matches scripts/academic_data.py)
     current_term: str = "2026-27-ODD"

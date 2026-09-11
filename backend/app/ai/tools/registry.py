@@ -48,6 +48,7 @@ class ToolSpec:
     fn: Callable[..., Any]
     allowed_roles: frozenset[Role]
     scope: Scope
+    action: bool = False  # two-phase confirm: previews unless invoked with confirmed=True
 
     def visible_to(self, role: Role) -> bool:
         return role in self.allowed_roles
@@ -96,8 +97,18 @@ class ToolRegistry:
         ctx: AuthContext,
         db: Session,
         args: dict[str, Any] | None = None,
+        *,
+        confirmed: bool = False,
     ) -> Any:
+        """Run `name` for `ctx`. Only the confirm endpoint ever passes `confirmed`.
+
+        `confirmed` is a keyword of *this* method, not a tool argument: a model
+        that emits `"confirmed": true` in a tool call has it silently dropped
+        below, so the only way to execute an action tool is through the signed
+        token round-trip (plan.md §7).
+        """
         args = dict(args or {})
+        args.pop("confirmed", None)
         spec = self._tools.get(name)
 
         if spec is None:
@@ -116,6 +127,12 @@ class ToolRegistry:
             if stripped:
                 decision = "arg_stripped"
 
+        if confirmed:
+            if not spec.action:
+                raise ValueError(f"{name} is not an action tool")
+            args["confirmed"] = True
+            decision = "confirmed"
+
         started = time.perf_counter()
         result = spec.fn(ctx=ctx, db=db, **args)
         latency_ms = int((time.perf_counter() - started) * 1000)
@@ -133,6 +150,7 @@ def tool(
     description: str,
     allowed_roles: set[Role] | frozenset[Role],
     scope: Scope,
+    action: bool = False,
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     def deco(fn: Callable[..., Any]) -> Callable[..., Any]:
         REGISTRY.register(
@@ -142,6 +160,7 @@ def tool(
                 fn=fn,
                 allowed_roles=frozenset(allowed_roles),
                 scope=scope,
+                action=action,
             )
         )
         return fn
