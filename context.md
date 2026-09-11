@@ -207,15 +207,31 @@ All five are asserted by `backend/tests/test_load.py`.
 
 ---
 
-## 7. Next: Phase 2 — the orchestrator
+## 7. Phase 2 — the orchestrator (in progress)
 
-Per `plan.md §3`, §4, §6. Roughly:
-1. Flesh out the tool catalog (`plan.md §6`) — ~11 student read tools first
-   (`get_my_courses`, `get_my_timetable`, `get_my_marks`, `get_my_results`,
-   `get_my_exam_schedule`, `get_my_assignments`, `get_my_fees`,
-   `get_my_scholarships`, `get_my_leave_requests`, plus shared
-   `search_university_policies` stub, `get_academic_calendar`,
-   `get_my_announcements`). All via the existing `@tool` registry.
+Per `plan.md §3`, §4, §6.
+
+### Step 1 — DONE (uncommitted): student + shared read tools
+- `backend/app/ai/tools/student_tools.py` — the 9 student `SELF`-scope read
+  tools: `get_my_courses`, `get_my_timetable(day?)`, `get_my_marks(assessment_type?)`,
+  `get_my_results(semester?)`, `get_my_exam_schedule`, `get_my_assignments(status?)`,
+  `get_my_fees`, `get_my_scholarships`, `get_my_leave_requests`. All read identity
+  from `ctx.student_id` only.
+- `backend/app/ai/tools/shared_tools.py` — 3 shared tools, all roles:
+  `search_university_policies(query)` (keyword `ILIKE` over `doc_chunks`; returns
+  `[]` until the Phase-3 RAG ingest populates it — shape is final),
+  `get_academic_calendar(event_type?)` (current term + term-less events),
+  `get_my_announcements()` (audience-role match + university/department/course
+  scope filtering via the caller's dept_code / enrolled or taught course codes).
+- Wired into `backend/app/ai/tools/__init__.py` alongside `builtin`.
+- `backend/tests/test_student_tools.py` — 12 new tests (Layer-1 visibility for
+  both groups, Layer-3 identity-arg stripping, functional smoke per tool using
+  student id **17** = roll `25BCP017`, which has 9 current-term enrollments).
+  Full suite now **68 passed** (was 56).
+- Not yet committed — next action is a `git commit` for this step, then move to
+  step 2 (Groq provider).
+
+### Remaining steps
 2. `app/ai/providers/` — `base.py` (Protocol) + `openai_compat.py` (Groq via the
    `openai` SDK with overridden `base_url`). Add `openai` to requirements.
 3. `app/ai/orchestrator.py` — the three-call turn: **A route** (`gpt-oss-20b`,
@@ -229,6 +245,9 @@ Per `plan.md §3`, §4, §6. Roughly:
    with `tokens_in/out`, returns `{text, citations[], cards[]}`.
 6. Tests: mock the provider (no live key needed in CI); assert routing picks the
    right tool, RBAC still blocks, token budget respected.
+7. Once the read catalog is fully wired through the orchestrator, circle back for
+   the faculty (`OWN_COURSES`) and admin (`UNIVERSITY`) tool groups + the
+   two-phase-confirm action tools (`plan.md §6`/§7) — not yet started.
 
 **To run the live LLM path**, put a Groq key in `backend/.env` as `LLM_API_KEY=...`
 then `python -m app.main --check-models` should pass.
