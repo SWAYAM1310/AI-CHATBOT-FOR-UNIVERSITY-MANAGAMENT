@@ -1,8 +1,8 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after the **Phase 4
-gap-check** (2026-09-12). Phases 0–4 complete (gap-check uncommitted). Next:
-**Phase 5a — frontend** (see §8 "Remaining steps"; break it into parts).
+Snapshot for picking the work back up. Last updated after **Phase 5a part 1**
+(2026-09-12). Phases 0–4 complete and committed; frontend part 1 is
+**uncommitted**. Next: Phase 5a part 2 (conversation rail + suggested prompts).
 
 ---
 
@@ -73,7 +73,8 @@ on an RTX 3050.
 | `6ea7bcd` | 3.5a | curriculum parser + parent/child chunker + per-course late chunking, 339 tests |
 | `b5e70b9` | 3.5b | syllabus tables + relational extract + curriculum tools + citable tool passages, 355 tests |
 | `c00183f` | 3.6 | calendar + notices corpus, tabular extract → academic_calendar, notice chunker, 373 tests |
-| _(uncommitted)_ | 4 | gap-check: all 40 planned tools present; `run_analytics` gains `failure_rate`, 378 tests |
+| `c8c6259` | 4 | gap-check: all 40 planned tools present; `run_analytics` gains `failure_rate`, 378 tests |
+| _(uncommitted)_ | 5a.1 | frontend part 1: API client, login, chat with footnote citations + confirm card |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -864,15 +865,58 @@ semester results whose `result_status` is not `Pass` (the dataset uses
 `ATKT`, not `Fail`). Sample: CH 16.67, EC 16.67, others 0. Test added in
 `test_admin_tools.py`. Suite **378 passed**.
 
+## 10. Phase 5a — frontend (in progress)
+
+Design (plan.md §9, chosen 2026-09-12): institutional and quiet. Page
+`#F3F5F7`, surface white, ink `#17202B`, slate `#5B6675`, crest green
+`#1E6B58` (actions, citation numbers), amber `#9A6B12` (confirm pending),
+red `#9B2C2C` (errors). IBM Plex Sans for chrome, **IBM Plex Serif for the
+assistant's prose** — answers read like a cited memo: `[n]` markers become
+superscripts and the citations render as **numbered footnotes** under the
+answer (`Academic Regulations Part IV — §4.2 …, p.2` + a "passage"
+disclosure). 68ch reading column, composer pinned at the bottom. No
+dependencies beyond React; Google Fonts in `index.html`; Vite proxies
+`/api` and `/health` to `:8000`.
+
+### Part 1 — DONE: client, login, chat, confirm
+- `src/types.ts` (API shapes + the UI `Turn`), `src/api.ts` (fetch wrapper,
+  bearer token, `ApiError{status, retryAfter}`), `src/session.ts`
+  (localStorage `uniassist.session`), `src/App.tsx` (session → `/api/me`;
+  a rejected token signs out), `src/Login.tsx` (three demo accounts, password
+  `uniassist`: `25bcp017@…` student, `milan.vyas@…` faculty/HOD CP,
+  `tanvi.joshi@…` admin), `src/Chat.tsx` (turns, send, confirm/cancel,
+  `openConversation`/`newConversation` ready for the rail), `src/Message.tsx`
+  (Prose: paragraphs / bullet lists / Markdown-pipe tables, `[n]` → `<sup>`,
+  footnotes; `Confirm` card: preview `summary` + fields, Confirm/Cancel,
+  settled/failed states; unknown cards dumped as JSON), `src/index.css`.
+  Errors map: 429 → "rate-limited, try in N s", 503 → no API key, 410 →
+  confirmation expired, 409 → server reason. `queued_seconds` shown above the
+  answer when non-zero.
+- **Verified with Playwright** against the real backend + DB with a canned
+  LLM (scratchpad `dev_server.py` overrides `chat_api.get_provider`; no Groq
+  key): sign-in → "am I short on attendance?" → table + serif answer +
+  footnotes §2.5 p.1 / §4.2 p.2 → "apply for leave …" → confirm card →
+  Confirm → "Leave application #37 submitted … pending approval from Dr.
+  Milan Vyas." Mobile (400px) fine. `npm run build` clean.
+- Known nits: top bar shows "Student 17" — `get_my_profile` has no `name`
+  key the UI expected (check its keys and show the person's name); the
+  scratchpad demo server is not in the repo (consider
+  `backend/scripts/dev_server_demo.py` if useful for the viva).
+
 ### Remaining steps (do one at a time; report and ask before committing)
-5a. **Phase 5a — frontend** (plan.md §9): Vite React-TS app in `frontend/`
-   (still the template): login (3 roles), chat with `POST /api/chat` +
-   `/api/chat/confirm`, conversation sidebar, suggested prompts per role,
-   rich cards (`confirm_action`, `citation` chips with `[n]`, `denied`),
-   dev tool-trace panel, rate-limit "queued" state.
-5b. **Phase 5b — eval harness** (plan.md §10): `eval/golden_set.yaml`,
-   `run_eval.py`, the three experiments (late vs naive chunking, flat vs
-   parent–child on curriculum, Matryoshka dims). Needs a Groq key.
-5c. **Live smoke test** once `LLM_API_KEY` is set: `python -m app.main
-    --check-models`, then the signature turns (68% vs 75%; "what's in Unit 3
-    of DBMS?"; "when are the end-sem exams?").
+5a.2. **Conversation rail** — list `GET /api/chat`, open a past transcript
+   (`openConversation` exists), 4–5 role-specific suggested prompts for the
+   empty state (student: attendance, marks, fees, Unit 3 of DBMS, apply for
+   leave; faculty: below-75% in a course, mark attendance, pending leaves;
+   admin: failure rate by department, publish notice), collapse on mobile.
+5a.3. **Rich cards** — `denied` treatment (needs a signal from the API: expose
+   tool_runs' `error == "denied"` or a `denied: true` flag on ChatOut),
+   attendance bars with the 75% line, timetable grid, student table (the
+   backend must return typed `cards` for these; today only `confirm` exists —
+   decide whether the orchestrator emits cards from tool results or the UI
+   parses the Markdown tables).
+5a.4. **Dev tool-trace panel** — needs `ChatOut.trace` (tool_runs names/args/
+   ok/error, path, intent, usage); collapsible, hidden by default.
+5b. **Eval harness** (plan.md §10): `eval/golden_set.yaml`, `run_eval.py`, the
+   three experiments. Needs a Groq key.
+5c. **Live smoke test** once `LLM_API_KEY` is set.
