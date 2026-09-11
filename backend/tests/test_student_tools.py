@@ -99,8 +99,11 @@ def test_get_my_results_filters_by_semester():
 def test_get_my_assignments_filters_by_status():
     ctx = make_ctx("student", subject_id=DEMO_STUDENT_ID)
     with SessionLocal() as db:
+        every = REGISTRY.invoke("get_my_assignments", ctx, db)
         rows = REGISTRY.invoke("get_my_assignments", ctx, db, {"status": "missing"})
+    assert every, "assessment types are 'Assignment-N'; the filter must match them"
     assert all(r["status"] == "missing" for r in rows)
+    assert len(rows) < len(every)
 
 
 def test_get_my_scholarships_and_leave_requests_run_for_any_student():

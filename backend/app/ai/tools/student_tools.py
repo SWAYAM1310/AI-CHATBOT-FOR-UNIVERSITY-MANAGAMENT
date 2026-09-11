@@ -236,7 +236,7 @@ def get_my_assignments(*, ctx: AuthContext, db: Session, status: str | None = No
         .join(Submission, Submission.assessment_id == Assessment.id)
         .where(
             Submission.student_id == ctx.student_id,
-            Assessment.type == "Assignment",
+            Assessment.type.like("Assignment%"),  # types are "Assignment-1", "Assignment-2", ...
             Assessment.term == ctx.term,
         )
     )
