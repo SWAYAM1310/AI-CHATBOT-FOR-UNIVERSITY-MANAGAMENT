@@ -1,0 +1,99 @@
+# RAG corpus manifest (plan.md §8). Paths are relative to the repo root.
+#
+# doc_type picks the chunker at ingest:
+#   policy      clause-aware split + whole-document late chunking
+#   curriculum  split by course code -> parent/child chunks, relational extract
+#   tabular     row extraction to a table; embedded only as fallback
+#   notice      single chunk
+#
+# audience_roles pre-filters retrieval: a document is never surfaced to a role
+# not listed here, whatever the query.
+
+documents:
+  # --- policies (synthetic; source Markdown in docs/policies/, PDFs rendered by
+  #     scripts/render_policies.py) ---------------------------------------------
+  - path: docs/policies/pdf/attendance_regulations.pdf
+    title: Academic Regulations Part IV — Attendance (AR/IV/2026)
+    doc_type: policy
+    category: attendance
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-06-16
+
+  - path: docs/policies/pdf/examination_regulations.pdf
+    title: Academic Regulations Part V — Examination and Evaluation (AR/V/2026)
+    doc_type: policy
+    category: examination
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-06-16
+
+  - path: docs/policies/pdf/fee_policy.pdf
+    title: Fee Policy (FP/2026)
+    doc_type: policy
+    category: fees
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-06-16
+
+  - path: docs/policies/pdf/scholarship_policy.pdf
+    title: Scholarship and Financial Aid Policy (SF/2026)
+    doc_type: policy
+    category: scholarship
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-06-16
+
+  - path: docs/policies/pdf/student_leave_policy.pdf
+    title: Student Leave Policy (SL/2026)
+    doc_type: policy
+    category: leave
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-06-16
+
+  - path: docs/policies/pdf/student_services_policy.pdf
+    title: Student Services Policy — Documents and Certificates (SS/2026)
+    doc_type: policy
+    category: documents
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-06-16
+
+  - path: docs/policies/pdf/code_of_conduct.pdf
+    title: Academic Regulations Part VII — Code of Conduct, Discipline and Anti-Ragging (AR/VII/2026)
+    doc_type: policy
+    category: conduct
+    audience_roles: [student, faculty, admin]
+    effective_date: 2026-06-16
+
+  # --- curricula (real university PDFs already in data/) ----------------------
+  - path: data/btech-ce-syllabus-2025.pdf
+    title: B.Tech Computer Engineering Syllabus 2025
+    doc_type: curriculum
+    dept_code: CP
+    audience_roles: [student, faculty, admin]
+
+  - path: data/btech-ict-syllabus-2024.pdf
+    title: B.Tech Information & Communication Technology Syllabus 2024
+    doc_type: curriculum
+    dept_code: IT
+    audience_roles: [student, faculty, admin]
+
+  - path: data/ece-syllabus-2024-2028.pdf
+    title: B.Tech Electronics & Communication Syllabus 2024-2028
+    doc_type: curriculum
+    dept_code: EC
+    audience_roles: [student, faculty, admin]
+
+  - path: data/btech-mechanical-course-structure-2024.pdf
+    title: B.Tech Mechanical Course Structure 2024
+    doc_type: curriculum
+    dept_code: ME
+    audience_roles: [student, faculty, admin]
+
+  - path: data/btech-civil-course-structure-2024.pdf
+    title: B.Tech Civil Course Structure 2024
+    doc_type: curriculum
+    dept_code: CE
+    audience_roles: [student, faculty, admin]
+
+  - path: data/btech-chemical-course-structure.pdf
+    title: B.Tech Chemical Course Structure
+    doc_type: curriculum
+    dept_code: CH
+    audience_roles: [student, faculty, admin]

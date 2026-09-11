@@ -207,7 +207,7 @@ All five are asserted by `backend/tests/test_load.py`.
 
 ---
 
-## 7. Phase 2 — the orchestrator (complete; step 7c uncommitted)
+## 7. Phase 2 — the orchestrator (complete)
 
 Per `plan.md §3`, §4, §6.
 
@@ -474,7 +474,43 @@ Per `plan.md §3`, §4, §6.
   model call and files an assistant row, 409 on reuse, 400/410/403/404 paths,
   stale-facts 409. Tests undo their own writes. Suite now **252 passed**.
 
+## 8. Phase 3 — RAG (in progress)
+
+Per `plan.md §8`. Embeddings via the **Jina API** (not a local model — user's
+decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
+
+### Step 0 — DONE (uncommitted): synthetic policy corpus + manifest
+- No policy documents existed in the repo (only 6 curriculum PDFs under
+  `data/`). Wrote 7 institution-neutral ("the University" / "School of
+  Technology") policies in `docs/policies/*.md`, every number taken from
+  `scripts/academic_data.py` / the CSVs: attendance (75% floor §4.2,
+  condonation ≥65% §5.2, worked 68% example §6, `excused_leave` counts),
+  examination (assessment scheme = `ASSESSMENT_TEMPLATE`, 40% pass, grade
+  table, form window 12–20 Oct, exams 17–28 Nov, results 18 Dec, revaluation
+  15 days), fees (₹1,52,500 / ₹2,14,500 hosteller, due 12 Sep, ₹500/week late,
+  overdue = 30 days), scholarships (the 7 schemes + amounts, pending doesn't
+  defer fees), leave (≤10 days/request, no overlap, HOD decides — mirrors
+  `apply_for_leave`/`decide_leave_request`), student services (8 doc types,
+  one open request per type — mirrors `request_document`), code of conduct /
+  anti-ragging.
+- `scripts/render_policies.py` renders them to `docs/policies/pdf/*.pdf`
+  (PyMuPDF `Story`, deterministic page breaks; 3–4 pages each; the 75% clause
+  is on p.2). PDF text carries ligatures (`ﬃ`) → ingest must NFKC-normalise.
+- `docs/manifest.yaml`: 7 policies + 6 curricula with `doc_type`, `category`,
+  `audience_roles`, `effective_date`; paths relative to repo root.
+- requirements: pymupdf, pdfplumber, pyyaml, markdown.
+
 ### Remaining steps
+1. Parsers + ingest skeleton (`documents` rows, raw chunks, no embeddings).
+2. Jina API embedder (`embed_documents`/`embed_query`, `late_chunking`,
+   deterministic fake for tests) — **needs `JINA_API_KEY`**; pick v3 (1024-dim,
+   matches schema) unless v4/v5 is served.
+3. Policy chunker (clause-aware) → `doc_chunks` with vectors + `tsv`.
+4. Hybrid retriever (pgvector ∪ ts_rank, RRF, audience filter) + citations;
+   wire `_retrieve()` and `search_university_policies`. Signature demo.
+5. Curriculum chunker + relational extract + exact-lookup tools.
+6. Tabular + notices.
+
 Phase 2 is complete. Next per plan.md §11 is **Phase 3 — RAG** (manifest
 ingest, three chunkers, hybrid retrieval, citations); `_retrieve()` in the
 orchestrator and `search_university_policies` are the hooks it plugs into.
