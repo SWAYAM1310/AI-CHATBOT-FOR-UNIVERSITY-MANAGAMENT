@@ -1,4 +1,5 @@
-import type { Card, ConfirmCard, Turn } from './types'
+import { DataCard } from './Cards'
+import type { ConfirmCard, Turn } from './types'
 
 // Assistant text arrives as plain prose with [n] markers. Paragraphs are
 // split on blank lines; a line beginning with "- " or "|" is kept verbatim
@@ -22,7 +23,12 @@ export function Message({
   if (turn.pending) {
     return (
       <article className="msg msg-assistant pending" aria-busy="true">
-        <p className="muted">Thinking…</p>
+        <p className="thinking">
+          <span>Working on it</span>
+          <span className="dot" aria-hidden="true" />
+          <span className="dot" aria-hidden="true" />
+          <span className="dot" aria-hidden="true" />
+        </p>
       </article>
     )
   }
@@ -44,7 +50,7 @@ export function Message({
         <Confirm card={confirmCard} outcome={turn.outcome} onConfirm={() => onConfirm(confirmCard)} onCancel={onCancel} />
       )}
       {turn.cards.filter((c) => c.type !== 'confirm').map((c, i) => (
-        <UnknownCard key={i} card={c} />
+        <DataCard key={i} card={c} />
       ))}
       {turn.citations.length > 0 && (
         <ol className="footnotes" aria-label="Sources">
@@ -163,8 +169,4 @@ function Confirm({
       )}
     </section>
   )
-}
-
-function UnknownCard({ card }: { card: Card }) {
-  return <pre className="card-raw">{JSON.stringify(card, null, 2)}</pre>
 }

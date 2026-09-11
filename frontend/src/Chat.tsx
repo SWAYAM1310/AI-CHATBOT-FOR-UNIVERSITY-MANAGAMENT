@@ -1,14 +1,19 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { ApiError, api } from './api'
 import { Message } from './Message'
-import type { ChatOut, ConfirmCard, Me, MessageOut, Session, Turn } from './types'
+import { Rail } from './Rail'
+import type { ChatOut, ConfirmCard, ConversationOut, Me, MessageOut, Session, Turn } from './types'
 
 let nextId = 1
 const uid = () => `t${nextId++}`
 
 function fromStored(m: MessageOut): Turn | null {
   if (m.role !== 'user' && m.role !== 'assistant') return null
-  return { id: `m${m.id}`, role: m.role, text: m.content ?? '', citations: m.citations ?? [], cards: m.cards ?? [] }
+  const trace =
+    m.role === 'assistant' && m.tool_runs?.length
+      ? { path: 'stored', intent: '', tool_runs: m.tool_runs, usage: { tokens_in: m.tokens_in ?? 0, tokens_out: m.tokens_out ?? 0 } }
+      : undefined
+  return { id: `m${m.id}`, role: m.role, text: m.content ?? '', citations: m.citations ?? [], cards: m.cards ?? [], trace }
 }
 
 export function Chat({ session, me, onSignOut }: { session: Session; me: Me | null; onSignOut: () => void }) {
@@ -16,12 +21,25 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
   const [conversationId, setConversationId] = useState<number | null>(null)
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
+  const [conversations, setConversations] = useState<ConversationOut[]>([])
+  const [railOpen, setRailOpen] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' })
   }, [turns])
+
+  const refreshConversations = useCallback(() => {
+    api
+      .conversations()
+      .then(setConversations)
+      .catch(() => undefined) // the rail is a convenience; a failed list is not an error worth a banner
+  }, [])
+
+  useEffect(() => {
+    refreshConversations()
+  }, [refreshConversations])
 
   function patch(id: string, change: Partial<Turn>) {
     setTurns((ts) => ts.map((t) => (t.id === id ? { ...t, ...change } : t)))
@@ -41,13 +59,17 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
     ])
     try {
       const out: ChatOut = await api.chat(message, conversationId)
-      setConversationId(out.conversation_id)
+      if (out.conversation_id !== conversationId) {
+        setConversationId(out.conversation_id)
+        refreshConversations() // a new conversation was opened by this turn
+      }
       patch(answerId, {
         text: out.text,
         citations: out.citations,
         cards: out.cards,
         pending: false,
         queuedSeconds: out.queued_seconds || undefined,
+        trace: out.trace,
       })
     } catch (err) {
       patch(answerId, { pending: false, error: describe(err) })
@@ -71,16 +93,27 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
   }
 
   async function openConversation(id: number) {
-    const messages = await api.messages(id)
-    setConversationId(id)
-    setTurns(messages.map(fromStored).filter((t): t is Turn => t !== null))
+    if (busy) return
+    setRailOpen(false)
+    try {
+      const messages = await api.messages(id)
+      setConversationId(id)
+      setTurns(messages.map(fromStored).filter((t): t is Turn => t !== null))
+    } catch (err) {
+      setTurns([{ id: uid(), role: 'assistant', text: '', citations: [], cards: [], error: describe(err) }])
+    }
   }
-  void openConversation // used by the conversation rail (next part)
 
   function newConversation() {
+    setRailOpen(false)
     setConversationId(null)
     setTurns([])
     inputRef.current?.focus()
+  }
+
+  function ask(text: string) {
+    setRailOpen(false)
+    void send(text)
   }
 
   function submit(e: FormEvent) {
@@ -100,22 +133,39 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
   return (
     <div className="app">
       <header className="topbar">
+        <button
+          type="button"
+          className="linklike rail-toggle"
+          onClick={() => setRailOpen((o) => !o)}
+          aria-expanded={railOpen}
+          aria-controls="rail"
+        >
+          Menu
+        </button>
         <span className="wordmark">UniAssist</span>
         <span className="caller">{who}</span>
         <span className="topbar-actions">
-          <button type="button" className="linklike" onClick={newConversation}>
-            New conversation
-          </button>
           <button type="button" className="linklike" onClick={onSignOut}>
             Sign out
           </button>
         </span>
       </header>
 
+      <Rail
+        role={session.role}
+        conversations={conversations}
+        activeId={conversationId}
+        onOpen={openConversation}
+        onNew={newConversation}
+        onAsk={ask}
+        open={railOpen}
+        onClose={() => setRailOpen(false)}
+      />
+
       <main className="transcript" aria-live="polite">
         {turns.length === 0 ? (
           <div className="empty">
-            <p>Ask a question about your own records or about the University's regulations.</p>
+            <p>Ask about your own records or about the University's regulations — or pick a question on the left.</p>
           </div>
         ) : (
           turns.map((t) => (
@@ -148,7 +198,7 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
 function describeCaller(session: Session, me: Me | null): string {
   const role = session.role[0].toUpperCase() + session.role.slice(1)
   const p = me?.profile as Record<string, unknown> | null | undefined
-  const name = p && typeof p.name === 'string' ? p.name : null
+  const name = p && typeof p.full_name === 'string' ? p.full_name : null
   const ref = session.subjectRef.split(':').pop()
   const hod = me?.is_hod ? ', HOD' : ''
   return name ? `${name} (${role}${hod})` : `${role}${hod} ${ref ?? ''}`.trim()
