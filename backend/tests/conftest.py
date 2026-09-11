@@ -35,7 +35,7 @@ def _preserve_doc_store(_loaded_db) -> None:
     with engine.begin() as c:
         docs = c.execute(text("SELECT * FROM documents")).mappings().all()
         chunks = c.execute(text("SELECT * FROM doc_chunks")).mappings().all()
-        links = c.execute(text("SELECT id, source_chunk_id FROM academic_calendar WHERE source_chunk_id IS NOT NULL")).mappings().all()
+        cal_links = c.execute(text("SELECT id, source_chunk_id FROM academic_calendar WHERE source_chunk_id IS NOT NULL")).mappings().all()
     yield
     with engine.begin() as c:
         c.execute(text("UPDATE academic_calendar SET source_chunk_id = NULL"))
@@ -43,11 +43,15 @@ def _preserve_doc_store(_loaded_db) -> None:
         if docs:
             c.execute(text(_insert_sql("documents", docs[0].keys())), [dict(r) for r in docs])
         if chunks:
-            rows = [{**r, "embedding": str(r["embedding"]) if r["embedding"] is not None else None} for r in chunks]
+            # parents first (NULL links), then the self-FK links, so row order cannot matter
+            rows = [{**r, "parent_chunk_id": None} for r in chunks]
             c.execute(text(_insert_sql("doc_chunks", chunks[0].keys())), rows)
+            links = [{"id": r["id"], "parent": r["parent_chunk_id"]} for r in chunks if r["parent_chunk_id"] is not None]
+            if links:
+                c.execute(text("UPDATE doc_chunks SET parent_chunk_id = :parent WHERE id = :id"), links)
         for t in ("documents", "doc_chunks"):
             c.execute(text(f"SELECT setval(pg_get_serial_sequence('{t}', 'id'), COALESCE(MAX(id), 1)) FROM {t}"))
-        for r in links:
+        for r in cal_links:
             c.execute(text("UPDATE academic_calendar SET source_chunk_id = :cid WHERE id = :id"), dict(r))
 
 

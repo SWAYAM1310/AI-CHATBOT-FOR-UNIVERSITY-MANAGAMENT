@@ -1,8 +1,9 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after **Phase 3 step 4**
-(2026-09-11). Phases 0–2 complete; Phase 3 (RAG) steps 0–4 done (3 and 4
-uncommitted); next is **step 5, the curriculum chunker** (see §8 "Remaining steps").
+Snapshot for picking the work back up. Last updated after **Phase 3 step 5a**
+(2026-09-11). Phases 0–2 complete; Phase 3 (RAG) steps 0–4 committed, 5a
+uncommitted; next is **step 5b, curriculum relational extract + tools** (see
+§8 "Remaining steps").
 
 ---
 
@@ -68,8 +69,9 @@ on an RTX 3050.
 | `96ea994` | 3.0 | 7 synthetic policy docs (md + pdf) + `docs/manifest.yaml` |
 | `e117c91` | 3.1 | manifest loader, PDF parsers, ingest skeleton, full-text policy search |
 | `5ad9f5e` | 3.2 | Jina API embedder, vectors in ingest, 285 tests |
-| _(uncommitted)_ | 3.3 | clause-aware policy chunker, 305 tests |
-| _(uncommitted)_ | 3.4 | hybrid retriever (RRF) + numbered citations + router `rag_query`, 319 tests |
+| `150d524` | 3.3 | clause-aware policy chunker, 305 tests |
+| `90af19f` | 3.4 | hybrid retriever (RRF) + numbered citations + router `rag_query`, 319 tests |
+| _(uncommitted)_ | 3.5a | curriculum parser + parent/child chunker + per-course late chunking, 339 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -667,12 +669,73 @@ decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
   unknown-dropped/untouched. `test_orchestrator.py`: text rewrite + `n`
   asserted; new `rag_query` used/fallback test. Suite **319 passed**.
 
+### Step 5a — DONE: curriculum parser + parent/child chunker
+- **`parsers.parse_pdf` now uses `get_text("text", sort=True)`** (position-
+  sorted blocks). Reason: on some syllabus pages PyMuPDF emitted the
+  code/title/scheme table *after* the body, so records were cut mid-course.
+  Sorted mode also joins table rows into single lines
+  (`24MA101T Mathematics – I`, `3 1 0 4 4 25 50 25 -- -- 100`). Policy
+  chunking is unaffected (tests unchanged).
+- `app/ai/rag/chunkers/curriculum.py` — all 6 PDFs share one university
+  template. `parse_courses(parsed) -> (preface_lines, [CourseRecord])`:
+  anchor = a `Teaching Scheme` line **followed by at least one section
+  heading before the next anchor** (structure tables use "Teaching Scheme" as
+  a column header → not records). Header = up to 3 lines above the anchor:
+  code token anywhere (`24PH101T`), placeholders (`<Course Code>`,
+  `24ICxxxT`, `24ECE***T`) → `code=None`; title wraps glued
+  (`_wrapped`: trailing `,(/&-`, unbalanced `)`, lowercase start); code on
+  its own line with the title above it handled. Fields: L/T/P/C from the
+  first numeric values row; objectives (bullets incl. Symbol-font PUA
+  `` stripped, wraps glued); units (`UNIT I: TITLE 08 Hrs.` / hours
+  on next line / title on next line; roman or arabic; `LIST OF
+  EXPERIMENTS` variants → one "List of experiments" unit); outcomes
+  (`CO1 : text`, label split across lines, or a plain `1. 2.` list);
+  books (numbered, wraps glued). Page furniture (`Pandit Deendayal…`,
+  `B. Tech. … Engineering`, `Semester – VI`, `Academic year:`) dropped.
+- `curriculum_chunks()` → preface pages as `section="Programme structure"`
+  page chunks; per course **one parent** (label, `L-T-P 3-0-0, 3 credits`,
+  objectives, unit-title list) + **children** (`<label> / Unit N: title
+  (h hrs)` + body; `/ Course outcomes`; `/ Books`), `parent=` index set.
+  `CourseRecord.label` = `"24CS202T Database Management Systems"` (title
+  only when the code is a placeholder).
+- Coverage (records / no-code / no-units / no-CO / no-books): CP 88/1/4/0/0 ·
+  ICT 49/45/5/0/1 · ECE 68/62/5/0/4 · ME 72/0/1/0/0 · CE 52/52/2/1/3 ·
+  CH 78/47/3/0/2. **No-code counts are the PDFs' own placeholders**, not
+  parse failures; unit-less records are NSS/NCC/Yoga-type courses.
+  **The synthetic DB's subject codes differ from the PDFs'** (DB DBMS =
+  `24CS201T`, CP PDF DBMS = `24CS202T`) → 5b must join by *name*, not code.
+- Ingest: `LATE_CHUNKED_BY_PARENT = {"curriculum"}` → `_embed_by_parent`:
+  one late-chunked Jina call per parent + its children; family-less chunks
+  (structure pages) in a plain batch. Full curriculum ingest = **6 docs,
+  2482 chunks (2021 children), 413 calls, ~305k tokens, ~5.5 min**.
+- Retrieval probe (hybrid, `doc_types=("curriculum",)`): "which unit of
+  DBMS covers normalization" → Unit 3 children (ICT p23, CP p35, ECE p73)
+  with parent hydrated; "ACID properties and concurrency control" → CP
+  Unit 4 rank 1/1. Short queries ("unit 3 of DBMS") let the big
+  "Programme structure" chunks win sparse rank → **5b's curriculum tool
+  should exclude `section = 'Programme structure'`** (the `curriculum` DB
+  table answers structure questions exactly).
+- `tests/conftest.py` restore now inserts chunks with NULL `parent_chunk_id`
+  and links afterwards (self-FK order). Tests:
+  `tests/test_rag_curriculum_chunker.py` (20) — one record every field,
+  numbered outcomes + experiment lists, 9 header variants, structure-table
+  headers stay in preface, record boundaries + pages, furniture dropped,
+  parent/child assembly, preface chunks, `_embed` grouping (3 calls), real
+  CP PDF: 88 records / full fields, DBMS Unit 3 p35 is a child of the DBMS
+  parent. Suite **339 passed**.
+
 ### Remaining steps (do one at a time; report and ask before committing)
-5. **Curriculum chunker** — split the 6 syllabus PDFs by course code →
-   parent (course record) / child (unit) chunks (`ChunkDraft.parent` is
-   supported), late-chunk per course; extract courses / syllabus_units /
-   course_outcomes / textbooks to tables (needs a migration — those tables
-   don't exist yet) + exact-lookup tools.
+5b. **Curriculum relational extract + tools** — migration for
+   `syllabus_courses(document_id, code?, title, dept_code, L/T/P/C,
+   objectives, parent_chunk_id, page)`, `syllabus_units`, `course_outcomes`,
+   `textbooks` (all `source_chunk_id`); fill them in `ingest_one` from
+   `parse_courses` (re-run `parse_courses` or have the chunker return records;
+   `_drop_chunks` must clear these rows first). Match to `subjects` by
+   normalised **name** (codes differ). Tools: `get_course_syllabus(course)`
+   (code or name; caller's dept first) → units/COs/books/credits exact;
+   `search_curriculum(query)` → `retrieve(doc_types=("curriculum",))`
+   minus "Programme structure" chunks, parent hydrated, same citation
+   shape. Re-ingest curricula (`--force`, ~5.5 min) after the migration.
 6. **Tabular + notices** — row extraction (`parsers.extract_tables` exists)
    with `source_chunk_id`; single-chunk notices.
 

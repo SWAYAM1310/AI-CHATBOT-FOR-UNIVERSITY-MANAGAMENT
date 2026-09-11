@@ -56,7 +56,7 @@ def parse_pdf(path: Path) -> ParsedDocument:
     doc = ParsedDocument(path=path)
     with pymupdf.open(path) as pdf:
         for i, page in enumerate(pdf, start=1):
-            doc.pages.append(Page(number=i, text=normalize(page.get_text("text"))))
+            doc.pages.append(Page(number=i, text=normalize(page.get_text("text", sort=True))))
     return doc
 
 

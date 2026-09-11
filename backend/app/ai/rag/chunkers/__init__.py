@@ -2,7 +2,7 @@
 into `base.CHUNKERS`, which `ingest` reads at dispatch time."""
 from __future__ import annotations
 
-from app.ai.rag.chunkers import policy  # noqa: F401  (registers "policy")
+from app.ai.rag.chunkers import curriculum, policy  # noqa: F401  (register "curriculum", "policy")
 from app.ai.rag.chunkers.base import CHUNKERS, Chunker, ChunkDraft, page_chunks
 
 __all__ = ["CHUNKERS", "Chunker", "ChunkDraft", "page_chunks"]

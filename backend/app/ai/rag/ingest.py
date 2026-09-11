@@ -17,8 +17,11 @@ ingest.
 
 Embedding is one call per document for late-chunked types (LATE_CHUNKED): the
 chunks go up together, in order, so each vector carries the whole document's
-context. Other types are embedded in plain batches. Pass `embedder=None` to
-skip vectors entirely (offline CI, or a first text-only pass).
+context. LATE_CHUNKED_BY_PARENT types (curriculum) are late-chunked per parent
+group instead — a course record and its unit/outcome/book children in one call,
+nothing from any other course (plan.md §8). Everything else is embedded in
+plain batches. Pass `embedder=None` to skip vectors entirely (offline CI, or a
+first text-only pass).
 """
 from __future__ import annotations
 
@@ -44,6 +47,7 @@ log = logging.getLogger(__name__)
 
 TS_CONFIG = "english"
 LATE_CHUNKED = {"policy", "notice"}  # whole document fits one context window
+LATE_CHUNKED_BY_PARENT = {"curriculum"}  # one call per parent + its children
 
 
 @dataclass
@@ -126,10 +130,33 @@ def ingest_one(
 
 
 def _embed(embedder: Embedder | None, doc_type: str, drafts: list[ChunkDraft]) -> list[list[float]] | None:
-    """Vectors for the drafts, or None when running text-only."""
+    """Vectors for the drafts (in draft order), or None when running text-only."""
     if embedder is None or not drafts:
         return None
-    return embedder.embed_documents([d.content for d in drafts], late_chunking=doc_type in LATE_CHUNKED)
+    if doc_type in LATE_CHUNKED:
+        return embedder.embed_documents([d.content for d in drafts], late_chunking=True)
+    if doc_type in LATE_CHUNKED_BY_PARENT:
+        return _embed_by_parent(embedder, drafts)
+    return embedder.embed_documents([d.content for d in drafts])
+
+
+def _embed_by_parent(embedder: Embedder, drafts: list[ChunkDraft]) -> list[list[float]]:
+    """Late-chunk each parent with its children; chunks without a family go in plain batches."""
+    groups: dict[int, list[int]] = {}
+    for i, d in enumerate(drafts):
+        groups.setdefault(i if d.parent is None else d.parent, []).append(i)
+    vectors: list[list[float] | None] = [None] * len(drafts)
+    singles: list[int] = []
+    for members in groups.values():
+        if len(members) == 1:
+            singles.append(members[0])
+            continue
+        for i, v in zip(members, embedder.embed_documents([drafts[i].content for i in members], late_chunking=True)):
+            vectors[i] = v
+    if singles:
+        for i, v in zip(singles, embedder.embed_documents([drafts[i].content for i in singles])):
+            vectors[i] = v
+    return vectors  # type: ignore[return-value]  (every slot is filled above)
 
 
 def _drop_chunks(db: Session, document_id: int) -> None:
