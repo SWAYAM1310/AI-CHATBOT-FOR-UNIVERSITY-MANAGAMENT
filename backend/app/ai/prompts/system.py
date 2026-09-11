@@ -50,7 +50,7 @@ Tools available to this caller:
 {catalog}
 
 Reply with JSON only, in this exact shape:
-{{"intent": "<short label>", "candidate_tools": ["name", ...], "needs_rag": true|false}}
+{{"intent": "<short label>", "candidate_tools": ["name", ...], "needs_rag": true|false, "rag_query": "<search terms or null>"}}
 
 Rules:
 - intent is "smalltalk" for greetings, thanks, or chit-chat needing no data.
@@ -63,6 +63,10 @@ Rules:
   attendance?", "do I qualify for this scholarship?"), set needs_rag true AND
   include the tool that fetches the caller's own figures, so both can be
   compared.
+- rag_query: when needs_rag is true, the question rewritten as a short search
+  query in the language of a regulation — the rule being asked about, not the
+  caller's situation ("am I short on attendance?" -> "minimum attendance
+  percentage required for end-semester examination eligibility"). Otherwise null.
 """
 
 

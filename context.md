@@ -1,8 +1,8 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated after **Phase 3 step 2**
-(2026-09-11). Phases 0–2 complete; Phase 3 (RAG) steps 0–2 committed; next is
-**step 3, the clause-aware policy chunker** (see §8 "Remaining steps").
+Snapshot for picking the work back up. Last updated after **Phase 3 step 4**
+(2026-09-11). Phases 0–2 complete; Phase 3 (RAG) steps 0–4 done (3 and 4
+uncommitted); next is **step 5, the curriculum chunker** (see §8 "Remaining steps").
 
 ---
 
@@ -68,6 +68,8 @@ on an RTX 3050.
 | `96ea994` | 3.0 | 7 synthetic policy docs (md + pdf) + `docs/manifest.yaml` |
 | `e117c91` | 3.1 | manifest loader, PDF parsers, ingest skeleton, full-text policy search |
 | `5ad9f5e` | 3.2 | Jina API embedder, vectors in ingest, 285 tests |
+| _(uncommitted)_ | 3.3 | clause-aware policy chunker, 305 tests |
+| _(uncommitted)_ | 3.4 | hybrid retriever (RRF) + numbered citations + router `rag_query`, 319 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -583,21 +585,89 @@ decision); `JINA_API_KEY` in `backend/.env`, needed from step 2 onward.
   responses, order restoration, no-key, fake determinism, ingest writes
   vectors / NULL without embedder / failure keeps previous chunks.
 
+### Step 3 — DONE: clause-aware policy chunker
+- `ChunkDraft` / `Chunker` / `CHUNKERS` / `page_chunks` moved to
+  `app/ai/rag/chunkers/base.py` (re-exported from `ingest`). Reason: a chunker
+  importing `app.ai.rag.ingest` while `python -m app.ai.rag.ingest` runs it as
+  `__main__` registered into a *second* copy of the module — the CLI kept
+  page-chunking. `ingest` now imports the `chunkers` package, which registers.
+- `app/ai/rag/chunkers/policy.py` — `parse_outline()` walks pages line by
+  line keeping page provenance (so `page` is exact, no text search):
+  `N. Title` = section, `N.M` / `N.M.K` = clause **only when it is the next
+  number in sequence** — table cells (`10`, `5 %`) and wrapped lines
+  (`5, except…`, `3.6.`) stay continuation text. Text before section 1 →
+  "Preamble" chunk (doc ref, effective date).
+- `policy_chunks()` → **one chunk per top-level clause**, sub-clauses folded
+  in, section heading prepended to `content`
+  (`"4. Minimum attendance…
+4.2 A student must…"`), `section` =
+  `"§4.2 Minimum attendance for examination eligibility"`. Clauses over
+  `TARGET_TOKENS`=400 (chars/4) split at sub-clause then sentence boundaries,
+  labelled `§5.3 (2/3)`. **Deliberate deviation from the "~400 tokens" plan:**
+  chunks are one clause each (median ~65 tokens, max ~300) so a citation
+  names exactly one clause; packing clauses would blur `section` to a range.
+- Verified: every section/clause/sub-clause in all 7 PDFs equals the
+  markdown source (test does this). Force re-ingest: **7 docs, 226 chunks,
+  7 late-chunked Jina calls (~15k tokens)**. Dense top-1 for "what attendance
+  do I need to sit the end-semester exam" = Part IV §4.2 p.2; bare "minimum
+  attendance" has §4.2 in dense top-3. Full-text (`websearch_to_tsquery`)
+  returns nothing on longer NL queries because it ANDs terms — step 4's RRF
+  fusion handles that; the tool was left as is.
+- Tests: `tests/test_rag_policy_chunker.py` (18) — outline parsing on
+  synthetic pages (sequence guard, sub-clause scoping, heading order,
+  lead-ins), chunk assembly (heading + sub-clauses, part labels, page = clause
+  start, unnumbered fallback), corpus-vs-markdown parity per PDF, the 75%
+  rule = one chunk §4.2 p.2. Ingest/embedder tests retargeted from 4 page
+  chunks to `ATTENDANCE_CHUNKS = 40`; fake-vector NN assertion loosened to
+  "≥2 of top-3 are §5.x" (hashed bag-of-words collides on the short
+  preamble). Suite **305 passed**.
+
+### Step 4 — DONE: hybrid retriever + citations
+- `app/ai/rag/retriever.py` — `retrieve(db, query, role=, k=5, candidates=20,
+  doc_types=None, embedder=None) -> list[Hit]`. Dense = pgvector
+  `cosine_distance` top-20 on the Jina query vector; sparse = full-text
+  `websearch_to_tsquery` (AND) top-20, **topped up with an OR `to_tsquery`
+  over the same terms when it under-fills** (long NL questions were returning
+  nothing). `rrf()` fuses ranks (k=60). Audience filter
+  (`documents.audience_roles @> role`) and `doc_types` are in *both* SQL
+  branches. `_hydrate` outer-joins the parent chunk → `Hit.parent_content`
+  (for curriculum; None for policies). No Jina key / API error →
+  `EmbeddingError` caught, warns once, sparse-only. `Hit.as_passage()` =
+  `{chunk_id, document, section, page, excerpt (full clause, ≤1500 chars),
+  parent?}`.
+- `app/ai/rag/citations.py` — `resolve(text, passages) -> (text, citations)`:
+  `[[cite:<id>]]` → ` [n]` numbered by first appearance, repeats reuse n,
+  ids not offered are stripped. Citation = `{n, chunk_id, document, section,
+  page, snippet(300)}`. Replaces the orchestrator's `_resolve_citations`;
+  `TurnResult.text` is now the cleaned text (markers gone).
+- `search_university_policies` now calls `retrieve(..., doc_types=("policy",
+  "notice"))` and returns whole clauses (was a 300-char cut of a page).
+- Orchestrator: `RAG_TOP_K` 3 → **5** (clause chunks are ~65 tokens). Router
+  (Call A) JSON gained **`rag_query`** — the question rewritten as regulation
+  language ("am I short on attendance?" → "minimum attendance percentage
+  required for end-semester examination eligibility"); `_retrieve` uses it,
+  falling back to the raw question. Reason: with the raw vague question §4.2
+  ranked 5–8; with the rewrite it is rank 1 on both branches.
+- Verified with real vectors (no Groq key, so Call A/C were scripted): a
+  full `run_turn` for student 17 "am I short on attendance?" puts
+  `get_my_attendance` (DBMS 67.7%) and passages §4.2 (75%), §2.5, §4.3,
+  §4.5, §6.1 (worked 68% example) in front of Call C. Probe table (dense
+  rank / sparse rank): "what attendance do I need to sit the end-semester
+  exam" → §4.2 p.2 = 1/1; "condonation on medical grounds" → §5.3 = 1/1;
+  "late fee per week" → Fee §4.1; "results declared" → Exam §8.x.
+- **Test-DB hygiene fix**: `tests/conftest.py` `_preserve_doc_store` (session,
+  autouse) snapshots `documents` + `doc_chunks` (+ calendar links) before the
+  session and restores them after — RAG tests truncate and re-ingest with
+  no/fake vectors, which used to leave the dev DB without real vectors until
+  the next `--force` ingest. Verified: 226 Jina-vector chunks survive `pytest`.
+- Tests: `tests/test_rag_retriever.py` (14) — RRF math, both ranks on hits,
+  each branch contributes, OR fallback, no-embedder degrade + single warning,
+  empty/stopword/no-match, audience filter both branches, doc_type filter,
+  parent hydration, tool returns whole clause; citations numbering/dedupe/
+  unknown-dropped/untouched. `test_orchestrator.py`: text rewrite + `n`
+  asserted; new `rag_query` used/fallback test. Suite **319 passed**.
+
 ### Remaining steps (do one at a time; report and ask before committing)
-3. **Policy chunker** — register `CHUNKERS["policy"]` in
-   `app/ai/rag/chunkers/policy.py`: split the parsed text on numbered clauses
-   (`## N.` headings → section titles; `N.N` / `N.N.N` paragraphs), ~400 tokens
-   per chunk, `section` = "§4.2 Minimum attendance…", `page` = the page the
-   clause starts on (map by finding the clause text in `parsed.pages`). Keep
-   the whole document in one late-chunked embed call (already wired). Then
-   `--force` re-ingest and assert "minimum attendance" → Part IV §4.2 p.2.
-4. **Hybrid retriever + citations** — `app/ai/rag/retriever.py`: pgvector
-   cosine top-20 ∪ `ts_rank` top-20 → RRF → top-5, audience pre-filter, parent
-   hydration (for curriculum later); `app/ai/rag/citations.py` resolves
-   `[[cite:<chunk_id>]]` → {doc_title, section, page, snippet}. Wire into the
-   orchestrator's `_retrieve()` (currently returns []) and make
-   `search_university_policies` call it. Call C prompt already has the
-   grounding rule. Signature demo: 68% vs 75%, "7 points short", cite §4.2 p.2.
 5. **Curriculum chunker** — split the 6 syllabus PDFs by course code →
    parent (course record) / child (unit) chunks (`ChunkDraft.parent` is
    supported), late-chunk per course; extract courses / syllabus_units /

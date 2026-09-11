@@ -54,13 +54,11 @@ class ScriptedProvider:
         return self.responses.pop(0)
 
 
-def route(intent="data", tools=(), needs_rag=False, tokens=(120, 30)) -> LLMResponse:
-    return LLMResponse(
-        text=json.dumps(
-            {"intent": intent, "candidate_tools": list(tools), "needs_rag": needs_rag}
-        ),
-        usage=Usage(*tokens),
-    )
+def route(intent="data", tools=(), needs_rag=False, tokens=(120, 30), rag_query=None) -> LLMResponse:
+    body = {"intent": intent, "candidate_tools": list(tools), "needs_rag": needs_rag}
+    if rag_query is not None:
+        body["rag_query"] = rag_query
+    return LLMResponse(text=json.dumps(body), usage=Usage(*tokens))
 
 
 def plan(*calls: tuple[str, dict], tokens=(200, 40)) -> LLMResponse:
@@ -290,8 +288,24 @@ def test_needs_rag_retrieves_passages_and_resolves_only_cited_ones(student_ctx, 
     out = run_turn(question="am I short on attendance?", ctx=student_ctx, db=db, provider=provider)
 
     assert [c["chunk_id"] for c in out.citations] == [11, 13]  # 12 uncited, 99 unknown
+    assert [c["n"] for c in out.citations] == [1, 2]
+    assert out.text == "You need 75% [1] and you are below it [2]."  # markers numbered, unknown dropped
     prompt = provider.calls[-1]["messages"][-1]["content"]
     assert "[[cite:11]] Attendance Policy - 3.1" in prompt
+
+
+def test_retrieval_uses_the_routers_rag_query_when_given(student_ctx, db, monkeypatch):
+    seen: list[str] = []
+    monkeypatch.setattr("app.ai.orchestrator._retrieve", lambda q, *a, **k: seen.append(q) or [])
+
+    provider = ScriptedProvider(route(needs_rag=True, rag_query="minimum attendance for exam eligibility"), answer())
+    run_turn(question="am I short on attendance?", ctx=student_ctx, db=db, provider=provider)
+    provider = ScriptedProvider(route(needs_rag=True), answer())
+    run_turn(question="am I short on attendance?", ctx=student_ctx, db=db, provider=provider)
+    provider = ScriptedProvider(route(needs_rag=True, rag_query="   "), answer())
+    run_turn(question="am I short on attendance?", ctx=student_ctx, db=db, provider=provider)
+
+    assert seen == ["minimum attendance for exam eligibility", "am I short on attendance?", "am I short on attendance?"]
 
 
 def test_turn_runs_through_the_budgeted_provider(student_ctx, db):

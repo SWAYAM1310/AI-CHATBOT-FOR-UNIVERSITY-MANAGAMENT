@@ -1,9 +1,9 @@
 """Tools shared across all three roles (plan.md §6).
 
-`search_university_policies` is Postgres full-text search over `doc_chunks`
-(populated by `app.ai.rag.ingest`), pre-filtered by the caller's role against
-`documents.audience_roles`. The hybrid dense+sparse retriever with RRF replaces
-the ranking later in Phase 3; the tool shape and its citation fields are final.
+`search_university_policies` is the hybrid dense+sparse retriever in
+`app.ai.rag.retriever` over `doc_chunks` (populated by `app.ai.rag.ingest`),
+pre-filtered in SQL by the caller's role against `documents.audience_roles`.
+Each hit is one policy clause with the fields a citation needs.
 """
 from __future__ import annotations
 
@@ -12,15 +12,13 @@ from typing import Any
 from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.orm import Session
 
-from app.ai.rag.ingest import TS_CONFIG
+from app.ai.rag.retriever import retrieve
 from app.auth.context import AuthContext, Role
 from app.ai.tools.registry import Scope, tool
 from app.models import (
     AcademicCalendarEvent,
     Announcement,
     CourseOffering,
-    DocChunk,
-    Document,
     Enrollment,
     Faculty,
     Student,
@@ -51,46 +49,18 @@ def _caller_course_codes(db: Session, ctx: AuthContext) -> list[str]:
     return list(db.scalars(stmt.distinct()))
 
 POLICY_HITS = 5
-EXCERPT_CHARS = 300
+POLICY_DOC_TYPES = ("policy", "notice")  # syllabus chunks answer curriculum questions through their own tools
 
 
 @tool(
     name="search_university_policies",
-    # the description is model-facing (it is the router's whole view of this tool),
-    # so the Phase-3 "still keyword-only" caveat lives in the docstring, not here
     description="Search university policy documents for passages relevant to a query.",
     allowed_roles={Role.STUDENT, Role.FACULTY, Role.ADMIN},
     scope=Scope.UNIVERSITY,
 )
 def search_university_policies(*, ctx: AuthContext, db: Session, query: str, **_: Any) -> list[dict[str, Any]]:
-    tsq = func.websearch_to_tsquery(TS_CONFIG, query)
-    rows = db.execute(
-        select(
-            DocChunk.id,
-            DocChunk.content,
-            DocChunk.section,
-            DocChunk.page,
-            Document.title,
-            func.ts_rank_cd(DocChunk.tsv, tsq).label("rank"),
-        )
-        .join(Document, Document.id == DocChunk.document_id)
-        .where(
-            DocChunk.tsv.op("@@")(tsq),
-            Document.audience_roles.any(ctx.role.value),  # Layer-1 for documents
-        )
-        .order_by(desc("rank"), DocChunk.id)
-        .limit(POLICY_HITS)
-    )
-    return [
-        {
-            "chunk_id": r.id,
-            "document": r.title,
-            "section": r.section,
-            "page": r.page,
-            "excerpt": r.content[:EXCERPT_CHARS],
-        }
-        for r in rows
-    ]
+    hits = retrieve(db, query, role=ctx.role.value, k=POLICY_HITS, doc_types=POLICY_DOC_TYPES)
+    return [h.as_passage() for h in hits]
 
 
 @tool(

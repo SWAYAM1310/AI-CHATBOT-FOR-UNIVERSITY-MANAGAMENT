@@ -17,7 +17,6 @@ a model that ignores its prompt still cannot reach another student's data.
 from __future__ import annotations
 
 import logging
-import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
@@ -33,6 +32,7 @@ from app.ai.prompts.system import (
     synthesize_user,
 )
 from app.ai.providers import LLMProvider, Msg, Usage, parse_json_object
+from app.ai.rag.citations import resolve as resolve_citations
 from app.ai.tools.registry import REGISTRY, ToolDenied
 from app.ai.tools.schema import required_params, schemas_for
 from app.auth.context import AuthContext, Role
@@ -45,9 +45,7 @@ HISTORY_TURNS = 3  # plan.md §4: bounded growth
 MAX_CANDIDATES = 4  # plan.md §3: Call A narrows to 2-4
 MAX_TOOL_CALLS = 3  # a runaway plan must not fan out into the DB
 RAG_TOOL = "search_university_policies"
-RAG_TOP_K = 3  # retrieve 5, send 3 (plan.md §4)
-
-_CITE = re.compile(r"\[\[cite:([^\]]+)\]\]")
+RAG_TOP_K = 5  # one clause per chunk (~65 tokens): all five retrieved passages fit comfortably
 
 
 @dataclass(frozen=True)
@@ -109,6 +107,7 @@ def run_turn(
 
     intent = str(plan.get("intent") or "")
     needs_rag = bool(plan.get("needs_rag"))
+    rag_query = str(plan.get("rag_query") or "").strip() or question  # the router's rewrite, else the question
     candidates = _candidate_names(plan.get("candidate_tools"), ctx.role)
 
     # --- fast path ----------------------------------------------------------
@@ -153,7 +152,7 @@ def run_turn(
             cards=[card], tool_runs=runs, usage=usage, intent=intent, path="confirm"
         )
 
-    passages = _retrieve(question, ctx, db) if needs_rag else []
+    passages = _retrieve(rag_query, ctx, db) if needs_rag else []
 
     # --- Call C: synthesize (no tools attached, by design) ------------------
     final = provider.chat(
@@ -172,9 +171,10 @@ def run_turn(
     )
     usage += final.usage
 
+    text, citations = resolve_citations(final.text, passages)
     return TurnResult(
-        text=final.text,
-        citations=_resolve_citations(final.text, passages),
+        text=text,
+        citations=citations,
         tool_runs=runs,
         usage=usage,
         intent=intent,
@@ -240,7 +240,7 @@ def _retrieve(question: str, ctx: AuthContext, db: Session) -> list[dict[str, An
     """Policy passages for the grounding rule.
 
     Routed through the registry like any other tool so retrieval is audited too.
-    Returns [] until the Phase-3 ingest populates doc_chunks — Call C is told to
+    Returns [] when nothing is ingested or retrieval fails — Call C is told to
     say the policy could not be found rather than invent one.
     """
     if RAG_TOOL not in REGISTRY:
@@ -251,20 +251,6 @@ def _retrieve(question: str, ctx: AuthContext, db: Session) -> list[dict[str, An
         log.exception("policy retrieval failed")
         return []
     return list(hits or [])[:RAG_TOP_K]
-
-
-def _resolve_citations(text: str, passages: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Only passages the answer actually cited, in the order it cited them."""
-    by_id = {str(p.get("chunk_id")): p for p in passages}
-    out: list[dict[str, Any]] = []
-    seen: set[str] = set()
-    for chunk_id in _CITE.findall(text):
-        key = chunk_id.strip()
-        if key in seen or key not in by_id:
-            continue
-        seen.add(key)
-        out.append(by_id[key])
-    return out
 
 
 def _caller_name(db: Session, ctx: AuthContext) -> str | None:
