@@ -1167,9 +1167,25 @@ in `scratchpad/dev_server.py`).
   6. `s29` leave dates moved to 12–13 Oct (the live smoke test had filed
      5–7 Oct as #33, so the preview said "overlaps").
   Suite **393 passed**.
-- **Second full run** (after the fixes): see the table below.
-
-EVAL_RESULTS_PLACEHOLDER
+- **Second full run (after the fixes) — aborted at case 24/80 by Groq's
+  tokens-per-day cap** on `openai/gpt-oss-120b` (two 80-case runs, the
+  smoke tests and the router switch all on one free-tier key). Cases 1–23
+  (student own-records + policy): **20/23 passed**, every previously failing
+  case in that range now passes (s04, s09, s21), all routing hits. The three
+  misses are **"no citation"** on policy questions — s10 (fee overdue +
+  late fee), s16 (condonation on medical grounds), s17 (passing mark /
+  grade) — the answers came back but carried no `[[cite:…]]`; not yet
+  investigated (no quota left). Everything from s24 on is a 429 after five
+  retries, not a result. `eval/results.json` in the repo is therefore still
+  the **first** run. **Next session: re-run `run_eval.py --out
+  eval/results.json` once the daily limit resets, then look at the three
+  no-citation cases** (check whether `_retrieve` returned passages and
+  whether the 120b answer used a marker variant `citations._CITE` misses).
+- **Free-tier budgeting lesson**: a full 80-case run is ~180k tokens on the
+  main model at ~2.2k/turn plus retries; with the router also on 120b the
+  per-day cap is reachable in one afternoon. For the report, run the eval
+  once, early in the day, with nothing else using the key; `--filter` /
+  `--ids` for iteration.
 
 ### Retrieval experiments (`eval/retrieval_experiments.py`, `eval/retrieval_set.yaml`)
 In-memory (numpy) over the real corpus and stored vectors; the sparse branch
