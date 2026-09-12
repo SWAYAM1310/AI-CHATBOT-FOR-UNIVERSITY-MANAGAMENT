@@ -1213,7 +1213,24 @@ curriculum queries → course/unit. Results in `eval/retrieval_results.{json,md}
   Index size scales linearly (904 → 226 KiB policy). Brute-force latency is
   µs-level noise at this size; pgvector HNSW at 1024 is production.
 
+### Groq daily cap — state at the end of 2026-09-12
+- `openai/gpt-oss-120b` is **out of tokens-per-day** on the free-tier key
+  (org `on_demand` tier). Both the eval and the website get 429 → 503
+  "rate-limited" until the rolling 24-hour window frees up (by ~this time
+  on 2026-09-13 at the latest).
+- **Stop-gap for a demo before then**: in `backend/.env` set
+  `LLM_MODEL_MAIN=openai/gpt-oss-20b` and `LLM_MODEL_ROUTER=openai/gpt-oss-20b`
+  and restart uvicorn — the 20b model has its own daily quota. Expect weaker
+  answers and the 20b router's smalltalk misroutes (§12); revert both lines
+  afterwards (`.env.example` holds the intended values).
+- The dev servers were left running: uvicorn on :8000 (current code) and
+  Vite on :5173.
+
 ### Remaining steps (do one at a time; report and ask before committing)
+5b-finish. Once the cap resets: `cd backend && ./.venv/Scripts/python.exe
+   ../eval/run_eval.py --out ../eval/results.json` with nothing else using
+   the key (~180k tokens; ~45 min with 429 waits). Then investigate the three
+   no-citation policy cases (s10, s16, s17) and fill the results table in §12.
 6. Report / demo prep (plan.md §11): the eval + experiment tables above are
    the evidence section; the demo script is §11's three role walkthroughs
    (all live-verified in 5c). Consider `backend/scripts/dev_server_demo.py`
