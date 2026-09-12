@@ -27,7 +27,9 @@ class Settings(BaseSettings):
 
     llm_base_url: str = "https://api.groq.com/openai/v1"
     llm_api_key: str = ""
-    llm_model_router: str = "openai/gpt-oss-20b"
+    # eval 2026-09-12: gpt-oss-20b routed "have I paid my fees?" and "which classrooms are free
+    # tomorrow?" to smalltalk (its reasoning named the right tool, its JSON did not); 120b did not
+    llm_model_router: str = "openai/gpt-oss-120b"
     llm_model_main: str = "openai/gpt-oss-120b"
 
     # Free-tier survival (plan.md §4). Groq limits are per ORGANISATION, not per

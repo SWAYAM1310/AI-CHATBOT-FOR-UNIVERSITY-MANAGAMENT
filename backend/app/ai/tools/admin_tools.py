@@ -36,6 +36,7 @@ from app.models import (
 )
 
 ADMIN = {Role.ADMIN}
+PASS_PERCENT = 40  # Part V §3.1: the minimum on any component and on the course total
 LIST_CAP = 100  # list_students is a lookup aid, not an export
 ATTENDANCE_FLOOR = 75.0
 
@@ -163,7 +164,7 @@ def get_department_overview(*, ctx: AuthContext, db: Session, **_: Any) -> list[
 
 @tool(
     name="get_course_performance",
-    description="Per course this term: enrolled students, average attendance % and average marks % on graded work; filter by course code or department.",
+    description="Per course this term: enrolled students, average attendance %, average marks % and failure rate % (students under the 40% pass mark on at least one graded component); filter by course code or department.",
     allowed_roles=ADMIN,
     scope=Scope.UNIVERSITY,
 )
@@ -196,6 +197,27 @@ def get_course_performance(
         .where(Enrollment.offering_id == CourseOffering.id, Enrollment.status == "enrolled")
         .scalar_subquery()
     )
+    # Part V §3.1: 40% on EVERY component - a student is failing the course so far if any graded
+    # component is under it (the course total alone hides a failed internal test)
+    per_student = (
+        select(
+            Assessment.offering_id,
+            Mark.student_id,
+            func.min(Mark.score * 100.0 / func.nullif(Assessment.max_marks, 0)).filter(scored).label("pct"),
+        )
+        .join(Mark, Mark.assessment_id == Assessment.id)
+        .group_by(Assessment.offering_id, Mark.student_id)
+        .subquery()
+    )
+    failing = (
+        select(
+            per_student.c.offering_id,
+            (func.count().filter(per_student.c.pct < PASS_PERCENT) * 100.0
+             / func.nullif(func.count(per_student.c.pct), 0)).label("pct"),
+        )
+        .group_by(per_student.c.offering_id)
+        .subquery()
+    )
     q = (
         select(
             CourseOffering.subject_code,
@@ -205,17 +227,20 @@ def get_course_performance(
             enrolled.label("enrolled"),
             attendance.c.pct.label("attendance"),
             marks.c.pct.label("marks"),
+            failing.c.pct.label("failing"),
         )
         .join(Faculty, Faculty.id == CourseOffering.faculty_id)
         .outerjoin(attendance, attendance.c.offering_id == CourseOffering.id)
         .outerjoin(marks, marks.c.offering_id == CourseOffering.id)
+        .outerjoin(failing, failing.c.offering_id == CourseOffering.id)
         .where(CourseOffering.term == ctx.term)
     )
     if course:
         q = q.where(CourseOffering.subject_code == course.upper())
     if dept:
         q = q.where(CourseOffering.dept_code == dept.upper())
-    q = q.order_by(CourseOffering.dept_code, CourseOffering.subject_code, CourseOffering.division)
+    # worst first: a performance report is read for its problems, and compact() caps rows at 40
+    q = q.order_by(failing.c.pct.desc().nulls_last(), marks.c.pct.asc().nulls_last(), CourseOffering.subject_code)
     return [
         {
             "course": r.subject_code,
@@ -225,6 +250,7 @@ def get_course_performance(
             "enrolled": r.enrolled,
             "avg_attendance_percent": _num(r.attendance),
             "avg_marks_percent": _num(r.marks),
+            "failure_rate_percent": _num(r.failing),
         }
         for r in db.execute(q)
     ]

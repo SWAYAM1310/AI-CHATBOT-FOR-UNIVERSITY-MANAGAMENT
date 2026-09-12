@@ -308,3 +308,20 @@ def test_a_broken_json_step_is_retried_without_strict_mode_then_uses_the_prose()
     provider, _ = make_provider(bad_request(GROQ_JSON_VALIDATE_FAILED))
     with pytest.raises(ProviderError):
         provider.chat(system="s", messages=[], model=MAIN)
+
+
+def test_a_tool_call_the_api_rejected_on_validation_is_salvaged_without_its_nulls():
+    """Groq validates gpt-oss's call against the schema (eval s04: `/semester: expected integer, got null`)
+    or cannot parse it (`"course_code": undefined`) and 400s; the call itself is what the planner meant."""
+    body = {"error": {"code": "tool_use_failed", "message": "Tool call validation failed",
+                      "failed_generation": '{"name": "get_my_results", "arguments": {"semester": null}}'}}
+    exc = openai.BadRequestError("Error code: 400", response=httpx2.Response(400, request=REQ), body=body)
+    provider, client = make_provider(exc)
+    out = provider.chat(system="s", messages=[], model=MAIN, tools=[{"type": "function", "function": {"name": "get_my_results"}}])
+    assert len(client.completions.calls) == 1  # no retry: the answer is in the rejection
+    assert [(c.name, c.arguments) for c in out.tool_calls] == [("get_my_results", {})]
+
+    body["error"]["failed_generation"] = '{"name": "list_missing_submissions", "arguments": {\n  "assessment": undefined,\n  "course_code": "24CS201T"\n}}'
+    provider, _ = make_provider(openai.BadRequestError("Error code: 400", response=httpx2.Response(400, request=REQ), body=body))
+    out = provider.chat(system="s", messages=[], model=MAIN, tools=[{"type": "function", "function": {"name": "x"}}])
+    assert out.tool_calls[0].arguments == {"course_code": "24CS201T"}

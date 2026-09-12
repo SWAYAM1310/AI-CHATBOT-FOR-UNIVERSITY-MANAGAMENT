@@ -107,7 +107,9 @@ class ToolRegistry:
         below, so the only way to execute an action tool is through the signed
         token round-trip (plan.md §7).
         """
-        args = dict(args or {})
+        # a null argument is "not given": the tool's own default applies (the schema admits
+        # null for optionals because gpt-oss writes it; an explicit None must not override 75)
+        args = {k: v for k, v in (args or {}).items() if v is not None}
         args.pop("confirmed", None)
         spec = self._tools.get(name)
 

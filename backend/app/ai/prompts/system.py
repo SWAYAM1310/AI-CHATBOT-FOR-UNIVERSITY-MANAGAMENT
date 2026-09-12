@@ -20,6 +20,7 @@ it is talking to, so the prose reads right.
 from __future__ import annotations
 
 import json
+from datetime import date
 from typing import Any
 
 from app.auth.context import AuthContext, Role
@@ -35,7 +36,7 @@ def _who(ctx: AuthContext, name: str | None) -> str:
     return (
         f"You are UniAssist, the university assistant.\n"
         f"You are speaking to {name or 'the caller'}, {_ROLE_BLURB[ctx.role]}\n"
-        f"The current academic term is {ctx.term}."
+        f"The current academic term is {ctx.term}. Today is {date.today().isoformat()} ({date.today():%A})."
     )
 
 

@@ -99,15 +99,13 @@ def _faculty_offerings(db: Session, ctx: AuthContext, course_code: str | None) -
     """Offering ids for `course_code` that THIS faculty teaches (OWN_COURSES gate).
 
     Without a course code a faculty member gets every offering they teach this
-    term — "which of my students…" needs no course named. An admin must name
-    the course: "every offering in the university" is not a question a
-    course-level tool answers.
+    term — "which of my students…" needs no course named — and an admin
+    (UNIVERSITY scope) gets every offering in the term: "which students are
+    below 65% in IT?" is a question an admin does ask (eval a11).
     """
     stmt = select(CourseOffering.id).where(CourseOffering.term == ctx.term)
     if course_code:
         stmt = stmt.where(CourseOffering.subject_code == course_code.strip().upper())
-    elif ctx.role is not Role.FACULTY:
-        return []
     if ctx.role is Role.FACULTY:
         stmt = stmt.where(CourseOffering.faculty_id == ctx.faculty_id)
     return list(db.scalars(stmt))
@@ -134,12 +132,13 @@ def list_course_students(*, ctx: AuthContext, db: Session, course_code: str | No
 
 @tool(
     name="list_students_below_attendance",
-    description="Students in a course you teach whose attendance is below a threshold (default 75%); omit course_code for all your courses.",
+    description="Students whose attendance is below a threshold (default 75%) in a course you teach; omit course_code for all your courses (an admin: every course, optionally one dept).",
     allowed_roles={Role.FACULTY, Role.ADMIN},
     scope=Scope.OWN_COURSES,
 )
 def list_students_below_attendance(
-    *, ctx: AuthContext, db: Session, course_code: str | None = None, threshold: float = 75.0, **_: Any
+    *, ctx: AuthContext, db: Session, course_code: str | None = None, threshold: float = 75.0,
+    dept: str | None = None, **_: Any
 ) -> list[dict[str, Any]]:
     offerings = _faculty_offerings(db, ctx, course_code)
     if not offerings:
@@ -148,15 +147,20 @@ def list_students_below_attendance(
     attended = func.count(AttendanceRecord.id).filter(AttendanceRecord.status.in_(PRESENT))
     pct = (attended * 100.0 / func.nullif(total, 0)).label("pct")
     rows = db.execute(
-        select(Student.roll_no, Student.full_name, pct)
+        # per (student, course): Part IV §4.1 - attendance is assessed separately for every course,
+        # so a student can be short in DBMS while fine overall
+        select(Student.roll_no, Student.full_name, Student.dept_code, CourseOffering.subject_code, pct)
         .join(AttendanceRecord, AttendanceRecord.student_id == Student.id)
         .join(AttendanceSession, AttendanceSession.id == AttendanceRecord.session_id)
+        .join(CourseOffering, CourseOffering.id == AttendanceSession.offering_id)
         .where(AttendanceSession.offering_id.in_(offerings))
-        .group_by(Student.id, Student.roll_no, Student.full_name)
+        .where(Student.dept_code == dept.strip().upper() if dept else True)
+        .group_by(Student.id, Student.roll_no, Student.full_name, Student.dept_code, CourseOffering.subject_code)
         .having(attended * 100.0 / func.nullif(total, 0) < threshold)
-        .order_by(pct)
+        .order_by(pct, Student.roll_no)
     )
     return [
-        {"roll_no": r.roll_no, "full_name": r.full_name, "percent": round(float(r.pct), 1)}
+        {"roll_no": r.roll_no, "full_name": r.full_name, "dept": r.dept_code, "course": r.subject_code,
+         "percent": round(float(r.pct), 1)}
         for r in rows
     ]

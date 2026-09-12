@@ -163,7 +163,7 @@
 
 - id: s21
   role: student
-  question: "How do I get a bonafide certificate?"
+  question: "What is a bonafide certificate used for, and how long does it take to issue?"
   expected_tools: []
   expect_citation: true
   tags: [policy, services]
@@ -411,7 +411,7 @@
 
 - id: f14
   role: faculty
-  question: "What topics are in Unit 2 of Object Oriented Programming?"
+  question: "What topics are in Unit 2 of Data Structures?"
   expected_tools: [get_course_syllabus, search_curriculum]
   expect_citation: true
   tags: [curriculum]
@@ -551,7 +551,7 @@
 - id: a11
   role: admin
   question: "Which students have attendance below 65% in the IT department?"
-  expected_tools: [get_university_attendance_report]
+  expected_tools: [list_students_below_attendance, get_university_attendance_report]
   tags: [attendance]
 
 - id: a12

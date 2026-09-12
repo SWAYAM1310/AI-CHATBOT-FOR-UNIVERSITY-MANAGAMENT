@@ -9,6 +9,7 @@ from __future__ import annotations
 import ast
 import json
 import logging
+import re
 from collections.abc import Sequence
 from typing import Any
 
@@ -106,6 +107,14 @@ class OpenAICompatProvider:
             # gpt-oss on Groq sometimes "calls a tool" in a step that has none attached
             # (the router, or the final answer); Groq rejects the whole response with
             # 400 tool_use_failed. It is random per phrasing: say it plainly and retry once.
+            if "tool_use_failed" in reason and "tools" in payload:
+                # Groq validated the call against the schema (or failed to parse its JSON -
+                # gpt-oss writes `undefined`) and rejected the whole response. The call it
+                # wanted is in failed_generation; nulls dropped, it is what the planner meant.
+                salvaged = _salvage_tool_call(_failed_generation(exc), payload["model"])
+                if salvaged is not None:
+                    log.warning("tool call rejected by the API (%s); salvaged %s", payload["model"], salvaged.tool_calls[0].name)
+                    return salvaged
             if "tool_use_failed" in reason and "tools" not in payload:
                 if not payload.get("_no_tools_retry"):
                     log.warning("model called a tool in a no-tools step (%s); retrying with a plain-text note", payload["model"])
@@ -167,10 +176,13 @@ def _failed_generation(exc: Exception) -> str:
     return gen if isinstance(gen, str) else ""
 
 
+_UNDEFINED = re.compile(r"(:\s*)undefined\b")
+
+
 def _salvage_tool_call(generation: str, model: str) -> LLMResponse | None:
     """`{"name": "tool.get_my_fees", "arguments": {...}}` -> a response carrying that ToolCall."""
     try:
-        parsed = json.loads(generation)
+        parsed = json.loads(_UNDEFINED.sub(r"\1null", generation))  # `"x": undefined` is not JSON
     except (ValueError, TypeError):
         return None
     if not isinstance(parsed, dict) or not isinstance(parsed.get("name"), str):
@@ -178,8 +190,9 @@ def _salvage_tool_call(generation: str, model: str) -> LLMResponse | None:
     name = parsed["name"].rsplit(".", 1)[-1]  # gpt-oss namespaces it: "tool.x", "functions.x"
     if not name:
         return None
+    args = {k: v for k, v in _json_args(parsed.get("arguments")).items() if v is not None}  # null = not given
     return LLMResponse(
-        tool_calls=[ToolCall(id="salvaged", name=name, arguments=_json_args(parsed.get("arguments")))],
+        tool_calls=[ToolCall(id="salvaged", name=name, arguments=args)],
         model=model,
         finish_reason="tool_calls",
     )

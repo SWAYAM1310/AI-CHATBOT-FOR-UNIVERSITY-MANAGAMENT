@@ -84,13 +84,17 @@ def test_schema_omits_injected_and_identity_parameters():
 
 def test_schema_types_and_optionality_come_from_the_signature():
     params = function_schema(REGISTRY.get("get_my_timetable"))["function"]["parameters"]
-    assert params["properties"]["day"] == {"type": "integer"}  # `int | None` -> integer
+    # `int | None` with a default -> integer or null: gpt-oss writes null for "not given" and
+    # Groq validates the call against this schema before we see it (eval 5b: 400s on null)
+    assert params["properties"]["day"] == {"type": ["integer", "null"]}
     assert params["required"] == []  # it has a default, so it is optional
 
     below = function_schema(REGISTRY.get("list_students_below_attendance"))["function"]
-    assert below["parameters"]["properties"]["course_code"] == {"type": "string"}
-    assert below["parameters"]["properties"]["threshold"] == {"type": "number"}
+    assert below["parameters"]["properties"]["course_code"] == {"type": ["string", "null"]}
+    assert below["parameters"]["properties"]["threshold"] == {"type": ["number", "null"]}
     assert below["parameters"]["required"] == []  # course_code optional (all taught courses), threshold defaults to 75
+    syllabus = function_schema(REGISTRY.get("get_course_syllabus"))["function"]["parameters"]
+    assert syllabus["properties"]["course"] == {"type": "string"} and syllabus["required"] == ["course"]
 
 
 def test_identity_arg_never_appears_in_any_schema():

@@ -64,9 +64,14 @@ def function_schema(spec: ToolSpec) -> dict[str, Any]:
         if param.kind in (param.VAR_KEYWORD, param.VAR_POSITIONAL):
             continue  # the `**_` catch-all every tool carries
 
-        properties[name] = {"type": _json_type(hints.get(name, param.annotation))}
+        json_type = _json_type(hints.get(name, param.annotation))
         if param.default is inspect.Parameter.empty:
+            properties[name] = {"type": json_type}
             required.append(name)
+        else:
+            # gpt-oss writes `null` for an optional it is not using, and Groq validates the
+            # call against this schema before we ever see it (eval s04/a06: 400 on `null`)
+            properties[name] = {"type": [json_type, "null"]}
 
     return {
         "type": "function",

@@ -1127,7 +1127,47 @@ in `scratchpad/dev_server.py`).
   call on e.g. `get_my_attendance`; still ~3.5k tokens/turn. Tests updated
   (chat/orchestrator scripts gained a `plan(...)` step), new test in
   `test_orchestrator.py`. Suite **389 passed**.
-- Full-run results: see `eval/results.json` and the table below.
+- **First full run (80 cases, 20b router)**: refusal **100%** (14/14), path
+  100%, routing 82.7% (43/52), citation 85% (17/20), 77/80 completed, 2215
+  mean tokens/turn, median 19 s (2.1 s without the 78 rate-limit waits —
+  1382 s of waiting in total on the free tier). Eleven failures, six root
+  causes, all fixed:
+  1. **Groq validates tool calls against our schema** and gpt-oss writes
+     `null` for optionals it is not using → 400 `tool_use_failed`
+     (`/semester: expected integer, got null`), and once `undefined` (not
+     JSON). Fix: optional params are `{"type": [T, "null"]}` in
+     `schema.function_schema`; `REGISTRY.invoke` drops null args so the
+     tool's default applies (a06: `threshold=None` had reached the tool);
+     the provider salvages a validation-rejected call from
+     `failed_generation` (`undefined` → null, nulls dropped).
+  2. **gpt-oss-20b routes real questions to `smalltalk`** — "Have I paid my
+     fees?", "Which classrooms are free tomorrow?" — deterministically, and
+     its own reasoning names the right tool before the JSON says smalltalk.
+     120b routes them correctly. **Router default → `openai/gpt-oss-120b`**
+     (`config.py`, `.env`, `.env.example`); tokens/turn barely move (the
+     prompt dominates). The prompt now also states **today's date and
+     weekday** (`_who`), without which "tomorrow" could not be planned.
+  3. "Which courses have the highest failure rate?" had no tool: `run_analytics`
+     groups by department/semester/batch/division, not course.
+     `get_course_performance` gained **`failure_rate_percent`** = share of
+     students under 40% on at least one graded component (Part V §3.1 — a
+     course total hides a failed internal test; the planted 24CS202T case
+     shows 31.8%) and is ordered worst-first (compact caps at 40 rows).
+  4. "Which students are below 65% in IT?" (admin): `list_students_below_
+     attendance` demanded a course and returned `[]`, read as "nobody". An
+     admin has UNIVERSITY scope: without a course it now covers every
+     offering, takes an optional `dept`, and — the real bug — **groups per
+     (student, course)** instead of per student across courses (Part IV
+     §4.1: attendance is per course; the old aggregate hid every shortfall).
+     Rows carry `dept` and `course`.
+  5. Two golden-set questions were ambiguous and rephrased: "how do I get a
+     bonafide certificate" (the model reasonably *requested* one → confirm
+     card) and "Unit 2 of Object Oriented Programming" (three OOP courses;
+     the disambiguation reply was correct). a11's expected tool updated.
+  6. `s29` leave dates moved to 12–13 Oct (the live smoke test had filed
+     5–7 Oct as #33, so the preview said "overlaps").
+  Suite **393 passed**.
+- **Second full run** (after the fixes): see the table below.
 
 EVAL_RESULTS_PLACEHOLDER
 

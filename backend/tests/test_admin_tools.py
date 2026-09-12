@@ -191,3 +191,29 @@ def test_run_analytics_failure_rate_is_the_non_pass_share_of_declared_results(db
     ):
         assert got[dept] == pytest.approx(round(failed * 100 / total, 2))
     assert any(v > 0 for v in got.values())  # the sample has ATKT results
+
+
+def test_course_performance_reports_a_per_course_failure_rate(db):
+    rows = REGISTRY.invoke("get_course_performance", make_ctx("admin"), db, {"course": "24CS202T"})
+    assert rows and all("failure_rate_percent" in r for r in rows)
+    # the planted ~35% Internal-1 fail rate in Digital Logic (24CS202T) shows as students under 40% on a component
+    assert any((r["failure_rate_percent"] or 0) >= 20 for r in rows)
+    assert all(r["failure_rate_percent"] is None or 0 <= r["failure_rate_percent"] <= 100 for r in rows)
+
+
+def test_an_admin_without_a_course_sees_every_course_and_can_filter_by_dept(db):
+    """Eval a11: an empty list was read as "no students below 65% in IT" - an admin has UNIVERSITY scope."""
+    ctx = make_ctx("admin")
+    everyone = REGISTRY.invoke("list_students_below_attendance", ctx, db, {"threshold": 75})
+    it_only = REGISTRY.invoke("list_students_below_attendance", ctx, db, {"threshold": 75, "dept": "it"})
+    assert everyone and len({r["dept"] for r in everyone}) > 1
+    assert it_only and all(r["dept"] == "IT" for r in it_only) and len(it_only) < len(everyone)
+    # a faculty member is still confined to their own courses, dept filter or not
+    mine = REGISTRY.invoke("list_students_below_attendance", make_ctx("faculty", 2), db, {"threshold": 75})
+    assert set(r["roll_no"] for r in mine) <= set(r["roll_no"] for r in everyone)
+
+
+def test_null_arguments_mean_not_given_so_defaults_apply(db):
+    """Eval a06: the planner sent threshold=null; the tool then did arithmetic on None."""
+    rows = REGISTRY.invoke("get_university_attendance_report", make_ctx("admin"), db, {"dept": None, "semester": None, "threshold": None})
+    assert rows and all(r["threshold"] == 75 for r in rows)
