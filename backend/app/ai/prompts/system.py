@@ -59,6 +59,9 @@ Rules:
   invent a name and never list one that is not above.
 - needs_rag is true when the answer depends on university policy, rules,
   regulations, or official documents.
+- A course's syllabus - its units and topics, credits, L-T-P scheme, outcomes,
+  textbooks - comes from get_course_syllabus (course named) or search_curriculum
+  (topic named), not from policy search.
 - If a policy question also has a personal dimension ("am I short on
   attendance?", "do I qualify for this scholarship?"), set needs_rag true AND
   include the tool that fetches the caller's own figures, so both can be

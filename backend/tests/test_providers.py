@@ -263,3 +263,48 @@ def test_parse_json_object_recovers_wrapped_replies(raw):
 @pytest.mark.parametrize("raw", ["", "no json here", "[1, 2, 3]"])
 def test_parse_json_object_returns_empty_dict_instead_of_raising(raw):
     assert parse_json_object(raw) == {}
+
+
+GROQ_TOOL_USE_FAILED_FULL = (
+    "Error code: 400 - {'error': {'message': 'Tool choice is none, but model called a tool', "
+    "'type': 'invalid_request_error', 'code': 'tool_use_failed', "
+    "'failed_generation': '{\"name\": \"tool.get_my_exam_schedule\", \"arguments\": {\"term\": \"2026-27-ODD\"}}'}}"
+)
+GROQ_JSON_VALIDATE_FAILED = (
+    "Error code: 400 - {'error': {'message': \"Failed to generate JSON. Please adjust your prompt.\", "
+    "'type': 'invalid_request_error', 'code': 'json_validate_failed', "
+    "'failed_generation': 'I’m sorry, but I can’t provide that.'}}"
+)
+
+
+def test_a_phantom_tool_call_that_survives_the_retry_is_salvaged_as_a_tool_call():
+    """Groq hands back the rejected generation; the orchestrator can use the tool name."""
+    provider, client = make_provider(bad_request(GROQ_TOOL_USE_FAILED_FULL), bad_request(GROQ_TOOL_USE_FAILED_FULL))
+    out = provider.chat(system="s", messages=[], model=MAIN, json_object=True)
+    assert len(client.completions.calls) == 2
+    assert out.text == "" and out.finish_reason == "tool_calls"
+    assert [(c.name, c.arguments) for c in out.tool_calls] == [("get_my_exam_schedule", {"term": "2026-27-ODD"})]
+
+    # the body form (what the live SDK gives) is read too
+    body = {"error": {"code": "tool_use_failed", "failed_generation": '{"name": "functions.get_my_fees", "arguments": {}}'}}
+    exc = openai.BadRequestError("Error code: 400", response=httpx2.Response(400, request=REQ), body=body)
+    provider, _ = make_provider(exc, exc)
+    assert provider.chat(system="s", messages=[], model=MAIN).tool_calls[0].name == "get_my_fees"
+
+
+def test_a_broken_json_step_is_retried_without_strict_mode_then_uses_the_prose():
+    provider, client = make_provider(bad_request(GROQ_JSON_VALIDATE_FAILED), fake_reply(content='{"intent": "data"}'))
+    out = provider.chat(system="s", messages=[], model=MAIN, json_object=True)
+    first, retry = client.completions.calls
+    assert first["response_format"] == {"type": "json_object"} and "response_format" not in retry
+    assert "_json_retry" not in retry and out.text == '{"intent": "data"}'
+
+    provider, client = make_provider(bad_request(GROQ_JSON_VALIDATE_FAILED), bad_request(GROQ_JSON_VALIDATE_FAILED))
+    out = provider.chat(system="s", messages=[], model=MAIN, json_object=True)
+    assert len(client.completions.calls) == 2
+    assert out.text.startswith("I’m sorry") and out.finish_reason == "json_validate_failed"
+    assert parse_json_object(out.text) == {}
+    # not a JSON step -> not ours to salvage
+    provider, _ = make_provider(bad_request(GROQ_JSON_VALIDATE_FAILED))
+    with pytest.raises(ProviderError):
+        provider.chat(system="s", messages=[], model=MAIN)

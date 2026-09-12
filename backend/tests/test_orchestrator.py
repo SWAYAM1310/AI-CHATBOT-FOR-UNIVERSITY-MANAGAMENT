@@ -346,3 +346,42 @@ def test_a_personal_record_tool_pulls_its_regulation_even_when_the_router_says_n
     provider = ScriptedProvider(route(intent="smalltalk"), answer("hi"))
     run_turn(question="hi", ctx=student_ctx, db=db, provider=provider)
     assert seen == []  # no tool with a policy counterpart, no retrieval
+
+
+# --- salvaged phantom tool calls (live finding: Groq 400 tool_use_failed) ----
+
+def test_a_salvaged_router_tool_call_is_the_candidate(student_ctx):
+    """The router 'called' get_my_exam_schedule instead of writing JSON: that is the route."""
+    provider = ScriptedProvider(
+        LLMResponse(tool_calls=[ToolCall(id="salvaged", name="get_my_exam_schedule", arguments={"term": "x"})]),
+        answer("Exams run 17-28 Nov."),
+    )
+    with SessionLocal() as db:
+        out = run_turn(question="when are the end-sem exams?", ctx=student_ctx, db=db, provider=provider)
+    assert out.path == "fast" and [r.name for r in out.tool_runs] == ["get_my_exam_schedule"]
+    assert out.tool_runs[0].ok and out.text == "Exams run 17-28 Nov."
+
+
+def test_a_salvaged_synthesis_tool_call_runs_the_tool_and_synthesizes_again(student_ctx):
+    """Call C asked for data it lacked: run it through the registry (RBAC intact), then Call C once more."""
+    provider = ScriptedProvider(
+        route(tools=["get_my_courses"]),
+        LLMResponse(tool_calls=[ToolCall(id="salvaged", name="get_my_fees", arguments={})]),  # phantom in Call C
+        answer("Fees are paid; you take 9 courses."),
+    )
+    with SessionLocal() as db:
+        out = run_turn(question="am I all set?", ctx=student_ctx, db=db, provider=provider)
+    assert [r.name for r in out.tool_runs] == ["get_my_courses", "get_my_fees"] and all(r.ok for r in out.tool_runs)
+    assert len(provider.calls) == 3 and "tools" not in provider.calls[2] or provider.calls[2].get("tools") is None
+    assert "get_my_fees" in provider.calls[2]["messages"][-1]["content"]
+    assert out.text == "Fees are paid; you take 9 courses."
+
+    # a phantom call to a forbidden tool is still denied, and the second synthesis sees that
+    provider = ScriptedProvider(
+        route(tools=["get_my_courses"]),
+        LLMResponse(tool_calls=[ToolCall(id="salvaged", name="list_students", arguments={})]),
+        answer("Not available to your role."),
+    )
+    with SessionLocal() as db:
+        out = run_turn(question="list everyone", ctx=student_ctx, db=db, provider=provider)
+    assert out.tool_runs[-1].error == "denied" and any(c["type"] == "denied" for c in out.cards)

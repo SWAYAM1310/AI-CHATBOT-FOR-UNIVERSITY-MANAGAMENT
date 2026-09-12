@@ -1,10 +1,10 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated **2026-09-12, during the
-live smoke test (5c)**. Phases 0–5a complete, everything committed and pushed
-(`89c5ecc`). Groq key set; live path works for student and faculty. Three live
-bugs found and fixed so far (§11). Next: keep smoke-testing (admin role, the
-confirm flow live, curriculum questions), then **5b eval harness**.
+Snapshot for picking the work back up. Last updated **2026-09-12, end of the
+live smoke test (5c)**. Phases 0–5a complete and committed (`89c5ecc`); the 5c
+fixes below are **uncommitted** unless a later commit says otherwise. Groq key
+set; the live path is verified for all three roles, the confirm flow and
+curriculum/calendar questions (§11). Next: **5b eval harness**.
 
 ---
 
@@ -91,6 +91,7 @@ on an RTX 3050.
 | `f5c716b` | 5c.1 | `POLICY_CONTEXT`: personal-record tools always pull their regulation |
 | `7cc5438`, `380eba5` | 5c.2 | faculty course tools accept no course (all taught); provider errors logged |
 | `89c5ecc` | 5c.3 | provider retries once with a no-tools note on Groq `tool_use_failed`, 383 tests |
+| *(uncommitted)* | 5c.4 | acronym course lookup + citable syllabus, salvage Groq `failed_generation` (phantom tool calls, broken JSON mode), syllabus routing rule, own-dept-first curriculum search, 388 tests |
 
 ### Phase 0 — scaffold
 - `docker-compose.yml`: `pgvector/pgvector:pg16`, host port **5433**, healthcheck,
@@ -1039,22 +1040,68 @@ in `scratchpad/dev_server.py`).
   all four faculty questions answer (fast path, right tools).
 - The dev DB `conversations` for user 17 now also hold live turns.
 
-### Live smoke test status (5c, in progress)
-Done live and correct: student "Am I short on attendance in any course?"
-(§4.2 p.2 footnote + attendance card); faculty "Which of my students have
-missing submissions?" (student_table), "what course do i teach?", "what is
-my name?", "who is below 75% attendance?", "show my teaching schedule".
-Still to run live: "what's in Unit 3 of DBMS?" (search_curriculum /
-get_course_syllabus + passage footnote), "when are the end-sem exams?"
-(calendar rows + calendar citation), "apply for leave …" through the UI
-(confirm → execute), admin "failure rate by department" / "publish a notice",
-a smalltalk turn, and a student asking for something outside their role
-(expect the refusal rule; a `denied` card only if a tool is refused at
-execution). Watch Groq 429s (free tier; a turn is 2–3 calls) and whether the
-no-tools retry warning appears in the backend log.
+- **5c.4 (second session, via the API with `scratchpad/smoke.py`)** — four
+  more findings, all fixed, suite **388 passed**:
+  1. "what's in Unit 3 of DBMS?" → `get_course_syllabus {course: "DBMS"}` →
+     `no course matching 'DBMS'`: the resolver had no abbreviation stage.
+     `_acronym_score()` in `curriculum_tools.py`: each letter starts a
+     significant word or follows the previous letter inside the same word
+     (DBMS = Data-Base Management Systems); the tightest reading wins
+     (OS = Operating System, not Open Source Technologies) and the caller's
+     department is preferred (COA → CP's course, no disambiguation list).
+     `get_course_syllabus` now also returns `passages` (the course's / unit's
+     source chunk) so the answer footnotes the syllabus PDF; `_execute` strips
+     `passages` from the compacted table (it is in the passage block already).
+  2. "when are the end-sem exams?" → 502: the 20b router "called"
+     `tool.get_my_exam_schedule` **twice** (the no-tools-note retry is
+     near-deterministic at temperature 0). The provider now **salvages Groq's
+     `failed_generation`**: `_failed_generation(exc)` reads it from the body
+     or the message repr, `_salvage_tool_call()` turns `{"name":
+     "tool.x", "arguments": …}` into an `LLMResponse` with one `ToolCall`
+     (namespace prefix stripped). Orchestrator: an empty-text route with
+     tool_calls → those names are the candidates; an empty-text **Call C**
+     with tool_calls → run them through the registry (RBAC intact, `denied`
+     card if refused) and synthesize once more. Live: the exam question now
+     answers on the fast path with the schedule table.
+  3. "show me all students with CGPA above 9" (student) → 502
+     `json_validate_failed` (the router refused in prose); later
+     `output_parse_failed` (`failed_generation: "Need academic calendar."`).
+     Both: retry once **without `response_format`** (the prompt asks for JSON
+     anyway, `parse_json_object` is prose-tolerant), then use the rejected
+     prose as the reply (→ `{}` → Call C applies the refusal rule). Live: the
+     student gets "outside your access level"; no 502s in the log since.
+  4. "how many credits is DBMS and what are the textbooks?" → the router
+     picked `search_university_policies`. Router prompt gained one rule: a
+     course's units/credits/scheme/outcomes/textbooks come from
+     `get_course_syllabus` / `search_curriculum`, not policy search. Live:
+     `get_course_syllabus`, "3 credits [1]" + the three textbooks, footnote
+     = CP syllabus p.35. `search_curriculum` now ranks the **caller's own
+     department's syllabus first** (every programme has a DBMS) via
+     `syllabus_courses.document_id`.
+- Live-verified in this session (all 200, correct, no warnings in the log
+  after the fixes): admin `run_analytics failure_rate × department` (CH/EC
+  16.67), `get_department_overview`; student exam schedule, Unit 3 (cited
+  CP p.35 first), credits + textbooks, announcements, smalltalk, out-of-role
+  refusal ("mark my attendance" → "outside your access level", smalltalk
+  path — no `denied` card because no tool was refused at execution); the
+  **two-phase confirm end-to-end** three times: student `apply_for_leave`
+  (→ #33, pending, approver Dr. Milan Vyas), HOD `list_pending_leave_requests`
+  then `decide_leave_request 33 approve`, admin `publish_notice` (→ #34,
+  visible to the student's `get_my_announcements` next turn); a replayed
+  confirm token is 409. Groq free-tier 429s appear as `queued_seconds` of
+  15–28 s on some turns — the budgeter absorbs them, nothing fails.
+- The dev DB now carries leave request #33 (approved) and announcement #34
+  from the live run; `pytest` reloads the sample anyway.
+- Not run through the browser this session (API only); the UI's confirm card
+  was Playwright-verified in 5a against the canned provider, and the API
+  contract is unchanged.
 
 ### Remaining steps (do one at a time; report and ask before committing)
-5c. **Finish the live smoke test** (list above); fix what it finds.
-5b. **Eval harness** (plan.md §10): `eval/golden_set.yaml`, `run_eval.py`, the
-   three experiments. Needs a Groq key.
-5c. **Live smoke test** once `LLM_API_KEY` is set.
+5b. **Eval harness** (plan.md §10): `eval/golden_set.yaml`, `run_eval.py`
+   reporting tool-routing accuracy, refusal accuracy (must be 100%), citation
+   rate on policy questions, median latency, mean tokens/turn; then the three
+   experiments (late vs naive chunking retrieval@3, hybrid vs dense-only,
+   Matryoshka dimension sweep). Needs the Groq key (set). Budget the free
+   tier: a turn is 2–3 calls and 429 waits of ~15–30 s were seen at ~10
+   turns/min.
+6. Report / demo prep (plan.md §11).

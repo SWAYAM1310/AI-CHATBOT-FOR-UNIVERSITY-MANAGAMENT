@@ -6,9 +6,9 @@ LLM_BASE_URL and the LLM_MODEL_* ids change.
 """
 from __future__ import annotations
 
-import logging
-
+import ast
 import json
+import logging
 from collections.abc import Sequence
 from typing import Any
 
@@ -88,33 +88,101 @@ class OpenAICompatProvider:
         if reasoning_effort:
             payload["reasoning_effort"] = reasoning_effort
 
-        return _to_response(self._create(payload))
+        return self._create(payload)
 
-    def _create(self, payload: dict[str, Any]) -> Any:
+    def _create(self, payload: dict[str, Any]) -> LLMResponse:
         try:
-            return self._client.chat.completions.create(**{k: v for k, v in payload.items() if not k.startswith("_")})
+            return _to_response(
+                self._client.chat.completions.create(**{k: v for k, v in payload.items() if not k.startswith("_")})
+            )
         except openai.RateLimitError as exc:
             raise ProviderRateLimited(str(exc), retry_after=_retry_after(exc)) from exc
         except openai.BadRequestError as exc:
             # portability: not every OpenAI-compatible backend knows reasoning_effort
-            if "reasoning_effort" in payload and "reasoning_effort" in str(exc):
+            reason = _error_text(exc)
+            if "reasoning_effort" in payload and "reasoning_effort" in reason:
                 payload.pop("reasoning_effort")
                 return self._create(payload)
             # gpt-oss on Groq sometimes "calls a tool" in a step that has none attached
             # (the router, or the final answer); Groq rejects the whole response with
             # 400 tool_use_failed. It is random per phrasing: say it plainly and retry once.
-            if "tool_use_failed" in str(exc) and "tools" not in payload and not payload.get("_no_tools_retry"):
-                log.warning("model called a tool in a no-tools step (%s); retrying with a plain-text note", payload["model"])
-                retry = dict(payload)
-                retry["_no_tools_retry"] = True
-                retry["messages"] = [
-                    {**payload["messages"][0], "content": payload["messages"][0]["content"] + NO_TOOLS_NOTE},
-                    *payload["messages"][1:],
-                ]
-                return self._create(retry)
+            if "tool_use_failed" in reason and "tools" not in payload:
+                if not payload.get("_no_tools_retry"):
+                    log.warning("model called a tool in a no-tools step (%s); retrying with a plain-text note", payload["model"])
+                    retry = dict(payload)
+                    retry["_no_tools_retry"] = True
+                    retry["messages"] = [
+                        {**payload["messages"][0], "content": payload["messages"][0]["content"] + NO_TOOLS_NOTE},
+                        *payload["messages"][1:],
+                    ]
+                    return self._create(retry)
+                # it insisted (temperature 0 makes the retry near-deterministic). Groq returns the
+                # rejected generation: hand the call the model wanted to the orchestrator, which
+                # knows what to do with a tool name - the provider would only have a 502 to offer.
+                salvaged = _salvage_tool_call(_failed_generation(exc), payload["model"])
+                if salvaged is not None:
+                    log.warning("model insisted on %s in a no-tools step; passing the call up", salvaged.tool_calls[0].name)
+                    return salvaged
+            if ("json_validate_failed" in reason or "output_parse_failed" in reason) and (
+                "response_format" in payload or payload.get("_json_retry")
+            ):
+                # json_object mode, but the model answered in prose (a refusal, or a thought like
+                # "Need academic calendar."). The prompt asks for JSON anyway and parse_json_object()
+                # tolerates prose around it: ask once more without the strict mode
+                if not payload.get("_json_retry"):
+                    log.warning("model broke JSON mode (%s); retrying without response_format", payload["model"])
+                    retry = {k: v for k, v in payload.items() if k != "response_format"}
+                    retry["_json_retry"] = True
+                    return self._create(retry)
+                text = _failed_generation(exc)
+                if text:
+                    log.warning("model wrote prose in a JSON step (%s); using it as the reply", payload["model"])
+                    return LLMResponse(text=text, model=payload["model"], finish_reason="json_validate_failed")
             raise ProviderError(str(exc)) from exc
         except openai.APIError as exc:  # connection, timeout, 5xx, ...
             raise ProviderError(str(exc)) from exc
+
+
+def _error_text(exc: Exception) -> str:
+    """The message plus the body: the SDK puts Groq's error code in one or the other."""
+    body = getattr(exc, "body", None)
+    return f"{exc} {json.dumps(body) if isinstance(body, dict) else ''}"
+
+
+def _failed_generation(exc: Exception) -> str:
+    """Groq's 400s carry the generation it rejected, in the body or (older SDKs) only in the message."""
+    body = getattr(exc, "body", None)
+    if isinstance(body, dict):
+        err = body.get("error", body)
+        if isinstance(err, dict) and isinstance(err.get("failed_generation"), str):
+            return err["failed_generation"]
+    # the SDK's message is "Error code: 400 - <python repr of the body>"
+    _, _, tail = str(exc).partition(" - ")
+    try:
+        parsed = ast.literal_eval(tail.strip())
+    except (ValueError, SyntaxError):
+        return ""
+    err = parsed.get("error", parsed) if isinstance(parsed, dict) else None
+    gen = err.get("failed_generation") if isinstance(err, dict) else None
+    return gen if isinstance(gen, str) else ""
+
+
+def _salvage_tool_call(generation: str, model: str) -> LLMResponse | None:
+    """`{"name": "tool.get_my_fees", "arguments": {...}}` -> a response carrying that ToolCall."""
+    try:
+        parsed = json.loads(generation)
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(parsed, dict) or not isinstance(parsed.get("name"), str):
+        return None
+    name = parsed["name"].rsplit(".", 1)[-1]  # gpt-oss namespaces it: "tool.x", "functions.x"
+    if not name:
+        return None
+    return LLMResponse(
+        tool_calls=[ToolCall(id="salvaged", name=name, arguments=_json_args(parsed.get("arguments")))],
+        model=model,
+        finish_reason="tool_calls",
+    )
 
 
 def _retry_after(exc: Exception) -> float | None:

@@ -218,3 +218,16 @@ def test_a_planned_search_curriculum_call_feeds_passages_not_a_table(db):
     assert "(course record: 24CS202T Database Management Systems | L-T-P 3-0-0, 3 credits)" in prompt
     assert prompt.count("[[cite:") >= 1
     assert [r.name for r in out.tool_runs] == ["search_curriculum", "get_my_courses"]
+
+
+def test_get_course_syllabus_resolves_the_abbreviations_students_use(db):
+    """Live finding: 'what's in Unit 3 of DBMS?' -> 'no course matching DBMS'."""
+    ctx = make_ctx("student", 17)  # CP
+    for abbr, title in [("DBMS", "Database Management Systems"), ("dld", "Digital Logic and Design"),
+                        ("OS", "Operating System"), ("TOC", "Theory of Computation"),
+                        ("COA", "Computer Organization and Architecture")]:
+        r = REGISTRY.invoke("get_course_syllabus", ctx, db, {"course": abbr, "unit": 3})
+        assert r.get("course", "").endswith(title) and r["department"] == "CP", (abbr, r)
+        assert r["unit"].startswith("Unit 3:")
+        assert r["passages"] and r["passages"][0]["chunk_id"] and "Unit 3" in r["passages"][0]["excerpt"]
+    assert REGISTRY.invoke("get_course_syllabus", ctx, db, {"course": "XQZV"})["error"].startswith("no course")

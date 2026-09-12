@@ -34,7 +34,7 @@ Phase 1b — auth & RBAC done.
   ([app/ai/tools/action_tools.py](backend/app/ai/tools/action_tools.py),
   [app/ai/tools/confirm.py](backend/app/ai/tools/confirm.py)).
 
-`pytest` — 285 tests, **fully offline**: every LLM call goes through a scripted
+`pytest` — 388 tests, **fully offline**: every LLM call goes through a scripted
 provider, and CI ([backend-tests.yml](.github/workflows/backend-tests.yml)) runs
 the suite with `LLM_API_KEY` unset on purpose. The RBAC suite must stay green.
 
@@ -64,7 +64,7 @@ pip install -r requirements.txt
 
 alembic upgrade head                     # creates the 30-table schema
 python -m app.seed.load_csv --dataset sample --reset   # load data/synthetic/sample/
-pytest                                   # 285 tests, no LLM key needed
+pytest                                   # 388 tests, no LLM key needed
 uvicorn app.main:app --reload            # http://localhost:8000/health
 ```
 

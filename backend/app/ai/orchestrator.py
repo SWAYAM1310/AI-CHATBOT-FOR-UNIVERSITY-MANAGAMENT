@@ -122,6 +122,10 @@ def run_turn(
     )
     usage += route.usage
     plan = parse_json_object(route.text)
+    if not plan and route.tool_calls:
+        # gpt-oss sometimes "calls" an index entry instead of writing the JSON; the provider
+        # salvages that call from Groq's rejection and the name is exactly the routing we wanted
+        plan = {"intent": "information", "candidate_tools": [c.name for c in route.tool_calls]}
 
     intent = str(plan.get("intent") or "")
     needs_rag = bool(plan.get("needs_rag"))
@@ -195,6 +199,29 @@ def run_turn(
     )
     usage += final.usage
 
+    if not final.text and final.tool_calls:
+        # the model wanted more data mid-answer (salvaged from a no-tools rejection): run
+        # those calls through the registry like any others, then synthesize once more
+        extra = [_execute(c.name, c.arguments, ctx, db) for c in final.tool_calls[:MAX_TOOL_CALLS]]
+        runs += extra
+        data_cards += [c for r in extra for c in r.cards]
+        passages = _merge_passages(passages, extra)
+        final = provider.chat(
+            system=synthesize_system(ctx, caller),
+            messages=[
+                *recent,
+                {
+                    "role": "user",
+                    "content": synthesize_user(
+                        question, [r.as_prompt_block() for r in runs if r.name not in PASSAGE_TOOLS], passages
+                    ),
+                },
+            ],
+            model=settings.llm_model_main,
+            reasoning_effort="medium",
+        )
+        usage += final.usage
+
     text, citations = resolve_citations(final.text, passages)
     return TurnResult(
         text=text,
@@ -254,6 +281,7 @@ def _execute(name: str, args: dict[str, Any], ctx: AuthContext, db: Session) -> 
     elif isinstance(result, dict) and isinstance(result.get("passages"), list):
         # a data tool that also names the document its rows came from (the calendar)
         passages = [h for h in result["passages"] if isinstance(h, dict) and "chunk_id" in h]
+        result = {k: v for k, v in result.items() if k != "passages"}  # they go in the passage block, once
     return ToolRun(
         name, args, compact(result), preview=preview, passages=passages,
         cards=cards_for(name, result, ok=True, error=None),
