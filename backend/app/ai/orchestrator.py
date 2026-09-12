@@ -35,7 +35,7 @@ from app.ai.prompts.system import (
 from app.ai.providers import LLMProvider, Msg, Usage, parse_json_object
 from app.ai.rag.citations import resolve as resolve_citations
 from app.ai.tools.registry import REGISTRY, ToolDenied
-from app.ai.tools.schema import required_params, schemas_for
+from app.ai.tools.schema import model_params, schemas_for
 from app.auth.context import AuthContext, Role
 from app.config import settings
 from app.models import Admin, Faculty, Student
@@ -148,8 +148,10 @@ def run_turn(
     calls: list[tuple[str, dict[str, Any]]] = []
     path = "full"
 
-    if len(candidates) == 1 and not required_params(REGISTRY.get(candidates[0])):
-        # one unambiguous tool that needs no arguments — Call B has nothing to decide
+    if len(candidates) == 1 and not model_params(REGISTRY.get(candidates[0])):
+        # one unambiguous tool that takes no arguments at all — Call B has nothing to decide.
+        # (Optional filters count: "below 75% in 24CS202T" must reach the tool, and only the
+        # planner can lift the course out of the question.)
         calls = [(candidates[0], {})]
         path = "fast"
     elif candidates:

@@ -1,0 +1,166 @@
+# Retrieval gold set for the three experiments in plan.md §10.
+#
+# A hit is correct when the chunk's document title contains `doc` and its
+# section starts with `section` (policies: the clause; curriculum: the course
+# label + unit). Several acceptable targets may be listed under `any`.
+
+policy:
+  - query: "minimum attendance percentage required to sit the end-semester examination"
+    doc: "Part IV"
+    section: "§4.2"
+  - query: "what happens if my attendance is below 75 percent"
+    any:
+      - {doc: "Part IV", section: "§4.3"}
+      - {doc: "Part IV", section: "§4.5"}
+  - query: "condonation of attendance shortfall on medical grounds"
+    any:
+      - {doc: "Part IV", section: "§5.3"}
+      - {doc: "Part IV", section: "§5.2"}
+  - query: "lowest attendance at which condonation can still be granted"
+    doc: "Part IV"
+    section: "§5.2"
+  - query: "how many courses can be condoned in one semester"
+    doc: "Part IV"
+    section: "§5.4"
+  - query: "does approved leave count as attendance"
+    any:
+      - {doc: "Part IV", section: "§4.4"}
+      - {doc: "Leave", section: "§8.1"}
+      - {doc: "Part IV", section: "§2.3"}
+  - query: "proxy attendance punishment"
+    doc: "Part IV"
+    section: "§3.6"
+  - query: "worked example of a student at 68 percent attendance"
+    any:
+      - {doc: "Part IV", section: "§6.1"}
+      - {doc: "Part IV", section: "§6.3"}
+  - query: "passing marks percentage for a course"
+    any:
+      - {doc: "Part V", section: "§3.1"}
+      - {doc: "Part V", section: "§3.2"}
+  - query: "grade points and letter grades scale"
+    doc: "Part V"
+    section: "§6.1"
+  - query: "first class with distinction CGPA"
+    doc: "Part V"
+    section: "§6.4"
+  - query: "maximum grade after clearing a backlog by supplementary exam"
+    doc: "Part V"
+    section: "§5.3"
+  - query: "revaluation of answer script fee and deadline"
+    doc: "Part V"
+    section: "§8.2"
+  - query: "end-semester examination dates November 2026"
+    doc: "Part V"
+    section: "§7.3"
+  - query: "penalty for copying in an examination"
+    any:
+      - {doc: "Part V", section: "§9.3"}
+      - {doc: "Part V", section: "§9.1"}
+  - query: "late fee per week for fees paid after the due date"
+    doc: "Fee Policy"
+    section: "§4.1"
+  - query: "fee due date odd semester 2026-27"
+    doc: "Fee Policy"
+    section: "§3.2"
+  - query: "hostel fee amount per semester"
+    any:
+      - {doc: "Fee Policy", section: "§2.1"}
+      - {doc: "Fee Policy", section: "§2.2"}
+  - query: "paying the semester fee in two instalments"
+    doc: "Fee Policy"
+    section: "§5.1"
+  - query: "does a pending scholarship application extend the fee due date"
+    any:
+      - {doc: "Fee Policy", section: "§3.3"}
+      - {doc: "Scholarship", section: "§5.4"}
+      - {doc: "Fee Policy", section: "§6.2"}
+  - query: "CGPA required to keep the merit-cum-means scholarship"
+    doc: "Scholarship"
+    section: "§2.2"
+  - query: "scholarship application window dates"
+    doc: "Scholarship"
+    section: "§4.1"
+  - query: "maximum number of days in a single leave application"
+    doc: "Leave"
+    section: "§3.3"
+  - query: "overlapping leave requests"
+    doc: "Leave"
+    section: "§3.4"
+  - query: "who approves a student's leave application"
+    doc: "Leave"
+    section: "§4.1"
+  - query: "leave on the day of an internal test"
+    doc: "Leave"
+    section: "§5.3"
+  - query: "bonafide certificate for passport application"
+    doc: "Student Services"
+    section: "§3.1"
+  - query: "how many open document requests of the same type"
+    doc: "Student Services"
+    section: "§2.2"
+  - query: "official transcript request processing"
+    doc: "Student Services"
+    section: "§3.2"
+  - query: "how to report ragging helpline"
+    doc: "Part VII"
+    section: "§4.5"
+  - query: "penalties for ragging"
+    doc: "Part VII"
+    section: "§4.8"
+  - query: "plagiarism using AI generated text"
+    doc: "Part VII"
+    section: "§2.4"
+
+# Curriculum: all targets in the CP syllabus (B.Tech Computer Engineering Syllabus 2025).
+# The queries name the course the way a student would; the flat-chunk baseline
+# embeds the unit body without its course label, which is the failure mode §8 describes.
+curriculum:
+  - query: "DBMS unit on normalization and functional dependencies"
+    doc: "Computer Engineering"
+    section: "24CS202T Database Management Systems / Unit 3"
+  - query: "what does the Database Management Systems course cover in unit 2"
+    doc: "Computer Engineering"
+    section: "24CS202T Database Management Systems / Unit 2"
+  - query: "DBMS transactions ACID properties and concurrency control"
+    doc: "Computer Engineering"
+    section: "24CS202T Database Management Systems / Unit 4"
+  - query: "Operating System unit on deadlocks and the banker's algorithm"
+    doc: "Computer Engineering"
+    section: "24CS304T Operating System / Unit 3"
+  - query: "operating systems synchronization race conditions mutual exclusion"
+    doc: "Computer Engineering"
+    section: "24CS304T Operating System / Unit 2"
+  - query: "Theory of Computation Turing machines unit"
+    doc: "Computer Engineering"
+    section: "24CS208T Theory of Computation / Unit 3"
+  - query: "TOC pushdown automata and context free grammars"
+    doc: "Computer Engineering"
+    section: "24CS208T Theory of Computation / Unit 2"
+  - query: "Data Structures unit on trees and non-linear structures"
+    doc: "Computer Engineering"
+    section: "24CS203T Data Structures / Unit 3"
+  - query: "data structures hashing collision resolution"
+    doc: "Computer Engineering"
+    section: "24CS203T Data Structures / Unit 4"
+  - query: "Computer Networks transport layer congestion control unit"
+    doc: "Computer Engineering"
+    section: "24CS302T Computer Networks / Unit 3"
+  - query: "Compiler Design syntax analysis parsers LL and LR"
+    doc: "Computer Engineering"
+    section: "24CS303T Compiler Design / Unit 2"
+  - query: "Digital Logic and Design sequential circuits state machines"
+    doc: "Computer Engineering"
+    section: "24CS201T Digital Logic and Design / Unit 3"
+  - query: "Design and Analysis of Algorithms greedy algorithms unit"
+    doc: "Computer Engineering"
+    section: "24CS210T Design and Analysis of Algorithms / Unit 3"
+  - query: "Machine Learning unsupervised clustering DBSCAN"
+    doc: "Computer Engineering"
+    section: "24CS402T Machine Learning / Unit 3"
+  - query: "Computer Organization pipelining hazards"
+    doc: "Computer Engineering"
+    section: "24CS207T Computer Organization and Architecture / Unit 4"
+  - query: "which course teaches the x86 architecture and CPU registers"
+    doc: "Computer Engineering"
+    section: "24CS207T Computer Organization and Architecture / Unit 1"

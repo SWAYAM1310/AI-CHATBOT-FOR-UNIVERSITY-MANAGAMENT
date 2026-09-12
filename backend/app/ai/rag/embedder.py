@@ -12,6 +12,8 @@ Two things are encoded here so no call site can get them wrong:
   document through the transformer and pools per chunk, so each vector carries
   document context. The caller guarantees the chunks belong together and fit
   the model's context — a policy (3–4 pages) or one curriculum course record.
+  Note: the served v5-omni-small ignores the flag (verified 2026-09-12; v3
+  honours it) — see eval/retrieval_results.md.
 
 Query vectors are cached by text hash: the same question costs one call.
 

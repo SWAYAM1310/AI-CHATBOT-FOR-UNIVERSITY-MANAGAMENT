@@ -100,5 +100,12 @@ def schemas_for(names: list[str] | tuple[str, ...], role: Role) -> list[dict[str
 
 
 def required_params(spec: ToolSpec) -> list[str]:
-    """Params the model must supply — used to spot the no-argument fast path."""
+    """Params the model must supply."""
     return function_schema(spec)["function"]["parameters"]["required"]
+
+
+def model_params(spec: ToolSpec) -> list[str]:
+    """Every param the model may supply, optional ones included — the no-argument fast
+    path needs this list empty: an optional filter ("in 24CS202T") is still an argument
+    only the planner can read out of the question."""
+    return list(function_schema(spec)["function"]["parameters"]["properties"])

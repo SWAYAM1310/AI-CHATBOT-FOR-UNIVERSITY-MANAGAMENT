@@ -1,0 +1,259 @@
+{
+  "embedding_model": "jina-embeddings-v5-omni-small",
+  "1_late_vs_naive": {
+    "chunks": 226,
+    "queries": 32,
+    "late_model": "jina-embeddings-v3",
+    "v5_late_flag_max_abs_diff": 0.002239421010017395,
+    "variants": {
+      "jina-embeddings-v5-omni-small stored (flag ignored)": {
+        "dense": {
+          "r@1": 0.96875,
+          "r@3": 1.0,
+          "r@5": 1.0,
+          "mrr": 0.984375
+        },
+        "hybrid": {
+          "r@1": 0.90625,
+          "r@3": 1.0,
+          "r@5": 1.0,
+          "mrr": 0.9479166666666666
+        }
+      },
+      "jina-embeddings-v5-omni-small independent": {
+        "dense": {
+          "r@1": 0.96875,
+          "r@3": 1.0,
+          "r@5": 1.0,
+          "mrr": 0.984375
+        },
+        "hybrid": {
+          "r@1": 0.90625,
+          "r@3": 1.0,
+          "r@5": 1.0,
+          "mrr": 0.9479166666666666
+        }
+      },
+      "jina-embeddings-v3 late (per document)": {
+        "dense": {
+          "r@1": 0.5625,
+          "r@3": 0.875,
+          "r@5": 0.90625,
+          "mrr": 0.7240823412698413
+        },
+        "hybrid": {
+          "r@1": 0.875,
+          "r@3": 0.90625,
+          "r@5": 0.96875,
+          "mrr": 0.9072916666666667
+        }
+      },
+      "jina-embeddings-v3 independent": {
+        "dense": {
+          "r@1": 0.96875,
+          "r@3": 0.96875,
+          "r@5": 1.0,
+          "mrr": 0.975
+        },
+        "hybrid": {
+          "r@1": 0.96875,
+          "r@3": 0.96875,
+          "r@5": 1.0,
+          "mrr": 0.9765625
+        }
+      }
+    }
+  },
+  "2_flat_vs_parent_child": {
+    "chunks": 548,
+    "children": 460,
+    "queries": 16,
+    "late_model": "jina-embeddings-v3",
+    "variants": {
+      "jina-embeddings-v5-omni-small labelled (stored)": {
+        "dense": {
+          "r@1": 0.9375,
+          "r@3": 0.9375,
+          "r@5": 1.0,
+          "mrr": 0.95
+        },
+        "hybrid": {
+          "r@1": 0.875,
+          "r@3": 0.9375,
+          "r@5": 0.9375,
+          "mrr": 0.9114583333333334
+        },
+        "dense_course": {
+          "course@1": 1.0,
+          "course@3": 1.0,
+          "course@5": 1.0
+        }
+      },
+      "jina-embeddings-v5-omni-small flat: unit body only": {
+        "dense": {
+          "r@1": 0.6875,
+          "r@3": 0.875,
+          "r@5": 0.875,
+          "mrr": 0.7940848214285714
+        },
+        "hybrid": {
+          "r@1": 0.6875,
+          "r@3": 0.9375,
+          "r@5": 0.9375,
+          "mrr": 0.8020833333333334
+        },
+        "dense_course": {
+          "course@1": 0.875,
+          "course@3": 1.0,
+          "course@5": 1.0
+        }
+      },
+      "jina-embeddings-v3 labelled + late per parent": {
+        "dense": {
+          "r@1": 0.625,
+          "r@3": 0.875,
+          "r@5": 1.0,
+          "mrr": 0.7604166666666666
+        },
+        "hybrid": {
+          "r@1": 0.75,
+          "r@3": 0.9375,
+          "r@5": 0.9375,
+          "mrr": 0.8385416666666666
+        },
+        "dense_course": {
+          "course@1": 0.75,
+          "course@3": 1.0,
+          "course@5": 1.0
+        }
+      },
+      "jina-embeddings-v3 labelled, independent": {
+        "dense": {
+          "r@1": 0.9375,
+          "r@3": 1.0,
+          "r@5": 1.0,
+          "mrr": 0.96875
+        },
+        "hybrid": {
+          "r@1": 0.8125,
+          "r@3": 0.9375,
+          "r@5": 0.9375,
+          "mrr": 0.8708333333333333
+        },
+        "dense_course": {
+          "course@1": 0.9375,
+          "course@3": 1.0,
+          "course@5": 1.0
+        }
+      },
+      "jina-embeddings-v3 flat: unit body only": {
+        "dense": {
+          "r@1": 0.4375,
+          "r@3": 0.75,
+          "r@5": 0.875,
+          "mrr": 0.6135416666666667
+        },
+        "hybrid": {
+          "r@1": 0.5625,
+          "r@3": 0.9375,
+          "r@5": 0.9375,
+          "mrr": 0.7427083333333333
+        },
+        "dense_course": {
+          "course@1": 0.8125,
+          "course@3": 1.0,
+          "course@5": 1.0
+        }
+      }
+    }
+  },
+  "3_matryoshka": {
+    "policy": {
+      "chunks": 226,
+      "queries": 32,
+      "dims": [
+        {
+          "dim": 1024,
+          "r@1": 0.96875,
+          "r@3": 1.0,
+          "r@5": 1.0,
+          "mrr": 0.984375,
+          "index_bytes": 925696,
+          "query_ms": 0.03185906249996151
+        },
+        {
+          "dim": 512,
+          "r@1": 0.96875,
+          "r@3": 1.0,
+          "r@5": 1.0,
+          "mrr": 0.9791666666666666,
+          "index_bytes": 462848,
+          "query_ms": 0.0373567187502033
+        },
+        {
+          "dim": 256,
+          "r@1": 0.90625,
+          "r@3": 1.0,
+          "r@5": 1.0,
+          "mrr": 0.9479166666666666,
+          "index_bytes": 231424,
+          "query_ms": 0.02669953125007396
+        },
+        {
+          "dim": 128,
+          "r@1": 0.90625,
+          "r@3": 0.96875,
+          "r@5": 1.0,
+          "mrr": 0.9401041666666666,
+          "index_bytes": 115712,
+          "query_ms": 0.02306390625008703
+        }
+      ]
+    },
+    "curriculum (CP)": {
+      "chunks": 548,
+      "queries": 16,
+      "dims": [
+        {
+          "dim": 1024,
+          "r@1": 0.9375,
+          "r@3": 0.9375,
+          "r@5": 1.0,
+          "mrr": 0.95,
+          "index_bytes": 2244608,
+          "query_ms": 0.8582915624998577
+        },
+        {
+          "dim": 512,
+          "r@1": 0.9375,
+          "r@3": 0.9375,
+          "r@5": 1.0,
+          "mrr": 0.95,
+          "index_bytes": 1122304,
+          "query_ms": 0.06120156249949105
+        },
+        {
+          "dim": 256,
+          "r@1": 0.9375,
+          "r@3": 0.9375,
+          "r@5": 1.0,
+          "mrr": 0.95,
+          "index_bytes": 561152,
+          "query_ms": 0.05092843749991971
+        },
+        {
+          "dim": 128,
+          "r@1": 0.875,
+          "r@3": 0.9375,
+          "r@5": 1.0,
+          "mrr": 0.921875,
+          "index_bytes": 280576,
+          "query_ms": 0.047599375000118016
+        }
+      ]
+    }
+  },
+  "jina_calls": 74,
+  "jina_tokens": 68298,
+  "wall_clock_s": 171.56769347190857
+}

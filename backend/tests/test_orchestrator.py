@@ -14,7 +14,7 @@ from app.ai.compact import ROW_CAP, compact
 from app.ai.orchestrator import run_turn
 from app.ai.providers.base import LLMResponse, ToolCall, Usage
 from app.ai.tools.registry import REGISTRY
-from app.ai.tools.schema import function_schema, required_params, schemas_for
+from app.ai.tools.schema import function_schema, model_params, required_params, schemas_for
 from app.auth.context import Role
 from app.db.session import SessionLocal
 from tests.conftest import make_ctx
@@ -108,10 +108,25 @@ def test_schemas_for_drops_unknown_and_off_limits_names():
     assert got == ["get_my_courses"]  # the faculty tool and the invented one are gone
 
 
-def test_required_params_spots_the_no_argument_fast_path():
-    assert required_params(REGISTRY.get("get_my_courses")) == []
-    assert required_params(REGISTRY.get("list_course_students")) == []  # optional since the live-run fix
+def test_model_params_spots_the_no_argument_fast_path():
+    assert required_params(REGISTRY.get("get_my_courses")) == [] and model_params(REGISTRY.get("get_my_courses")) == []
+    # course_code is optional since the live-run fix, but it is still the model's to fill in:
+    # a tool with an optional filter must go through the planner (eval f20: a faculty asking
+    # about a course they don't teach got their own courses' students under that heading)
+    assert required_params(REGISTRY.get("list_course_students")) == []
+    assert model_params(REGISTRY.get("list_course_students")) == ["course_code"]
     assert required_params(REGISTRY.get("get_course_syllabus")) == ["course"]
+
+
+def test_a_tool_with_only_optional_params_still_goes_through_the_planner(faculty_ctx, db):
+    provider = ScriptedProvider(
+        route(tools=["list_students_below_attendance"]),
+        plan(("list_students_below_attendance", {"course_code": "24CS202T"})),
+        answer("Nobody - you don't teach 24CS202T."),
+    )
+    out = run_turn(question="who is below 75% in 24CS202T?", ctx=faculty_ctx, db=db, provider=provider)
+    assert out.path == "full" and len(provider.calls) == 3
+    assert out.tool_runs[0].args == {"course_code": "24CS202T"}
 
 
 # --- result compaction ------------------------------------------------------
@@ -284,6 +299,7 @@ def test_needs_rag_retrieves_passages_and_resolves_only_cited_ones(student_ctx, 
 
     provider = ScriptedProvider(
         route(tools=["get_my_attendance"], needs_rag=True),
+        plan(("get_my_attendance", {})),
         answer(text="You need 75% [[cite:11]] and you are below it [[cite:13]]. [[cite:99]]"),
     )
     out = run_turn(question="am I short on attendance?", ctx=student_ctx, db=db, provider=provider)
@@ -338,7 +354,7 @@ def test_history_is_trimmed_to_the_last_three_turns(student_ctx, db):
 def test_a_personal_record_tool_pulls_its_regulation_even_when_the_router_says_no_rag(student_ctx, db, monkeypatch):
     seen: list[str] = []
     monkeypatch.setattr("app.ai.orchestrator._retrieve", lambda q, *a, **k: seen.append(q) or [])
-    provider = ScriptedProvider(route(tools=["get_my_attendance"], needs_rag=False), answer())
+    provider = ScriptedProvider(route(tools=["get_my_attendance"], needs_rag=False), plan(("get_my_attendance", {})), answer())
     run_turn(question="am I short on attendance?", ctx=student_ctx, db=db, provider=provider)
     assert seen and "attendance" in seen[0] and "eligibility" in seen[0]
 

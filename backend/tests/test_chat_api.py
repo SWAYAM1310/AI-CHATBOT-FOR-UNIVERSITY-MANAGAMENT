@@ -15,7 +15,7 @@ from app.api import chat as chat_api
 from app.db.session import SessionLocal
 from app.main import app
 from app.models import Conversation, Message, User
-from tests.test_orchestrator import ScriptedProvider, answer, route
+from tests.test_orchestrator import ScriptedProvider, answer, plan, route
 
 client = TestClient(app)
 DEV_PW = "uniassist"
@@ -71,22 +71,22 @@ def _message_rows(conversation_id: int) -> list[Message]:
 def test_first_message_creates_conversation_and_persists_both_rows(scripted):
     scripted.responses += [
         route(tools=["get_my_attendance"]),
-        # no Call B: one candidate with no required args is the fast path
+        plan(("get_my_attendance", {})),  # course_code is optional, so the planner still runs
         answer("You are at 68% in 24CS201T.", tokens=(400, 80)),
     ]
     r = client.post("/api/chat", json={"message": "what's my attendance?"}, headers=_headers())
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["text"] == "You are at 68% in 24CS201T."
-    assert body["path"] == "fast"
+    assert body["path"] == "full"
     assert body["citations"] == []
     (card,) = body["cards"]  # the attendance tool result also arrives as a typed card (step 5a.3)
     assert card["type"] == "attendance" and card["threshold"] == 75
     assert {"course", "name", "attended", "total", "percent"} <= set(card["rows"][0])
-    assert body["trace"]["path"] == "fast" and [t["name"] for t in body["trace"]["tool_runs"]] == ["get_my_attendance"]
+    assert body["trace"]["path"] == "full" and [t["name"] for t in body["trace"]["tool_runs"]] == ["get_my_attendance"]
     assert body["trace"]["tool_runs"][0]["ok"] is True and body["trace"]["usage"] == body["usage"]
-    # Call A + Call C usage summed into the one assistant row
-    assert body["usage"] == {"tokens_in": 520, "tokens_out": 110}
+    # Call A + Call B + Call C usage summed into the one assistant row
+    assert body["usage"] == {"tokens_in": 720, "tokens_out": 150}
     assert body["queued_seconds"] == 0
 
     with SessionLocal() as db:
@@ -97,7 +97,7 @@ def test_first_message_creates_conversation_and_persists_both_rows(scripted):
     assert [m.role for m in rows] == ["user", "assistant"]
     assert rows[0].content == "what's my attendance?"
     assert rows[1].id == body["message_id"]
-    assert (rows[1].tokens_in, rows[1].tokens_out) == (520, 110)
+    assert (rows[1].tokens_in, rows[1].tokens_out) == (720, 150)
     assert rows[1].tool_calls[0]["name"] == "get_my_attendance"
     assert rows[1].tool_calls[0]["ok"] is True
 
@@ -243,7 +243,7 @@ def test_requires_token_and_rejects_empty_or_oversized_messages(scripted):
 # --- typed cards (step 5a.3) ----------------------------------------------------
 
 def test_data_cards_are_stored_with_the_turn_and_replayed_in_the_transcript(scripted):
-    scripted.responses += [route(tools=["get_my_attendance"]), answer("You are at 68%.")]
+    scripted.responses += [route(tools=["get_my_attendance"]), plan(("get_my_attendance", {})), answer("You are at 68%.")]
     live = client.post("/api/chat", json={"message": "attendance?"}, headers=_headers()).json()
     assert [c["type"] for c in live["cards"]] == ["attendance"]
 
@@ -257,6 +257,7 @@ def test_a_denied_tool_becomes_a_denied_card(scripted):
     # a student asking for an admin tool: the registry refuses, the turn continues, the UI gets a signal
     scripted.responses += [
         route(tools=["get_my_attendance"]),
+        plan(("list_students", {})),
         answer("That report is outside your access level."),
     ]
     from app.ai import orchestrator as orch

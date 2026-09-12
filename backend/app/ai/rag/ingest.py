@@ -22,6 +22,14 @@ group instead — a course record and its unit/outcome/book children in one call
 nothing from any other course (plan.md §8). Everything else is embedded in
 plain batches. Pass `embedder=None` to skip vectors entirely (offline CI, or a
 first text-only pass).
+
+Measured 2026-09-12 (eval/retrieval_experiments.py): the Jina API ignores
+`late_chunking` for jina-embeddings-v5-omni-small — the vectors are identical
+either way, so the store holds independent embeddings in practice. On
+jina-embeddings-v3, where the flag works, late chunking *lowered* retrieval on
+this corpus (clause chunks already carry their section heading; document-wide
+context blurs neighbouring clauses). The grouping is kept because it is free
+and correct, not because it is doing anything today.
 """
 from __future__ import annotations
 
