@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal, Protocol, TypedDict
 
@@ -61,6 +61,18 @@ class LLMResponse:
     reasoning: str | None = None  # gpt-oss returns its chain separately; for logs only
 
 
+@dataclass(frozen=True)
+class StreamDelta:
+    """One incremental piece of assistant text as it arrives from the provider."""
+
+    text: str
+
+
+# A stream yields zero or more StreamDelta chunks, then exactly one LLMResponse
+# (the accumulated text + usage + tool_calls) as its last event.
+StreamEvent = StreamDelta | LLMResponse
+
+
 class ProviderError(RuntimeError):
     """Any provider-side failure the orchestrator should surface, not retry blindly."""
 
@@ -90,6 +102,27 @@ class LLMProvider(Protocol):
         max_tokens: int | None = None,
         json_object: bool = False,
     ) -> LLMResponse: ...
+
+    def stream_chat(
+        self,
+        *,
+        system: str,
+        messages: Sequence[Msg],
+        model: str,
+        tools: Sequence[dict[str, Any]] | None = None,
+        reasoning_effort: str | None = "low",
+        temperature: float = 0.0,
+        max_tokens: int | None = None,
+        json_object: bool = False,
+    ) -> Iterator[StreamEvent]:
+        """Optional: same call as `chat`, but yielding text as it arrives.
+
+        Not every provider implements this (test doubles in particular do not);
+        callers that want to stream must check with
+        `getattr(provider, "stream_chat", None)` and fall back to `chat()` plus
+        a single synthetic delta when it is absent.
+        """
+        ...
 
 
 _FENCE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)

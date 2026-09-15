@@ -17,7 +17,7 @@ a model that ignores its prompt still cannot reach another student's data.
 from __future__ import annotations
 
 import logging
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -32,7 +32,8 @@ from app.ai.prompts.system import (
     synthesize_system,
     synthesize_user,
 )
-from app.ai.providers import LLMProvider, Msg, Usage, parse_json_object
+from app.ai.providers import LLMProvider, LLMResponse, Msg, StreamDelta, StreamEvent, Usage, parse_json_object
+from app.ai.rag.citations import IncrementalCitations
 from app.ai.rag.citations import resolve as resolve_citations
 from app.ai.tools.registry import REGISTRY, ToolDenied
 from app.ai.tools.schema import model_params, schemas_for
@@ -92,6 +93,41 @@ class TurnResult:
     path: str = "full"  # full | fast | smalltalk | confirm | error
 
 
+@dataclass(frozen=True)
+class TurnStatus:
+    """A stage the turn has entered — for a UI progress label; nothing here is persisted."""
+
+    stage: str  # "routing" | "planning" | "running_tools" | "retrieving" | "writing"
+
+
+@dataclass(frozen=True)
+class TurnTool:
+    """One executed tool call, as soon as it finishes — drives a live tool pill."""
+
+    name: str
+    args: dict[str, Any]
+    ok: bool
+    error: str | None
+
+
+@dataclass(frozen=True)
+class TurnCards:
+    """Cards ready to show before the answer text exists: data cards, or a confirm card."""
+
+    cards: list[dict[str, Any]]
+
+
+@dataclass(frozen=True)
+class TurnDelta:
+    """One piece of assistant text, already citation-resolved to `[n]` markers."""
+
+    text: str
+
+
+# What iter_turn yields; always ends on exactly one TurnResult.
+TurnEvent = TurnStatus | TurnTool | TurnCards | TurnDelta | TurnResult
+
+
 def run_turn(
     *,
     question: str,
@@ -100,7 +136,29 @@ def run_turn(
     history: Sequence[Msg] = (),
     provider: LLMProvider | None = None,
 ) -> TurnResult:
-    """Answer one user question.
+    """Answer one user question, as a single return value.
+
+    A thin wrapper over `iter_turn` for callers that don't need to stream: the
+    non-streaming endpoint, the eval harness, and the offline test suite. See
+    `iter_turn` for what actually runs; this keeps only its last event.
+    """
+    result: TurnResult | None = None
+    for event in iter_turn(question=question, ctx=ctx, db=db, history=history, provider=provider):
+        if isinstance(event, TurnResult):
+            result = event
+    assert result is not None  # iter_turn always ends on a TurnResult
+    return result
+
+
+def iter_turn(
+    *,
+    question: str,
+    ctx: AuthContext,
+    db: Session,
+    history: Sequence[Msg] = (),
+    provider: LLMProvider | None = None,
+) -> Iterator[TurnEvent]:
+    """Answer one user question, as a stream of events (plan.md §3).
 
     A failing tool degrades to a result row Call C can explain. Provider errors
     propagate on purpose: rate limiting is the budgeted provider's job below
@@ -112,6 +170,7 @@ def run_turn(
     usage = Usage()
 
     # --- Call A: route ------------------------------------------------------
+    yield TurnStatus("routing")
     index = REGISTRY.index_for(ctx.role)
     route = provider.chat(
         system=route_system(ctx, index, caller),
@@ -134,16 +193,27 @@ def run_turn(
 
     # --- fast path ----------------------------------------------------------
     if intent == "smalltalk" and not candidates and not needs_rag:
-        reply = provider.chat(
+        yield TurnStatus("writing")
+        final: LLMResponse | None = None
+        for event in _stream(
+            provider,
             system=synthesize_system(ctx, caller),
             messages=[*recent, {"role": "user", "content": question}],
             model=settings.llm_model_main,
             reasoning_effort="low",
             max_tokens=300,
+        ):
+            if isinstance(event, StreamDelta):
+                yield TurnDelta(event.text)
+            else:
+                final = event
+        yield TurnResult(
+            text=final.text if final else "",
+            usage=usage + (final.usage if final else Usage()),
+            intent=intent,
+            path="smalltalk",
         )
-        return TurnResult(
-            text=reply.text, usage=usage + reply.usage, intent=intent, path="smalltalk"
-        )
+        return
 
     calls: list[tuple[str, dict[str, Any]]] = []
     path = "full"
@@ -156,6 +226,7 @@ def run_turn(
         path = "fast"
     elif candidates:
         # --- Call B: plan ---------------------------------------------------
+        yield TurnStatus("planning")
         planned = provider.chat(
             system=plan_system(ctx, caller),
             messages=[*recent, {"role": "user", "content": question}],
@@ -167,25 +238,39 @@ def run_turn(
         calls = [(c.name, c.arguments) for c in planned.tool_calls[:MAX_TOOL_CALLS]]
 
     # --- execute ------------------------------------------------------------
-    runs = [_execute(tool_name, args, ctx, db) for tool_name, args in calls]
+    if calls:
+        yield TurnStatus("running_tools")
+    runs: list[ToolRun] = []
+    for tool_name, args in calls:
+        run = _execute(tool_name, args, ctx, db)
+        runs.append(run)
+        yield TurnTool(name=run.name, args=run.args, ok=run.ok, error=run.error)
 
     card = _confirmation_card(runs)
     if card is not None:
         # a tool wants confirmation: return the preview and stop before synthesis
-        return TurnResult(
-            cards=[card], tool_runs=runs, usage=usage, intent=intent, path="confirm"
-        )
+        yield TurnCards([card])
+        yield TurnResult(cards=[card], tool_runs=runs, usage=usage, intent=intent, path="confirm")
+        return
     data_cards = [c for r in runs for c in r.cards]
+    if data_cards:
+        yield TurnCards(data_cards)
 
     if not needs_rag:
         # a personal-record tool ran whose figures only mean something against a rule
         # (68% against the 75% floor): fetch that rule whatever the router decided
         rag_query = next((POLICY_CONTEXT[r.name] for r in runs if r.ok and r.name in POLICY_CONTEXT), "")
+    if rag_query:
+        yield TurnStatus("retrieving")
     passages = _retrieve(rag_query, ctx, db) if rag_query else []
     passages = _merge_passages(passages, runs)
 
-    # --- Call C: synthesize (no tools attached, by design) ------------------
-    final = provider.chat(
+    # --- Call C: synthesize (no tools attached, by design) -------------------
+    yield TurnStatus("writing")
+    incr = IncrementalCitations(passages)
+    final = None
+    for event in _stream(
+        provider,
         system=synthesize_system(ctx, caller),
         messages=[
             *recent,
@@ -198,17 +283,36 @@ def run_turn(
         ],
         model=settings.llm_model_main,
         reasoning_effort="medium",
-    )
-    usage += final.usage
+    ):
+        if isinstance(event, StreamDelta):
+            shown = incr.feed(event.text)
+            if shown:
+                yield TurnDelta(shown)
+        else:
+            final = event
+    usage += final.usage if final else Usage()
+    raw_text = final.text if final else ""
 
-    if not final.text and final.tool_calls:
+    if not raw_text and final and final.tool_calls:
         # the model wanted more data mid-answer (salvaged from a no-tools rejection): run
         # those calls through the registry like any others, then synthesize once more
-        extra = [_execute(c.name, c.arguments, ctx, db) for c in final.tool_calls[:MAX_TOOL_CALLS]]
+        yield TurnStatus("running_tools")
+        extra: list[ToolRun] = []
+        for c in final.tool_calls[:MAX_TOOL_CALLS]:
+            run = _execute(c.name, c.arguments, ctx, db)
+            extra.append(run)
+            yield TurnTool(name=run.name, args=run.args, ok=run.ok, error=run.error)
         runs += extra
-        data_cards += [c for r in extra for c in r.cards]
+        extra_cards = [c for r in extra for c in r.cards]
+        data_cards += extra_cards
+        if extra_cards:
+            yield TurnCards(extra_cards)
         passages = _merge_passages(passages, extra)
-        final = provider.chat(
+        incr = IncrementalCitations(passages)
+        yield TurnStatus("writing")
+        final = None
+        for event in _stream(
+            provider,
             system=synthesize_system(ctx, caller),
             messages=[
                 *recent,
@@ -221,11 +325,22 @@ def run_turn(
             ],
             model=settings.llm_model_main,
             reasoning_effort="medium",
-        )
-        usage += final.usage
+        ):
+            if isinstance(event, StreamDelta):
+                shown = incr.feed(event.text)
+                if shown:
+                    yield TurnDelta(shown)
+            else:
+                final = event
+        usage += final.usage if final else Usage()
+        raw_text = final.text if final else ""
 
-    text, citations = resolve_citations(final.text, passages)
-    return TurnResult(
+    tail = incr.flush()
+    if tail:
+        yield TurnDelta(tail)
+
+    text, citations = resolve_citations(raw_text, passages)
+    yield TurnResult(
         text=text,
         citations=citations,
         cards=data_cards,
@@ -234,6 +349,23 @@ def run_turn(
         intent=intent,
         path=path,
     )
+
+
+def _stream(provider: LLMProvider, **kwargs: Any) -> Iterator[StreamEvent]:
+    """`provider.stream_chat(**kwargs)` if it has one; one delta + the reply if not.
+
+    `get_budgeted_provider()` always defines `stream_chat` (falling back
+    internally to `chat()` when its own inner provider lacks one), so this
+    branch only matters for the scripted providers the test suite hands
+    `run_turn`/`iter_turn` directly.
+    """
+    stream = getattr(provider, "stream_chat", None)
+    if stream is not None:
+        yield from stream(**kwargs)
+        return
+    reply = provider.chat(**kwargs)
+    yield StreamDelta(text=reply.text)
+    yield reply
 
 
 # --- helpers ----------------------------------------------------------------

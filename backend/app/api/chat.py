@@ -21,17 +21,28 @@ model: the tool's own one-line result is the reply.
 """
 from __future__ import annotations
 
+import json
 import logging
 
+from collections.abc import Iterator
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.ai.budget import get_budgeted_provider, queued_notifier
-from app.ai.orchestrator import TurnResult, run_turn
+from app.ai.orchestrator import (
+    TurnCards,
+    TurnDelta,
+    TurnResult,
+    TurnStatus,
+    TurnTool,
+    iter_turn,
+    run_turn,
+)
 from app.ai.tools import confirm
 from app.ai.tools.registry import REGISTRY, ToolDenied
 from app.ai.providers import (
@@ -43,6 +54,7 @@ from app.ai.providers import (
 )
 from app.auth.context import AuthContext
 from app.auth.deps import get_auth_context, get_db
+from app.db.session import SessionLocal
 from app.models import Conversation, Message
 
 log = logging.getLogger(__name__)
@@ -166,44 +178,92 @@ def chat(
         log.error("LLM provider error on turn for user %s: %s", ctx.user_id, exc)
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, f"LLM provider error: {str(exc)[:200]}") from exc
 
-    if convo is None:
-        convo = Conversation(user_id=ctx.user_id, title=question[:TITLE_CHARS])
-        db.add(convo)
-        db.flush()  # need the id for the message rows
-
-    db.add(Message(conversation_id=convo.id, role="user", content=question))
-    reply = Message(
-        conversation_id=convo.id,
-        role="assistant",
-        content=result.text or None,
-        tool_calls=_runs_json(result) or None,
-        citations=result.citations or None,
-        tokens_in=result.usage.tokens_in,
-        tokens_out=result.usage.tokens_out,
-    )
-    db.add(reply)
-    db.commit()
+    convo, reply = _persist_turn(db, ctx, convo, question, result)
 
     queued = round(sum(waits), 2)
     if queued:
         response.headers["X-Queued-Seconds"] = str(queued)
 
-    return ChatOut(
-        conversation_id=convo.id,
-        message_id=reply.id,
-        text=result.text,
-        citations=result.citations,
-        cards=result.cards,
-        path=result.path,
-        intent=result.intent,
-        usage=UsageOut(tokens_in=result.usage.tokens_in, tokens_out=result.usage.tokens_out),
-        queued_seconds=queued,
-        trace=TraceOut(
-            path=result.path,
-            intent=result.intent,
-            tool_runs=[{"name": r.name, "args": r.args, "ok": r.ok, "error": r.error} for r in result.tool_runs],
-            usage=UsageOut(tokens_in=result.usage.tokens_in, tokens_out=result.usage.tokens_out),
-        ),
+    return _chat_out(convo, reply, result, queued)
+
+
+@router.post("/stream")
+def chat_stream(
+    body: ChatIn,
+    ctx: AuthContext = Depends(get_auth_context),
+    db: Session = Depends(get_db),
+) -> StreamingResponse:
+    """Same turn as `POST /api/chat`, as Server-Sent Events instead of one blocking reply.
+
+    Auth and conversation ownership are checked here, on the request's own
+    session, before any streaming starts — so a bad token or a stale
+    conversation id still comes back as a normal 401/404, not an `error` event.
+    The generator below opens its *own* `SessionLocal()` rather than reusing
+    this dependency's session: FastAPI closes a `yield`-dependency's session as
+    soon as this function returns the `StreamingResponse`, which is before the
+    generator body — the part that actually needs the database — has run at all.
+    """
+    question = body.message.strip()
+    if not question:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "message is empty")
+    convo_id = _own_conversation(db, ctx, body.conversation_id).id if body.conversation_id else None
+
+    def events() -> Iterator[str]:
+        session = SessionLocal()
+        try:
+            convo: Conversation | None = None
+            if convo_id is not None:
+                convo = session.get(Conversation, convo_id)
+                if convo is None:  # deleted between the check above and here
+                    yield _sse("error", {"status": 404, "detail": "conversation not found", "retry_after": None})
+                    return
+            history = _history(session, convo.id) if convo else []
+
+            waits: list[float] = []
+            result: TurnResult | None = None
+            with queued_notifier(lambda seconds, _reason: waits.append(seconds)):
+                for event in iter_turn(
+                    question=question, ctx=ctx, db=session, history=history, provider=get_budgeted_provider()
+                ):
+                    if isinstance(event, TurnStatus):
+                        yield _sse("status", {"stage": event.stage})
+                    elif isinstance(event, TurnTool):
+                        yield _sse("tool", {"name": event.name, "args": event.args, "ok": event.ok, "error": event.error})
+                    elif isinstance(event, TurnCards):
+                        yield _sse("cards", {"cards": event.cards})
+                    elif isinstance(event, TurnDelta):
+                        yield _sse("delta", {"text": event.text})
+                    elif isinstance(event, TurnResult):
+                        result = event
+            assert result is not None  # iter_turn always ends on a TurnResult
+
+            convo, reply = _persist_turn(session, ctx, convo, question, result)
+            queued = round(sum(waits), 2)
+            if queued:
+                yield _sse("queued", {"seconds": queued})
+            yield _sse("done", _chat_out(convo, reply, result, queued).model_dump())
+        except ProviderRateLimited as exc:
+            session.rollback()
+            retry_after = int(exc.retry_after or RETRY_AFTER_SECONDS)
+            yield _sse("error", {"status": 503, "detail": "the assistant is busy — please retry shortly", "retry_after": retry_after})
+        except ProviderNotConfigured:
+            session.rollback()
+            yield _sse("error", {"status": 503, "detail": "LLM provider not configured", "retry_after": None})
+        except ProviderError as exc:
+            session.rollback()
+            log.error("LLM provider error on stream turn for user %s: %s", ctx.user_id, exc)
+            yield _sse("error", {"status": 502, "detail": f"LLM provider error: {str(exc)[:200]}", "retry_after": None})
+        except Exception:  # noqa: BLE001 - the stream must end with an event, never a bare disconnect
+            session.rollback()
+            log.exception("unhandled error on stream turn for user %s", ctx.user_id)
+            yield _sse("error", {"status": 500, "detail": "internal error", "retry_after": None})
+        finally:
+            session.close()
+
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
 
@@ -326,6 +386,58 @@ def delete_conversation(
 
 
 # --- helpers ----------------------------------------------------------------
+
+def _persist_turn(
+    db: Session, ctx: AuthContext, convo: Conversation | None, question: str, result: TurnResult
+) -> tuple[Conversation, Message]:
+    """Commit the user question + the assistant's turn together (all-or-nothing per turn).
+
+    Shared by the blocking and streaming endpoints so a turn is persisted
+    identically either way.
+    """
+    if convo is None:
+        convo = Conversation(user_id=ctx.user_id, title=question[:TITLE_CHARS])
+        db.add(convo)
+        db.flush()  # need the id for the message rows
+
+    db.add(Message(conversation_id=convo.id, role="user", content=question))
+    reply = Message(
+        conversation_id=convo.id,
+        role="assistant",
+        content=result.text or None,
+        tool_calls=_runs_json(result) or None,
+        citations=result.citations or None,
+        tokens_in=result.usage.tokens_in,
+        tokens_out=result.usage.tokens_out,
+    )
+    db.add(reply)
+    db.commit()
+    return convo, reply
+
+
+def _chat_out(convo: Conversation, reply: Message, result: TurnResult, queued: float) -> ChatOut:
+    return ChatOut(
+        conversation_id=convo.id,
+        message_id=reply.id,
+        text=result.text,
+        citations=result.citations,
+        cards=result.cards,
+        path=result.path,
+        intent=result.intent,
+        usage=UsageOut(tokens_in=result.usage.tokens_in, tokens_out=result.usage.tokens_out),
+        queued_seconds=queued,
+        trace=TraceOut(
+            path=result.path,
+            intent=result.intent,
+            tool_runs=[{"name": r.name, "args": r.args, "ok": r.ok, "error": r.error} for r in result.tool_runs],
+            usage=UsageOut(tokens_in=result.usage.tokens_in, tokens_out=result.usage.tokens_out),
+        ),
+    )
+
+
+def _sse(event: str, data: Any) -> str:
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
 
 def _own_conversation(db: Session, ctx: AuthContext, conversation_id: int) -> Conversation:
     """404, not 403, for someone else's conversation: its existence is not theirs to learn."""

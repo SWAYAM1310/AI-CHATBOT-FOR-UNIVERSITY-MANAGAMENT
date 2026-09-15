@@ -10,7 +10,7 @@ import ast
 import json
 import logging
 import re
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from typing import Any
 
 import openai
@@ -21,6 +21,8 @@ from app.ai.providers.base import (
     ProviderError,
     ProviderNotConfigured,
     ProviderRateLimited,
+    StreamDelta,
+    StreamEvent,
     ToolCall,
     Usage,
 )
@@ -90,6 +92,100 @@ class OpenAICompatProvider:
             payload["reasoning_effort"] = reasoning_effort
 
         return self._create(payload)
+
+    def stream_chat(
+        self,
+        *,
+        system: str,
+        messages: Sequence[Msg],
+        model: str,
+        tools: Sequence[dict[str, Any]] | None = None,
+        reasoning_effort: str | None = "low",
+        temperature: float = 0.0,
+        max_tokens: int | None = None,
+        json_object: bool = False,
+    ) -> Iterator[StreamEvent]:
+        """Same call as `chat`, yielding text as it arrives instead of all at once.
+
+        Opening the stream can fail exactly the way a plain call can (429,
+        Groq's tool_use_failed, a reasoning_effort the backend rejects, ...);
+        `_create` already knows how to retry/salvage every one of those, so on
+        any failure here we fall back to it wholesale and surface its answer
+        as a single delta rather than re-implementing that logic twice.
+        """
+        payload: dict[str, Any] = {
+            "model": model,
+            "messages": [{"role": "system", "content": system}, *(dict(m) for m in messages)],
+            "temperature": temperature,
+        }
+        if tools:
+            payload["tools"] = list(tools)
+            payload["tool_choice"] = "auto"
+        if json_object:
+            payload["response_format"] = {"type": "json_object"}
+        if max_tokens is not None:
+            payload["max_completion_tokens"] = max_tokens
+        if reasoning_effort:
+            payload["reasoning_effort"] = reasoning_effort
+
+        try:
+            stream = self._client.chat.completions.create(
+                stream=True,
+                stream_options={"include_usage": True},
+                **{k: v for k, v in payload.items() if not k.startswith("_")},
+            )
+        except openai.APIError:
+            response = self._create(payload)
+            yield StreamDelta(text=response.text)
+            yield response
+            return
+
+        text_parts: list[str] = []
+        tool_calls: dict[int, dict[str, str]] = {}
+        finish_reason = ""
+        usage = Usage()
+        try:
+            for chunk in stream:
+                chunk_usage = getattr(chunk, "usage", None)
+                if chunk_usage is not None:
+                    usage = Usage(
+                        tokens_in=int(getattr(chunk_usage, "prompt_tokens", 0) or 0),
+                        tokens_out=int(getattr(chunk_usage, "completion_tokens", 0) or 0),
+                    )
+                choices = getattr(chunk, "choices", None) or []
+                if not choices:
+                    continue  # the final usage-only chunk has no choices
+                choice = choices[0]
+                finish_reason = getattr(choice, "finish_reason", None) or finish_reason
+                delta = getattr(choice, "delta", None)
+                if delta is None:
+                    continue
+                piece = getattr(delta, "content", None)
+                if piece:
+                    text_parts.append(piece)
+                    yield StreamDelta(text=piece)
+                for call in getattr(delta, "tool_calls", None) or []:
+                    slot = tool_calls.setdefault(getattr(call, "index", 0) or 0, {"id": "", "name": "", "arguments": ""})
+                    if getattr(call, "id", None):
+                        slot["id"] = call.id
+                    fn = getattr(call, "function", None)
+                    if fn is not None:
+                        slot["name"] += getattr(fn, "name", None) or ""
+                        slot["arguments"] += getattr(fn, "arguments", None) or ""
+        except openai.APIError as exc:  # connection drop, timeout, ... mid-stream
+            raise ProviderError(str(exc)) from exc
+
+        yield LLMResponse(
+            text="".join(text_parts),
+            tool_calls=[
+                ToolCall(id=slot["id"] or f"call_{i}", name=slot["name"], arguments=_json_args(slot["arguments"]))
+                for i, slot in sorted(tool_calls.items())
+                if slot["name"]
+            ],
+            usage=usage,
+            model=model,
+            finish_reason=finish_reason,
+        )
 
     def _create(self, payload: dict[str, Any]) -> LLMResponse:
         try:

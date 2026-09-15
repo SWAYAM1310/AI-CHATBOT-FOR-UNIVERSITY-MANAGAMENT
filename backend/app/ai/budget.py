@@ -17,6 +17,7 @@ absorbing a 429 rather than failing the turn.
 from __future__ import annotations
 
 import contextvars
+import itertools
 import json
 import logging
 import random
@@ -27,7 +28,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 
-from app.ai.providers import LLMProvider, LLMResponse, Msg, ProviderRateLimited, Usage, get_provider
+from app.ai.providers import LLMProvider, LLMResponse, Msg, ProviderRateLimited, StreamDelta, StreamEvent, Usage, get_provider
 from app.config import settings
 
 log = logging.getLogger(__name__)
@@ -311,6 +312,88 @@ class BudgetedProvider:
             response.usage.tokens_out,
         )
         return response
+
+    def stream_chat(
+        self,
+        *,
+        system: str,
+        messages: Sequence[Msg],
+        model: str,
+        tools: Sequence[dict[str, Any]] | None = None,
+        reasoning_effort: str | None = "low",
+        temperature: float = 0.0,
+        max_tokens: int | None = None,
+        json_object: bool = False,
+    ) -> Iterator[StreamEvent]:
+        """Same budgeting as `chat` — bucket take, backoff, meter — around a stream.
+
+        Backoff only wraps *opening* the stream (the call that can 429); once
+        chunks are arriving there is nothing left to retry. A provider with no
+        `stream_chat` of its own (the scripted test doubles) falls back to one
+        blocking `chat()` call surfaced as a single delta, so callers never have
+        to special-case which kind of provider they were handed.
+        """
+        estimate = estimate_tokens(
+            system=system, messages=messages, tools=tools, max_tokens=max_tokens
+        )
+        waited = self.tokens.take(estimate) + self.requests.take(1)
+        if waited:
+            self.meter.waited_seconds += waited
+            _notify(waited, "token_budget")
+
+        def open_and_take_first() -> tuple[StreamEvent, Iterator[StreamEvent]]:
+            # A generator's body does not run until its first `next()` — so
+            # `_open_stream(...)` alone would not actually open the connection
+            # (and could not raise ProviderRateLimited) inside `with_backoff`'s
+            # try/except. Pulling the first event here is what forces that.
+            it = self._open_stream(
+                system=system,
+                messages=messages,
+                model=model,
+                tools=tools,
+                reasoning_effort=reasoning_effort,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                json_object=json_object,
+            )
+            return next(it), it
+
+        try:
+            first_event, rest = with_backoff(
+                open_and_take_first, max_retries=self.max_retries, sleeper=self._sleeper, rand=self._rand
+            )
+        except ProviderRateLimited:
+            self.meter.rate_limited += 1
+            raise
+
+        final: LLMResponse | None = None
+        for event in itertools.chain((first_event,), rest):
+            if isinstance(event, LLMResponse):
+                final = event
+            yield event
+
+        if final is not None:
+            self._reconcile(estimate, final.usage)
+            self.meter.record(final.usage)
+            log.info(
+                "llm(stream) %s est=%d actual=%d (in=%d out=%d)",
+                model,
+                estimate,
+                final.usage.total,
+                final.usage.tokens_in,
+                final.usage.tokens_out,
+            )
+
+    def _open_stream(self, **kwargs: Any) -> Iterator[StreamEvent]:
+        inner_stream = getattr(self.inner, "stream_chat", None)
+        if inner_stream is not None:
+            yield from inner_stream(**kwargs)
+            return
+        # no stream_chat on the inner provider (the scripted test doubles): one
+        # blocking chat() call, surfaced as a single delta plus the final response
+        reply = self.inner.chat(**kwargs)
+        yield StreamDelta(text=reply.text)
+        yield reply
 
     def _reconcile(self, estimate: int, usage: Usage) -> None:
         """Settle the difference between the guess and what the provider billed."""

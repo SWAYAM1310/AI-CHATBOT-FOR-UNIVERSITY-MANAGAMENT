@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { ApiError, api } from './api'
+import type { StreamHandlers } from './api'
 import { Message } from './Message'
 import { Rail, SUGGESTIONS } from './Rail'
 import type { ChatOut, ConfirmCard, ConversationOut, Me, MessageOut, Session, Turn } from './types'
@@ -25,11 +26,22 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
   const [railOpen, setRailOpen] = useState(false)
   const [showTrace, setShowTrace] = useState<boolean>(() => readFlag(TRACE_KEY))
   const endRef = useRef<HTMLDivElement>(null)
+  const transcriptRef = useRef<HTMLElement>(null)
+  const nearBottomRef = useRef(true) // updated by onScroll; read before each auto-scroll
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: 'end' })
+    // don't yank a reader back down mid-stream if they scrolled up to reread something
+    if (nearBottomRef.current) endRef.current?.scrollIntoView({ block: 'end' })
   }, [turns])
+
+  const NEAR_BOTTOM_PX = 80
+
+  function onTranscriptScroll() {
+    const el = transcriptRef.current
+    if (!el) return
+    nearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < NEAR_BOTTOM_PX
+  }
 
   const refreshConversations = useCallback(() => {
     api
@@ -54,8 +66,10 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
     saveActiveConversation(session.subjectRef, conversationId)
   }, [session.subjectRef, conversationId])
 
-  function patch(id: string, change: Partial<Turn>) {
-    setTurns((ts) => ts.map((t) => (t.id === id ? { ...t, ...change } : t)))
+  function patch(id: string, change: Partial<Turn> | ((t: Turn) => Partial<Turn>)) {
+    setTurns((ts) =>
+      ts.map((t) => (t.id === id ? { ...t, ...(typeof change === 'function' ? change(t) : change) } : t)),
+    )
   }
 
   async function send(text: string) {
@@ -63,17 +77,46 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
     if (!message || busy) return
     setBusy(true)
     setDraft('')
+    nearBottomRef.current = true // your own question always scrolls into view
     const userId = uid()
     const answerId = uid()
     setTurns((ts) => [
       ...ts,
       { id: userId, role: 'user', text: message, citations: [], cards: [] },
-      { id: answerId, role: 'assistant', text: '', citations: [], cards: [], pending: true },
+      { id: answerId, role: 'assistant', text: '', citations: [], cards: [], pending: true, liveTools: [] },
     ])
+
+    // Deltas arrive many-per-second; batching them into one paint per frame
+    // keeps the UI smooth instead of re-rendering the transcript on every token.
+    let textBuf = ''
+    let rafId = 0
+    const flush = () => {
+      rafId = 0
+      patch(answerId, { text: textBuf, pending: false, streaming: true })
+    }
+    const queueFlush = () => {
+      if (!rafId) rafId = requestAnimationFrame(flush)
+    }
+
     try {
-      const out: ChatOut = await chatWithOneRetry(message, conversationId, (seconds) =>
-        patch(answerId, { queuedSeconds: seconds }),
+      const out: ChatOut = await chatStreamWithOneRetry(
+        message,
+        conversationId,
+        {
+          onStatus: (stage) => patch(answerId, { stage }),
+          onTool: (tool) => patch(answerId, (t) => ({ liveTools: [...(t.liveTools ?? []), tool] })),
+          onCards: (cards) => patch(answerId, (t) => ({ cards: [...t.cards, ...cards] })),
+          onDelta: (chunk) => {
+            textBuf += chunk
+            queueFlush()
+          },
+        },
+        (seconds) => patch(answerId, { queuedSeconds: seconds }),
       )
+      if (rafId) {
+        cancelAnimationFrame(rafId)
+        rafId = 0
+      }
       if (out.conversation_id !== conversationId) {
         setConversationId(out.conversation_id)
         refreshConversations() // a new conversation was opened by this turn
@@ -83,11 +126,15 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
         citations: out.citations,
         cards: out.cards,
         pending: false,
+        streaming: false,
+        stage: undefined,
+        liveTools: undefined,
         queuedSeconds: out.queued_seconds || undefined,
         trace: out.trace,
       })
     } catch (err) {
-      patch(answerId, { pending: false, error: describe(err) })
+      if (rafId) cancelAnimationFrame(rafId)
+      patch(answerId, { pending: false, streaming: false, error: describe(err) })
     } finally {
       setBusy(false)
       inputRef.current?.focus()
@@ -214,7 +261,7 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
         onClose={() => setRailOpen(false)}
       />
 
-      <main className="transcript" aria-live="polite">
+      <main className="transcript" aria-live="polite" ref={transcriptRef} onScroll={onTranscriptScroll}>
         {turns.length === 0 ? (
           <div className="empty">
             <p>Ask about your own records or about the University's regulations.</p>
@@ -302,20 +349,37 @@ function saveActiveConversation(subjectRef: string, id: number | null) {
   }
 }
 
-// A 429 with a short Retry-After is a queue, not a failure: wait it out once,
-// showing the wait, then send again. Anything longer surfaces as an error.
-async function chatWithOneRetry(
+// A busy-provider 503 with a short Retry-After is a queue, not a failure: wait
+// it out once, showing the wait, then send again. Anything longer surfaces as
+// an error. Only retried if the first attempt never got as far as a delta —
+// once the model has started answering, a retry would duplicate its start.
+async function chatStreamWithOneRetry(
   message: string,
   conversationId: number | null,
+  handlers: StreamHandlers,
   onQueued: (seconds: number) => void,
 ): Promise<ChatOut> {
+  let deltaArrived = false
+  const guarded: StreamHandlers = {
+    ...handlers,
+    onDelta: (chunk) => {
+      deltaArrived = true
+      handlers.onDelta?.(chunk)
+    },
+  }
   try {
-    return await api.chat(message, conversationId)
+    return await api.chatStream(message, conversationId, guarded)
   } catch (err) {
-    if (err instanceof ApiError && err.status === 429 && err.retryAfter && err.retryAfter <= MAX_AUTO_WAIT) {
+    if (
+      !deltaArrived &&
+      err instanceof ApiError &&
+      err.status === 503 &&
+      err.retryAfter &&
+      err.retryAfter <= MAX_AUTO_WAIT
+    ) {
       onQueued(err.retryAfter)
       await new Promise((r) => setTimeout(r, err.retryAfter! * 1000))
-      const out = await api.chat(message, conversationId)
+      const out = await api.chatStream(message, conversationId, handlers)
       return { ...out, queued_seconds: out.queued_seconds + err.retryAfter }
     }
     throw err
@@ -333,9 +397,10 @@ function describeCaller(session: Session, me: Me | null): string {
 
 function describe(err: unknown): string {
   if (err instanceof ApiError) {
-    if (err.status === 429) {
-      const wait = err.retryAfter ? ` Try again in about ${err.retryAfter} seconds.` : ' Try again shortly.'
-      return `The assistant is rate-limited right now.${wait}`
+    // the server maps both "busy, retry" and "no API key" to 503; a Retry-After
+    // header is how it tells the two apart (§ backend/app/api/chat.py)
+    if (err.status === 503 && err.retryAfter) {
+      return `The assistant is rate-limited right now. Try again in about ${err.retryAfter} seconds.`
     }
     if (err.status === 401) return 'Your session has expired. Sign in again.'
     if (err.status === 503) return 'The language model is not configured on the server (no API key).'

@@ -52,3 +52,61 @@ def _citation(n: int, p: dict[str, Any]) -> dict[str, Any]:
         "page": p.get("page"),
         "snippet": body[:SNIPPET_CHARS],
     }
+
+
+class IncrementalCitations:
+    """`resolve()`, but fed a growing string one stream chunk at a time.
+
+    Mirrors its numbering (first-appearance order, an id never offered is
+    dropped) while text is still arriving, by holding back any tail that could
+    be the start of a marker that hasn't closed yet — `[[cite:12` at the end of
+    a chunk waits for the rest rather than being shown raw or eaten early. The
+    stream's final `done` event still runs the complete text through
+    `resolve()`, which stays the source of truth; this only has to look right
+    while the answer is still typing.
+    """
+
+    def __init__(self, passages: list[dict[str, Any]]) -> None:
+        self._by_id = {str(p.get("chunk_id")): p for p in passages}
+        self._numbers: dict[str, int] = {}
+        self._citations: list[dict[str, Any]] = []
+        self._buf = ""
+
+    def feed(self, chunk: str) -> str:
+        """Text from `chunk` (plus any held-back tail) that is now safe to show."""
+        self._buf += chunk
+        cut = _safe_cut(self._buf)
+        emit, self._buf = self._buf[:cut], self._buf[cut:]
+        return _CITE.sub(self._replace, emit)
+
+    def flush(self) -> str:
+        """Whatever is still held back, resolved best-effort at stream end."""
+        emit, self._buf = self._buf, ""
+        return _CITE.sub(self._replace, emit)
+
+    def _replace(self, m: re.Match[str]) -> str:
+        key = m.group(1)
+        passage = self._by_id.get(key)
+        if passage is None:
+            return ""
+        if key not in self._numbers:
+            self._numbers[key] = len(self._numbers) + 1
+            self._citations.append(_citation(self._numbers[key], passage))
+        return f" [{self._numbers[key]}]"
+
+    @property
+    def citations(self) -> list[dict[str, Any]]:
+        return list(self._citations)
+
+
+_OPEN_CLOSE = re.compile(r"\]\]|】|\]")
+
+
+def _safe_cut(buf: str) -> int:
+    """Index up to which `buf` is safe to emit: not mid-marker."""
+    last_open = max(buf.rfind("[["), buf.rfind("【"), buf.rfind("["))
+    if last_open == -1:
+        return len(buf)
+    if _OPEN_CLOSE.search(buf[last_open:]):
+        return len(buf)  # the open bracket already has a matching close: nothing pending
+    return last_open  # hold back from the open bracket on — it may still be growing

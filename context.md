@@ -1310,3 +1310,71 @@ curriculum queries → course/unit. Results in `eval/retrieval_results.{json,md}
    the evidence section; the demo script is §11's three role walkthroughs
    (all live-verified in 5c). Consider `backend/scripts/dev_server_demo.py`
    (canned provider) as the Groq-outage fallback for the viva.
+
+## 13. Phase 5c — streaming answers, Markdown rendering fix, frontend redesign (planned 2026-09-15)
+
+Triggered by user feedback on the running UI: `**bold**` markers show up literally
+(`Prose` in `frontend/src/Message.tsx` only handles paragraphs/lists/tables/`[n]`
+citation marks, no inline Markdown), and answers arrive as one blocking POST —
+no token-by-token streaming. Alongside this, a full visual redesign to a warm
+"PDEU parchment" look (reference screenshot supplied by the user) was requested.
+Full design reasoning, token values, and file-by-file breakdown live in the
+approved plan file — **not duplicated here; read it before starting each step**:
+`C:\Users\fenil\.claude\plans\so-i-am-planning-vast-patterson.md`.
+
+Do one step at a time, run its own verification, report, and ask before
+committing — same discipline as the rest of this phase.
+
+1. **Backend streaming plumbing** (plan file "Part C — Backend"):
+   - `app/ai/providers/base.py` — add optional `stream_chat` to the `LLMProvider`
+     Protocol.
+   - `app/ai/providers/openai_compat.py` — `stream_chat` via
+     `chat.completions.create(stream=True, stream_options={"include_usage": True})`;
+     falls back to the existing non-streaming `_create` (and its Groq
+     `tool_use_failed`/JSON-salvage handling) on a `BadRequestError` before the
+     first chunk, yielding that single result as one delta.
+   - `app/ai/budget.py` — `BudgetedProvider.stream_chat`: same token/request
+     bucket + backoff (around opening the stream only) + meter/reconcile on the
+     final event; providers without `stream_chat` (the test doubles) fall back
+     to `chat()` + one delta, so `test_budget.py`/`test_providers.py` stay green.
+   - `app/ai/orchestrator.py` — refactor `run_turn` into a generator
+     `iter_turn(...)` (status/tool/cards/delta/result events); `run_turn`
+     becomes a thin wrapper that drains it, so `test_orchestrator.py` and the
+     eval harness need no changes.
+   - `app/ai/rag/citations.py` — `IncrementalCitations` for `[[cite:<id>]]`
+     markers split across stream chunks; the final `done` event still carries
+     the canonical `resolve()` output as the correction.
+   - `app/api/chat.py` — new `POST /api/chat/stream` (SSE via
+     `StreamingResponse`), auth/ownership checked before streaming starts,
+     same all-or-nothing persistence as today; `POST /api/chat` kept as-is for
+     the eval harness and any non-streaming caller.
+   - Tests: `tests/test_chat_api.py` (stream endpoint ordering, parity with
+     non-streaming `ChatOut`, nothing persisted on a mid-stream provider
+     error) + a citations-split test.
+   - Verify: `cd backend && pytest` full suite green; manual
+     `curl -N .../api/chat/stream` shows incremental events, not one burst.
+
+2. **Frontend streaming + Markdown fix** (plan file "Part C — Frontend" and
+   "Part B — Markdown rendering fix"):
+   - `frontend/src/api.ts` — `chatStream(...)` over `fetch` + `getReader()`
+     (EventSource can't POST or carry the bearer header); parses SSE frames.
+   - `frontend/src/types.ts` — `Turn` gets `streaming?`, `stage?`, `liveTools?`.
+   - `frontend/src/Chat.tsx` — `send()` switches to `chatStream`; status →
+     stage label, tool → live tool-pill list, delta → appended text (batched
+     on `requestAnimationFrame`), done → canonical text/citations/cards/trace.
+   - `frontend/src/Message.tsx` — extend `Prose`/`withMarks` into a small
+     hand-rolled inline+block Markdown renderer (bold/italic/code/links,
+     headings, ordered lists, `---`, single-newline `<br>`) built as React
+     elements (no `dangerouslySetInnerHTML`); same renderer serves stored
+     transcripts, so old messages render correctly too; streaming-safe
+     (unclosed `**`/`` ` `` renders as plain text until it closes).
+   - Verify: `cd frontend && npm run build && npm run lint`; manually ask
+     "what is my name?" (bold renders) and a regulation question (streams,
+     `[n]` markers appear inline, CITED list lands after `done`).
+
+3. **Visual redesign** (plan file "Part A" — layout, tokens, sidebar ⋯ menu,
+   crest watermark, fonts): lands last, on top of the final Part C/B markup,
+   across `frontend/index.html`, `frontend/src/index.css`, `Chat.tsx`,
+   `Rail.tsx`, `Message.tsx`, `Cards.tsx`, `Login.tsx`. No backend changes.
+   Verify per plan file's own checklist (build/lint clean, Playwright pass at
+   desktop + 400px, screenshots compared to the reference).

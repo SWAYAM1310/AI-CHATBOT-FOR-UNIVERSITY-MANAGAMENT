@@ -107,4 +107,8 @@ export interface Turn {
   // set once a confirm card has been answered, so it renders as settled
   outcome?: { text: string; ok: boolean }
   trace?: Trace  // the dev tool-trace panel reads this; hidden by default
+  // streaming-in-progress state — cleared once the `done` event lands
+  streaming?: boolean
+  stage?: string  // "routing" | "planning" | "running_tools" | "retrieving" | "writing"
+  liveTools?: ToolRunOut[]  // tool calls as they finish, before the final trace exists
 }
