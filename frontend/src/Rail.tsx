@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { ConversationOut, Role } from './types'
 
 // Four or five questions that show each role what the assistant is for.
@@ -28,26 +29,40 @@ export const SUGGESTIONS: Record<Role, string[]> = {
 }
 
 export function Rail({
-  role,
   conversations,
   activeId,
   onOpen,
   onNew,
-  onAsk,
+  onRename,
+  onDelete,
   open,
   onClose,
 }: {
-  role: Role
   conversations: ConversationOut[]
   activeId: number | null
   onOpen: (id: number) => void
   onNew: () => void
-  onAsk: (text: string) => void
+  onRename: (id: number, title: string) => void
+  onDelete: (id: number) => void
   open: boolean
   onClose: () => void
 }) {
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [draft, setDraft] = useState('')
+
+  function startRename(c: ConversationOut) {
+    setEditingId(c.id)
+    setDraft(c.title || '')
+  }
+
+  function commitRename(id: number) {
+    const title = draft.trim()
+    setEditingId(null)
+    if (title) onRename(id, title)
+  }
+
   return (
-    <aside id="rail" className={`rail ${open ? "rail-open" : ""}`} aria-label="Conversations and suggestions">
+    <aside id="rail" className={`rail ${open ? "rail-open" : ""}`} aria-label="Conversations">
       <div className="rail-head">
         <button type="button" className="primary rail-new" onClick={onNew}>
           New conversation
@@ -57,19 +72,6 @@ export function Rail({
         </button>
       </div>
 
-      <section className="rail-section">
-        <h2>Try asking</h2>
-        <ul className="suggestions">
-          {SUGGESTIONS[role].map((q) => (
-            <li key={q}>
-              <button type="button" onClick={() => onAsk(q)}>
-                {q}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       <section className="rail-section rail-history">
         <h2>Earlier</h2>
         {conversations.length === 0 ? (
@@ -77,16 +79,51 @@ export function Rail({
         ) : (
           <ul className="history">
             {conversations.map((c) => (
-              <li key={c.id}>
-                <button
-                  type="button"
-                  className={c.id === activeId ? 'active' : ''}
-                  onClick={() => onOpen(c.id)}
-                  aria-current={c.id === activeId ? 'true' : undefined}
-                >
-                  <span className="history-title">{c.title || 'Untitled'}</span>
-                  <span className="history-date">{shortDate(c.created_at)}</span>
-                </button>
+              <li key={c.id} className="history-item">
+                {editingId === c.id ? (
+                  <input
+                    className="history-rename-input"
+                    value={draft}
+                    autoFocus
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitRename(c.id)
+                      if (e.key === 'Escape') setEditingId(null)
+                    }}
+                    onBlur={() => commitRename(c.id)}
+                    aria-label="Conversation title"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    className={c.id === activeId ? 'active' : ''}
+                    onClick={() => onOpen(c.id)}
+                    aria-current={c.id === activeId ? 'true' : undefined}
+                  >
+                    <span className="history-title">{c.title || 'Untitled'}</span>
+                    <span className="history-date">{shortDate(c.created_at)}</span>
+                  </button>
+                )}
+                <span className="history-actions">
+                  <button
+                    type="button"
+                    className="linklike history-action"
+                    onClick={() => startRename(c)}
+                    aria-label="Rename conversation"
+                  >
+                    Rename
+                  </button>
+                  <button
+                    type="button"
+                    className="linklike history-action"
+                    onClick={() => {
+                      if (confirm('Delete this conversation? This cannot be undone.')) onDelete(c.id)
+                    }}
+                    aria-label="Delete conversation"
+                  >
+                    Delete
+                  </button>
+                </span>
               </li>
             ))}
           </ul>

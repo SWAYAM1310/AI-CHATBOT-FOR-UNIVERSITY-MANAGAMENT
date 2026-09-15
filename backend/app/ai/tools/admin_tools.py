@@ -164,7 +164,7 @@ def get_department_overview(*, ctx: AuthContext, db: Session, **_: Any) -> list[
 
 @tool(
     name="get_course_performance",
-    description="Per course this term: enrolled students, average attendance %, average marks % and failure rate % (students under the 40% pass mark on at least one graded component); filter by course code or department.",
+    description="Per-course performance this term (attendance %, marks %, failure rate %), one row per course; optionally narrowed to one course code or one department. Not a department headcount tool — use get_enrollment_stats for 'how many students are enrolled in <dept>'.",
     allowed_roles=ADMIN,
     scope=Scope.UNIVERSITY,
 )

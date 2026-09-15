@@ -1,10 +1,33 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated **2026-09-12, end of the
-live smoke test (5c)**. Phases 0–5a complete and committed (`89c5ecc`); the 5c
-fixes below are **uncommitted** unless a later commit says otherwise. Groq key
-set; the live path is verified for all three roles, the confirm flow and
-curriculum/calendar questions (§11). Next: **6 — report / demo prep** (5b eval harness done, see §12).
+Snapshot for picking the work back up. Last updated **2026-09-15, 5b eval
+harness completed end-to-end**. Phases 0–5a complete and committed (`89c5ecc`);
+5c + the 5b eval-fix pass below are **uncommitted** unless a later commit says
+otherwise. Groq key set; the live path is verified for all three roles, the
+confirm flow and curriculum/calendar questions (§11). 5b is now functionally
+done (§12): full 80-case run scored 77/80, the 3 misses were root-caused and
+fixed (router/tool-description prompt edits), and all 3 pass individually on
+a live re-check — **the fixed golden set has not yet been re-run end-to-end**
+(see §12 for exactly what's still open). Next: finish that confirmation run,
+then **6 — report / demo prep**.
+
+**Machine move note (2026-09-15):** this repo was moved to a new machine
+(`D:\Coding Files\University Assistant`, user `fenil`) since the last
+session. Old paths (`E:\ALL PROJECTS\...`, user `ASUS`) in this file below are
+stale — the venv was broken (pointed at the old machine's Python) and the
+Docker volume was gone. Both were rebuilt this session:
+- **Python 3.11 is not on this machine's PATH.** Installed **project-scoped**
+  via `winget install --id Python.Python.3.11 -e --scope user --location
+  "D:\Coding Files\University Assistant\.python311"` (not on PATH, not the
+  system Python — used only to build `backend/.venv`). `backend/.venv`
+  rebuilt from it (`../.python311/python.exe -m venv .venv`), deps
+  reinstalled, full suite green (393 passed).
+- **Docker volume was fresh** (new machine = new named volume) — re-ran
+  `alembic upgrade head`, `load_csv --dataset sample --reset`, and a full
+  `app.ai.rag.ingest` (18 docs, 2723 chunks, 323,352 Jina tokens — Jina has a
+  separate 10M/day cap from Groq's, nowhere close).
+- Everything below that says "run from `backend/`" still works the same way;
+  only the Python interpreter location changed.
 
 ---
 
@@ -1172,15 +1195,59 @@ in `scratchpad/dev_server.py`).
   smoke tests and the router switch all on one free-tier key). Cases 1–23
   (student own-records + policy): **20/23 passed**, every previously failing
   case in that range now passes (s04, s09, s21), all routing hits. The three
-  misses are **"no citation"** on policy questions — s10 (fee overdue +
-  late fee), s16 (condonation on medical grounds), s17 (passing mark /
-  grade) — the answers came back but carried no `[[cite:…]]`; not yet
-  investigated (no quota left). Everything from s24 on is a 429 after five
-  retries, not a result. `eval/results.json` in the repo is therefore still
-  the **first** run. **Next session: re-run `run_eval.py --out
-  eval/results.json` once the daily limit resets, then look at the three
-  no-citation cases** (check whether `_retrieve` returned passages and
-  whether the 120b answer used a marker variant `citations._CITE` misses).
+  misses were **"no citation"** on policy questions — s10, s16, s17 — not
+  investigated at the time (no quota left).
+- **Third full run (2026-09-15, on the rebuilt machine, clean key) — completed
+  80/80 cases, no 429 exhaustion**: routing 96.2% (50/52), refusal 100%
+  (14/14), citation 95.0% (19/20), path 100% (10/10), median latency 21.7s
+  (2.7s without 429 waits, p90 30.5s), mean 2312 tok/turn (max 4007), 78 turns
+  queued (1488s total). **77/80 passed.** s10/s16/s17 (the old no-citation
+  misses) now pass on their own — whatever fixed them isn't pinned down, but
+  they're stable. Three *new* misses:
+  1. **f14** "What topics are in Unit 2 of Data Structures?" — `get_course_syllabus`
+     ran and returned the right content (and a `passages` entry, chunk 404),
+     but the 120b answer carried no `[[cite:…]]` marker at all — a citable
+     passage was in the Call C payload and the model just didn't cite it.
+     Verified in the DB: `SyllabusUnit` id for DS Unit 2 has `source_chunk_id
+     404`, `_source_passages` returns it, `_merge_passages` puts it in front
+     of Call C. Not a retrieval or wiring bug — model non-compliance with the
+     citation rule on a bullet-list-shaped answer.
+  2. **a01** "How many students are enrolled in CP?" — routed to
+     `get_course_performance(course="CP")` (0 rows, answered "0 students")
+     instead of `get_enrollment_stats`/`get_department_overview`/`list_students`.
+     Root cause: CP is a department code, not a course code, and nothing in
+     the router prompt or `get_course_performance`'s description said so —
+     the model read "filter by course code or department" as license to put
+     a dept code in the `course` argument.
+  3. **a13** "When are results for the odd semester declared?" — answered
+     correctly ("18 December 2026", 3 citations to the examination-regulations
+     PDF) but **no tool ran** — it went through `search_university_policies`
+     RAG only, never `get_academic_calendar`. Router's `intent` field was
+     even mislabelled `"smalltalk"` while `needs_rag` was (correctly) true —
+     harmless since `intent` is a label only, but a sign the router doesn't
+     have a rule for "this is a calendar-shaped question."
+  **Fixes applied** (`backend/app/ai/prompts/system.py`, `backend/app/ai/tools/admin_tools.py`,
+  uncommitted): router prompt (`route_system`) gained two rules — a bare dept
+  code names a department, not a course (routes a01-shaped questions to the
+  right tool); a term-scoped date/deadline question is a calendar lookup,
+  call `get_academic_calendar` even when a policy doc also states the date
+  (routes a13-shaped questions to the right tool, and stops relying on the
+  policy PDF as the sole source of truth for dates that can change per term).
+  Synthesize prompt (`synthesize_system`) citation rule reworded with an
+  explicit example for a bullet-list answer, and a blunt "passage supplied +
+  no marker = always wrong" line (addresses f14's class of failure, though
+  it's model-compliance noise so this is a mitigation, not a guarantee).
+  `get_course_performance`'s description now explicitly says it is not a
+  headcount tool and points at `get_enrollment_stats`. Full suite still green
+  (393 passed) after the edits. **Targeted re-check, `run_eval.py --ids
+  f14,a01,a13`: all 3 now PASS** (routing 100%, citation 100%, ~19 tok
+  cheaper avg). **Not yet done: a full 80-case re-run to confirm 80/80 and
+  refresh `eval/results.json`** — a full run was started and then stopped
+  mid-run on request (token-spend caution, even though a clean run is only
+  ~180k tokens / well under the daily cap per the two clean runs so far).
+  `eval/results.json` in the repo right now is still the **pre-fix** run
+  (77/80) — treat the 3 fixes above as verified-in-isolation, not yet
+  reflected in that file.
 - **Free-tier budgeting lesson**: a full 80-case run is ~180k tokens on the
   main model at ~2.2k/turn plus retries; with the router also on 120b the
   per-day cap is reachable in one afternoon. For the report, run the eval
@@ -1213,24 +1280,32 @@ curriculum queries → course/unit. Results in `eval/retrieval_results.{json,md}
   Index size scales linearly (904 → 226 KiB policy). Brute-force latency is
   µs-level noise at this size; pgvector HNSW at 1024 is production.
 
-### Groq daily cap — state at the end of 2026-09-12
-- `openai/gpt-oss-120b` is **out of tokens-per-day** on the free-tier key
-  (org `on_demand` tier). Both the eval and the website get 429 → 503
-  "rate-limited" until the rolling 24-hour window frees up (by ~this time
-  on 2026-09-13 at the latest).
-- **Stop-gap for a demo before then**: in `backend/.env` set
-  `LLM_MODEL_MAIN=openai/gpt-oss-20b` and `LLM_MODEL_ROUTER=openai/gpt-oss-20b`
-  and restart uvicorn — the 20b model has its own daily quota. Expect weaker
-  answers and the 20b router's smalltalk misroutes (§12); revert both lines
-  afterwards (`.env.example` holds the intended values).
-- The dev servers were left running: uvicorn on :8000 (current code) and
-  Vite on :5173.
+### Groq daily cap — resolved 2026-09-15
+- The 2026-09-12 cap was a one-day thing; by 2026-09-15 (this session) the key
+  was clean and a full 80-case run completed twice (77/80, then a 3-case
+  targeted re-check) with zero 429 exhaustion. `.env`/`.env.example` are back
+  to `openai/gpt-oss-120b` for both router and main — **the 20b stop-gap is
+  not active**, no override lines in `backend/.env`. If the cap trips again,
+  the 20b stop-gap instructions from 2026-09-12 still apply (swap both model
+  env vars, restart uvicorn, expect the 20b router's smalltalk misroutes).
+- Budgeting fact confirmed twice now: one clean 80-case run ≈ 180k Groq tokens
+  and does not by itself approach the daily cap — the 09-12 cap came from
+  stacking smoke tests + a model-switch test + the eval run same day, not
+  from the eval alone.
 
 ### Remaining steps (do one at a time; report and ask before committing)
-5b-finish. Once the cap resets: `cd backend && ./.venv/Scripts/python.exe
-   ../eval/run_eval.py --out ../eval/results.json` with nothing else using
-   the key (~180k tokens; ~45 min with 429 waits). Then investigate the three
-   no-citation policy cases (s10, s16, s17) and fill the results table in §12.
+5. 5b-finish (started 2026-09-15, not closed):
+   - Run `cd backend && ./.venv/Scripts/python.exe ../eval/run_eval.py --out
+     ../eval/results.json` once more, uninterrupted, to get a fresh 80/80 (or
+     whatever it actually is) with the 3 prompt/description fixes in place —
+     the current `eval/results.json` predates those fixes. This was started
+     2026-09-15 and stopped mid-run on request; nothing else should be worth
+     burning ~180k tokens on it twice, so let it finish next time.
+   - Fill the §12 results table/summary from that file once it exists (this
+     file currently narrates the numbers inline instead).
+   - Decide whether to commit the 5c + 5b-fix changes (`system.py`,
+     `admin_tools.py`, and whatever 5c left uncommitted) — nothing this
+     session has been committed yet.
 6. Report / demo prep (plan.md §11): the eval + experiment tables above are
    the evidence section; the demo script is §11's three role walkthroughs
    (all live-verified in 5c). Consider `backend/scripts/dev_server_demo.py`

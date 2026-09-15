@@ -264,7 +264,6 @@ code {
   margin: 0 0 8px;
 }
 
-.suggestions,
 .history {
   list-style: none;
   margin: 0;
@@ -273,7 +272,6 @@ code {
   gap: 4px;
 }
 
-.suggestions button,
 .history button {
   width: 100%;
   text-align: left;
@@ -284,12 +282,6 @@ code {
   line-height: 1.35;
 }
 
-.suggestions button {
-  font-family: var(--serif);
-  color: var(--ink);
-}
-
-.suggestions button:hover,
 .history button:hover {
   background: var(--page);
 }
@@ -314,6 +306,37 @@ code {
 .history-date {
   color: var(--slate);
   font-size: 12px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.history-item button:not(.linklike) {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.history-action {
+  font-size: 12px;
+  padding: 0 2px;
+}
+
+.history-rename-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--crest);
+  border-radius: 4px;
+  background: #fff;
 }
 
 .rail-history {
@@ -359,6 +382,29 @@ code {
   font-size: 17px;
   padding-top: 12vh;
   text-align: center;
+}
+
+.empty-suggestions {
+  list-style: none;
+  margin: 22px auto 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  max-width: 480px;
+  text-align: left;
+}
+
+.empty-suggestions button {
+  width: 100%;
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.empty-suggestions button:hover {
+  background: var(--crest-soft);
+  border-color: var(--crest);
 }
 
 /* --- messages ----------------------------------------------------------- */
@@ -824,7 +870,6 @@ code {
 
 @media (pointer: coarse) {
   button,
-  .suggestions button,
   .history button {
     min-height: 44px;
   }

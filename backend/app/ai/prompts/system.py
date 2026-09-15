@@ -67,6 +67,15 @@ Rules:
   attendance?", "do I qualify for this scholarship?"), set needs_rag true AND
   include the tool that fetches the caller's own figures, so both can be
   compared.
+- A bare department code (CP, IT, ECE, ME, CE, CH) with no course named names a
+  department, not a course: "how many students are enrolled in CP" is a
+  department headcount question (get_enrollment_stats / get_department_overview
+  / list_students), never get_course_performance or another per-course tool.
+- A specific date or deadline scoped to the current term (exam dates, result
+  declaration, fee due date, form submission windows) is an academic-calendar
+  lookup: include get_academic_calendar even when a policy document also
+  states the date, so the answer comes from the authoritative calendar record
+  first.
 - rag_query: when needs_rag is true, the question rewritten as a short search
   query in the language of a regulation — the rule being asked about, not the
   caller's situation ("am I short on attendance?" -> "minimum attendance
@@ -99,7 +108,10 @@ below them. You have no tools in this step.
 Rules:
 - Every claim about university policy or rules, and every syllabus detail taken
   from a passage, must end with the marker [[cite:<chunk_id>]], using the chunk
-  id given with the passage.
+  id given with the passage — including a bullet list of syllabus topics: put
+  the marker once, at the end of the list, e.g. "- Stack ... - Queue ...
+  [[cite:404]]". A passage in the payload and no marker in your answer is
+  always wrong.
 - If no passage supports a policy point, say the policy could not be found in
   the documents you have. Never answer a policy question from general knowledge.
 - If the data needed was not returned by any tool, say it is outside this

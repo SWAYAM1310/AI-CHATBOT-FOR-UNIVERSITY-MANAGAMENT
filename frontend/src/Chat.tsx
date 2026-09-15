@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { ApiError, api } from './api'
 import { Message } from './Message'
-import { Rail } from './Rail'
+import { Rail, SUGGESTIONS } from './Rail'
 import type { ChatOut, ConfirmCard, ConversationOut, Me, MessageOut, Session, Turn } from './types'
 
 let nextId = 1
@@ -41,6 +41,18 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
   useEffect(() => {
     refreshConversations()
   }, [refreshConversations])
+
+  // Resume the last-open conversation after a reload — otherwise a refresh
+  // loses the transcript even though the session itself survives it.
+  useEffect(() => {
+    const stored = loadActiveConversation(session.subjectRef)
+    if (stored != null) void openConversation(stored)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    saveActiveConversation(session.subjectRef, conversationId)
+  }, [session.subjectRef, conversationId])
 
   function patch(id: string, change: Partial<Turn>) {
     setTurns((ts) => ts.map((t) => (t.id === id ? { ...t, ...change } : t)))
@@ -103,6 +115,13 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
       setConversationId(id)
       setTurns(messages.map(fromStored).filter((t): t is Turn => t !== null))
     } catch (err) {
+      if (err instanceof ApiError && err.status === 404) {
+        // gone (deleted elsewhere, or a stale resume-on-reload pointer): quietly start fresh
+        saveActiveConversation(session.subjectRef, null)
+        setConversationId(null)
+        setTurns([])
+        return
+      }
       setTurns([{ id: uid(), role: 'assistant', text: '', citations: [], cards: [], error: describe(err) }])
     }
   }
@@ -112,6 +131,25 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
     setConversationId(null)
     setTurns([])
     inputRef.current?.focus()
+  }
+
+  async function renameConversation(id: number, title: string) {
+    try {
+      const updated = await api.renameConversation(id, title)
+      setConversations((cs) => cs.map((c) => (c.id === id ? updated : c)))
+    } catch {
+      refreshConversations() // out of sync with the server: reload the truth
+    }
+  }
+
+  async function deleteConversation(id: number) {
+    try {
+      await api.deleteConversation(id)
+      setConversations((cs) => cs.filter((c) => c.id !== id))
+      if (id === conversationId) newConversation()
+    } catch {
+      refreshConversations()
+    }
   }
 
   function ask(text: string) {
@@ -166,12 +204,12 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
       </header>
 
       <Rail
-        role={session.role}
         conversations={conversations}
         activeId={conversationId}
         onOpen={openConversation}
         onNew={newConversation}
-        onAsk={ask}
+        onRename={renameConversation}
+        onDelete={deleteConversation}
         open={railOpen}
         onClose={() => setRailOpen(false)}
       />
@@ -179,7 +217,16 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
       <main className="transcript" aria-live="polite">
         {turns.length === 0 ? (
           <div className="empty">
-            <p>Ask about your own records or about the University's regulations — or pick a question on the left.</p>
+            <p>Ask about your own records or about the University's regulations.</p>
+            <ul className="empty-suggestions">
+              {SUGGESTIONS[session.role].map((q) => (
+                <li key={q}>
+                  <button type="button" onClick={() => ask(q)}>
+                    {q}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         ) : (
           turns.map((t) => (
@@ -231,6 +278,27 @@ function writeFlag(key: string, on: boolean) {
     localStorage.setItem(key, on ? '1' : '0')
   } catch {
     // storage unavailable: the toggle lasts for this tab only
+  }
+}
+
+const ACTIVE_CONVERSATION_PREFIX = 'uniassist.activeConversation.'
+
+function loadActiveConversation(subjectRef: string): number | null {
+  try {
+    const raw = localStorage.getItem(ACTIVE_CONVERSATION_PREFIX + subjectRef)
+    return raw ? Number(raw) : null
+  } catch {
+    return null
+  }
+}
+
+function saveActiveConversation(subjectRef: string, id: number | null) {
+  try {
+    const key = ACTIVE_CONVERSATION_PREFIX + subjectRef
+    if (id != null) localStorage.setItem(key, String(id))
+    else localStorage.removeItem(key)
+  } catch {
+    // storage unavailable: the resumed conversation lasts for this tab only
   }
 }
 

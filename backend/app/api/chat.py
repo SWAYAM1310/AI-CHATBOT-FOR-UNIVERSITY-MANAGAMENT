@@ -27,7 +27,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.ai.budget import get_budgeted_provider, queued_notifier
@@ -121,6 +121,10 @@ class ConversationOut(BaseModel):
     id: int
     title: str | None
     created_at: str
+
+
+class RenameIn(BaseModel):
+    title: str = Field(min_length=1, max_length=TITLE_CHARS)
 
 
 # --- endpoints --------------------------------------------------------------
@@ -291,6 +295,34 @@ def get_conversation(
         )
         for m in _messages(db, convo.id)
     ]
+
+
+@router.patch("/{conversation_id}", response_model=ConversationOut)
+def rename_conversation(
+    conversation_id: int,
+    body: RenameIn,
+    ctx: AuthContext = Depends(get_auth_context),
+    db: Session = Depends(get_db),
+) -> ConversationOut:
+    convo = _own_conversation(db, ctx, conversation_id)
+    title = body.title.strip()
+    if not title:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "title is empty")
+    convo.title = title[:TITLE_CHARS]
+    db.commit()
+    return ConversationOut(id=convo.id, title=convo.title, created_at=convo.created_at.isoformat())
+
+
+@router.delete("/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_conversation(
+    conversation_id: int,
+    ctx: AuthContext = Depends(get_auth_context),
+    db: Session = Depends(get_db),
+) -> None:
+    convo = _own_conversation(db, ctx, conversation_id)
+    db.execute(delete(Message).where(Message.conversation_id == convo.id))
+    db.delete(convo)
+    db.commit()
 
 
 # --- helpers ----------------------------------------------------------------

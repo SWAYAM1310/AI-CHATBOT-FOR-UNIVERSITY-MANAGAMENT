@@ -11,6 +11,7 @@ dist/
 venv/
 env/
 ENV/
+.python311/
 
 # Environment / secrets
 .env

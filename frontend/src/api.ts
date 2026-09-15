@@ -63,4 +63,13 @@ export const api = {
   messages(conversationId: number) {
     return request<MessageOut[]>(`/api/chat/${conversationId}`)
   },
+  renameConversation(conversationId: number, title: string) {
+    return request<ConversationOut>(`/api/chat/${conversationId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ title }),
+    })
+  },
+  deleteConversation(conversationId: number) {
+    return request<void>(`/api/chat/${conversationId}`, { method: 'DELETE' })
+  },
 }

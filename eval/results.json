@@ -1,13 +1,13 @@
 {
   "summary": {
-    "model_router": "openai/gpt-oss-20b",
+    "model_router": "openai/gpt-oss-120b",
     "model_main": "openai/gpt-oss-120b",
     "cases": 80,
-    "completed": 77,
-    "passed": 69,
+    "completed": 80,
+    "passed": 77,
     "routing_accuracy": {
-      "rate": 0.8269230769230769,
-      "hits": 43,
+      "rate": 0.9615384615384616,
+      "hits": 50,
       "n": 52
     },
     "refusal_accuracy": {
@@ -16,8 +16,8 @@
       "n": 14
     },
     "citation_rate": {
-      "rate": 0.85,
-      "hits": 17,
+      "rate": 0.95,
+      "hits": 19,
       "n": 20
     },
     "path_accuracy": {
@@ -26,32 +26,32 @@
       "n": 10
     },
     "latency_s": {
-      "median": 19.16994610000029,
-      "p90": 28.05640560000029,
-      "median_excluding_rate_limit_waits": 2.0575167000003596
+      "median": 21.709073449999778,
+      "p90": 30.52913450000051,
+      "median_excluding_rate_limit_waits": 2.651424699994788
     },
     "tokens_per_turn": {
-      "mean": 2215.4415584415583,
-      "max": 3825,
-      "total": 170589
+      "mean": 2311.675,
+      "max": 4007,
+      "total": 184934
     },
     "rate_limit": {
       "turns_that_waited": 78,
-      "total_wait_s": 1382.2249999999794
+      "total_wait_s": 1488.487000000295
     },
     "paths": {
-      "full": 42,
-      "fast": 10,
-      "smalltalk": 17,
-      "confirm": 8
+      "full": 46,
+      "fast": 11,
+      "confirm": 7,
+      "smalltalk": 16
     },
     "by_role": {
       "student": {
         "n": 40,
-        "passed": 36,
+        "passed": 40,
         "routing": {
-          "rate": 0.8636363636363636,
-          "hits": 19,
+          "rate": 1.0,
+          "hits": 22,
           "n": 22
         },
         "refusal": {
@@ -60,17 +60,17 @@
           "n": 8
         },
         "citation": {
-          "rate": 0.8666666666666667,
-          "hits": 13,
+          "rate": 1.0,
+          "hits": 15,
           "n": 15
         }
       },
       "faculty": {
         "n": 22,
-        "passed": 20,
+        "passed": 21,
         "routing": {
-          "rate": 0.9333333333333333,
-          "hits": 14,
+          "rate": 1.0,
+          "hits": 15,
           "n": 15
         },
         "refusal": {
@@ -86,10 +86,10 @@
       },
       "admin": {
         "n": 18,
-        "passed": 13,
+        "passed": 16,
         "routing": {
-          "rate": 0.6666666666666666,
-          "hits": 10,
+          "rate": 0.8666666666666667,
+          "hits": 13,
           "n": 15
         },
         "refusal": {
@@ -105,19 +105,11 @@
       }
     },
     "failed_ids": [
-      "s04",
-      "s09",
-      "s10",
-      "s21",
-      "f03",
       "f14",
       "a01",
-      "a02",
-      "a03",
-      "a06",
-      "a11"
+      "a13"
     ],
-    "wall_clock_s": 1705.275579214096
+    "wall_clock_s": 1792.415257692337
   },
   "outcomes": [
     {
@@ -132,23 +124,23 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "check_attendance",
+      "intent": "attendance_check",
       "tool_runs": [
         {
           "name": "get_my_attendance",
           "args": {
-            "course": ""
+            "course": null
           },
           "ok": true,
           "error": null
         }
       ],
       "citations": 1,
-      "tokens_in": 2274,
-      "tokens_out": 540,
-      "latency_s": 4.150364800000261,
+      "tokens_in": 2262,
+      "tokens_out": 380,
+      "latency_s": 5.079087199999776,
       "queued_s": 0,
-      "text": "Yes. Your attendance is below the required 75 % in one course:\n\n| Course | Name | Attendance % |\n|--------|------|--------------|\n| 24CS201T | Database Management System | 67.7 % |\n\nThe university requires at least 75 % attendance to be eligible for the end‑semester examination [1]. Since your attendance in **Database Management System** is 67.7 %, you are short of this threshold.",
+      "text": "Yes. Your attendance is below the required 75 % in one course:\n\n| Course | Name | Attendance % |\n|--------|------|--------------|\n| 24CS201T | Database Management System | 67.7 % |\n\nThe university requires at least 75 % attendance to be eligible for the end‑semester exam [1]. All your other courses meet or exceed this threshold.",
       "routing": true,
       "refusal": null,
       "citation": true,
@@ -166,7 +158,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "attendance",
+      "intent": "retrieve_attendance",
       "tool_runs": [
         {
           "name": "get_my_attendance",
@@ -178,11 +170,11 @@
         }
       ],
       "citations": 1,
-      "tokens_in": 2043,
-      "tokens_out": 257,
-      "latency_s": 2.7879680999999437,
+      "tokens_in": 2076,
+      "tokens_out": 261,
+      "latency_s": 2.5261387000009563,
       "queued_s": 0,
-      "text": "Your attendance record for DBMS is empty – no attendance data is available for you in this course. (no rows)  \n\nFor reference, the university requires a minimum attendance of 75 percent to be eligible for the end‑semester exam in any course [1].",
+      "text": "Your attendance record for DBMS is currently empty – there is no attendance data on file for you (no rows). According to the Academic Regulations, a student must have at least 75 percent attendance to be eligible for the end‑semester exam [1].",
       "routing": true,
       "refusal": null,
       "citation": true,
@@ -200,23 +192,23 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "get_my_marks",
+      "intent": "retrieve_marks",
       "tool_runs": [
         {
           "name": "get_my_marks",
           "args": {
-            "assessment_type": "internal tests"
+            "assessment_type": "internal test"
           },
           "ok": true,
           "error": null
         }
       ],
       "citations": 0,
-      "tokens_in": 2243,
-      "tokens_out": 258,
-      "latency_s": 8.700623199999882,
-      "queued_s": 6.405999999999949,
-      "text": "Your internal‑test marks are not currently recorded in the system – the query returned no rows.",
+      "tokens_in": 2276,
+      "tokens_out": 218,
+      "latency_s": 9.106859600000462,
+      "queued_s": 6.973000000002575,
+      "text": "Your internal‑test marks are not currently recorded in the system – the query returned **(no rows)**.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -231,26 +223,32 @@
       "tags": [
         "results"
       ],
-      "ok": false,
-      "error": "ProviderError: Error code: 400 - {'error': {'message': 'Tool call validation failed: tool call validation failed: parameters for tool get_my_results did not match schema: errors: [`/semester`: expected integer, but got null]', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_gener",
-      "path": null,
-      "intent": null,
-      "tool_runs": [],
+      "ok": true,
+      "error": null,
+      "path": "full",
+      "intent": "retrieve_results",
+      "tool_runs": [
+        {
+          "name": "get_my_results",
+          "args": {
+            "semester": null
+          },
+          "ok": true,
+          "error": null
+        }
+      ],
       "citations": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "latency_s": 12.369955300000129,
-      "queued_s": 10.955000000000378,
-      "text": "",
-      "routing": false,
+      "tokens_in": 2242,
+      "tokens_out": 488,
+      "latency_s": 24.385883100001593,
+      "queued_s": 21.145000000003563,
+      "text": "**Last semester (2025‑26‑EVEN, Semester 2) results**\n\n| Term          | Semester | Credits Registered | Credits Earned | SGPA | CGPA | Result | Backlogs |\n|---------------|----------|--------------------|----------------|------|------|--------|----------|\n| 2025‑26‑EVEN  | 2        | 22                 | 22             | 9.68 | 9.68 | Pass   | 0 |",
+      "routing": true,
       "refusal": null,
       "citation": null,
       "path_ok": null,
-      "notes": [
-        "turn failed: ProviderError: Error code: 400 - {'error': {'message': 'Tool call validation failed: tool call validation failed: parameters for tool get_my_results did not match schema: errors: [`/semester`: expected integer, but got null]', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_gener",
-        "expected ['get_my_results'], ran ok nothing"
-      ],
-      "passed": false
+      "notes": [],
+      "passed": true
     },
     {
       "id": "s05",
@@ -262,7 +260,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "get_my_timetable",
+      "intent": "informational",
       "tool_runs": [
         {
           "name": "get_my_timetable",
@@ -274,11 +272,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1715,
-      "tokens_out": 424,
-      "latency_s": 19.82162019999987,
-      "queued_s": 17.71099999999982,
-      "text": "Here are your Monday classes:\n\n| Time          | Course | Name                              | Session Type | Room |\n|---------------|--------|-----------------------------------|--------------|------|\n| 09:00 – 10:00 | 24MA202T | Discrete Mathematics              | Theory       | CP‑101 |\n| 11:15 – 12:15 | 24CS202T | Digital Logic and Design          | Theory       | CP‑101 |\n| 12:15 – 13:15 | 24CS204T | Object Oriented Programming       | Theory       | CP‑101 |",
+      "tokens_in": 1753,
+      "tokens_out": 640,
+      "latency_s": 20.58873719999974,
+      "queued_s": 17.309000000005252,
+      "text": "**Monday (day 0) timetable**\n\n| Time          | Course (code)            | Session type | Room |\n|---------------|--------------------------|--------------|------|\n| 09:00 – 10:00 | Discrete Mathematics (24MA202T) | Theory | CP‑101 |\n| 11:15 – 12:15 | Digital Logic and Design (24CS202T) | Theory | CP‑101 |\n| 12:15 – 13:15 | Object‑Oriented Programming (24CS204T) | Theory | CP‑101 |",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -296,7 +294,7 @@
       "ok": true,
       "error": null,
       "path": "fast",
-      "intent": "get_my_courses",
+      "intent": "info",
       "tool_runs": [
         {
           "name": "get_my_courses",
@@ -306,11 +304,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1553,
-      "tokens_out": 678,
-      "latency_s": 17.675597399999788,
-      "queued_s": 15.417000000000025,
-      "text": "Here are the courses you are enrolled in for the current term (2026‑27‑ODD):\n\n| Course | Name | Faculty | Session Type | Division | Credits |\n|--------|------|---------|--------------|----------|---------|\n| 24CS201P | Database Management System Laboratory | Dr. Milan Vyas | Lab | – | 1 |\n| 24CS201T | Database Management System | Dr. Jay Jadeja | Theory | 1 | 3 |\n| 24CS202T | Digital Logic and Design | Dr. Jay Jadeja | Theory | 1 | 4 |\n| 24CS203P | Data Structures Laboratory | Dr. Jash Kacha | Lab | – | 1 |\n| 24CS203T | Data Structures | Dr. Jash Kacha | Theory | 1 | 3 |\n| 24CS204P | Object Oriented Programming Laboratory | Dr. Milan Vyas | Lab | – | 1 |\n| 24CS204T | Object Oriented Programming | Dr. Jash Kacha | Theory | 1 | 3 |\n| 24INT151 | Civic and Social Service Internship | Dr. Ankit Gohil | Project | All | 1 |\n| 24MA202T | Discrete Mathematics | Dr. Devarsh Rana | Theory | 1 | 4 |",
+      "tokens_in": 1577,
+      "tokens_out": 576,
+      "latency_s": 20.80579779999971,
+      "queued_s": 18.186000000001442,
+      "text": "Here are the courses you are enrolled in for the current term 2026‑27‑ODD:\n\n| Course Code | Course Name | Faculty | Session Type | Division | Credits |\n|-------------|-------------|---------|--------------|----------|---------|\n| 24CS201P | Database Management System Laboratory | Dr. Milan Vyas | Lab | – | 1 |\n| 24CS201T | Database Management System | Dr. Jay Jadeja | Theory | 1 | 3 |\n| 24CS202T | Digital Logic and Design | Dr. Jay Jadeja | Theory | 1 | 4 |\n| 24CS203P | Data Structures Laboratory | Dr. Jash Kacha | Lab | – | 1 |\n| 24CS203T | Data Structures | Dr. Jash Kacha | Theory | 1 | 3 |\n| 24CS204P | Object Oriented Programming Laboratory | Dr. Milan Vyas | Lab | – | 1 |\n| 24CS204T | Object Oriented Programming | Dr. Jash Kacha | Theory | 1 | 3 |\n| 24INT151 | Civic and Social Service Internship | Dr. Ankit Gohil | Project | All | 1 |\n| 24MA202T | Discrete Mathematics | Dr. Devarsh Rana | Theory | 1 | 4 |",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -339,11 +337,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1899,
-      "tokens_out": 426,
-      "latency_s": 21.276296399999865,
-      "queued_s": 19.464000000000052,
-      "text": "**Your End‑Semester exam schedule (2026‑27‑ODD)**  \n\n| Course | Exam Date | Start – End | Room |\n|--------|-----------|-------------|------|\n| Object Oriented Programming (24CS204T) | 2026‑11‑17 | 10:00 – 12:00 | EXAM‑H3 |\n| Data Structures (24CS203T) | 2026‑11‑20 | 10:00 – 12:00 | EXAM‑H2 |\n| Database Management System (24CS201T) | 2026‑11‑21 | 10:00 – 12:00 | EXAM‑H1 |\n| Digital Logic and Design (24CS202T) | 2026‑11‑21 | 10:00 – 12:00 | EXAM‑H3 |\n| Discrete Mathematics (24MA202T) | 2026‑11‑27 | 10:00 – 12:00 | EXAM‑H1 |",
+      "tokens_in": 1923,
+      "tokens_out": 453,
+      "latency_s": 21.669114600001194,
+      "queued_s": 19.62700000000659,
+      "text": "**End‑Semester Exam Schedule**\n\n| Course | Name                         | Date       | Start | End   | Room   |\n|--------|------------------------------|------------|-------|-------|--------|\n| 24CS204T | Object Oriented Programming | 2026‑11‑17 | 10:00 | 12:00 | EXAM‑H3 |\n| 24CS203T | Data Structures              | 2026‑11‑20 | 10:00 | 12:00 | EXAM‑H2 |\n| 24CS201T | Database Management System   | 2026‑11‑21 | 10:00 | 12:00 | EXAM‑H1 |\n| 24CS202T | Digital Logic and Design     | 2026‑11‑21 | 10:00 | 12:00 | EXAM‑H3 |\n| 24MA202T | Discrete Mathematics         | 2026‑11‑27 | 10:00 | 12:00 | EXAM‑H1 |",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -361,7 +359,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "get_my_assignments",
+      "intent": "fetch_assignments",
       "tool_runs": [
         {
           "name": "get_my_assignments",
@@ -373,11 +371,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1588,
-      "tokens_out": 338,
-      "latency_s": 21.15466349999997,
-      "queued_s": 19.231000000000204,
-      "text": "You have no pending assignments at this time. (no rows)",
+      "tokens_in": 1626,
+      "tokens_out": 264,
+      "latency_s": 21.98288450000109,
+      "queued_s": 20.066000000002678,
+      "text": "You have no pending assignments at this time.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -394,23 +392,28 @@
       ],
       "ok": true,
       "error": null,
-      "path": "smalltalk",
-      "intent": "smalltalk",
-      "tool_runs": [],
-      "citations": 0,
-      "tokens_in": 1284,
-      "tokens_out": 115,
-      "latency_s": 12.104548299999806,
-      "queued_s": 11.178000000000102,
-      "text": "I’m unable to retrieve that information; it is outside your access level.",
-      "routing": false,
+      "path": "fast",
+      "intent": "check_fees",
+      "tool_runs": [
+        {
+          "name": "get_my_fees",
+          "args": {},
+          "ok": true,
+          "error": null
+        }
+      ],
+      "citations": 1,
+      "tokens_in": 2241,
+      "tokens_out": 244,
+      "latency_s": 23.359449400000813,
+      "queued_s": 20.662000000005282,
+      "text": "Yes. For the current term 2026‑27‑ODD your fee account shows **status = paid** (₹214,500 due, ₹214,500 paid) [1].",
+      "routing": true,
       "refusal": null,
       "citation": null,
       "path_ok": null,
-      "notes": [
-        "expected ['get_my_fees'], ran ok nothing"
-      ],
-      "passed": false
+      "notes": [],
+      "passed": true
     },
     {
       "id": "s10",
@@ -422,24 +425,28 @@
       ],
       "ok": true,
       "error": null,
-      "path": "smalltalk",
-      "intent": "smalltalk",
-      "tool_runs": [],
-      "citations": 0,
-      "tokens_in": 1290,
-      "tokens_out": 148,
-      "latency_s": 12.495182199999817,
-      "queued_s": 11.428999999999668,
-      "text": "I’m unable to view your fee status or any applicable late‑fee details. This information is outside your current access level.",
-      "routing": false,
-      "refusal": null,
-      "citation": false,
-      "path_ok": null,
-      "notes": [
-        "expected ['get_my_fees'], ran ok nothing",
-        "no citation"
+      "path": "full",
+      "intent": "fee_inquiry",
+      "tool_runs": [
+        {
+          "name": "get_my_fees",
+          "args": {},
+          "ok": true,
+          "error": null
+        }
       ],
-      "passed": false
+      "citations": 2,
+      "tokens_in": 2545,
+      "tokens_out": 552,
+      "latency_s": 27.877390800000285,
+      "queued_s": 23.62900000000096,
+      "text": "Your fee for the Odd Semester 2026‑27 is **not overdue** yet. It is still shown as **unpaid**, and an account becomes “overdue” only after it has been unpaid for more than thirty days past the due date (i.e., from 13 October 2026) [1].\n\nA late‑payment charge applies from the day after the due date. The policy states that a fee not paid in full by the due date attracts a **late fee of ₹500 for every week, or part of a week,** that payment is delayed [2].  \n\n- Due date: 12 September 2026  \n- Today: 15 September 2026 (3 days late, which counts as a part of a week)  \n\nTherefore, the current late fee is **₹500**.",
+      "routing": true,
+      "refusal": null,
+      "citation": true,
+      "path_ok": null,
+      "notes": [],
+      "passed": true
     },
     {
       "id": "s11",
@@ -451,7 +458,7 @@
       "ok": true,
       "error": null,
       "path": "fast",
-      "intent": "get_my_scholarships",
+      "intent": "scholarship_status",
       "tool_runs": [
         {
           "name": "get_my_scholarships",
@@ -461,11 +468,11 @@
         }
       ],
       "citations": 1,
-      "tokens_in": 1866,
-      "tokens_out": 388,
-      "latency_s": 20.28875599999992,
-      "queued_s": 18.019999999999744,
-      "text": "Your Mukhyamantri Yuva Swavalamban Yojana (MYSY) scholarship application is currently **pending** [[no citation needed for the table result]].  \n\nAccording to the Scholarship and Financial Aid Policy, applications are decided by the Scholarship Committee within four weeks of the close of the application window [1].",
+      "tokens_in": 1885,
+      "tokens_out": 491,
+      "latency_s": 24.176800200000798,
+      "queued_s": 21.00000000000182,
+      "text": "Your Mukhyamantri Yuva Swavalamban Yojana (MYSY) scholarship application is **pending**.  \n\nAccording to the Scholarship and Financial Aid Policy, the Scholarship Committee decides applications within four weeks after the application window closes [1]. Since the window for the Odd Semester closed on 31 July 2026, a decision on your pending application should be expected within the next few weeks.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -483,7 +490,7 @@
       "ok": true,
       "error": null,
       "path": "fast",
-      "intent": "get_my_leave_requests",
+      "intent": "view_leave_status",
       "tool_runs": [
         {
           "name": "get_my_leave_requests",
@@ -493,11 +500,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1745,
-      "tokens_out": 170,
-      "latency_s": 19.16994610000029,
-      "queued_s": 16.556999999999896,
-      "text": "You have no leave requests on file; the system shows (no rows) for your leave request list.",
+      "tokens_in": 1764,
+      "tokens_out": 272,
+      "latency_s": 20.6962065000007,
+      "queued_s": 18.117000000002882,
+      "text": "You currently have no leave requests on file – the system returned an empty result.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -515,7 +522,7 @@
       "ok": true,
       "error": null,
       "path": "fast",
-      "intent": "get_my_announcements",
+      "intent": "fetch_announcements",
       "tool_runs": [
         {
           "name": "get_my_announcements",
@@ -525,11 +532,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1909,
-      "tokens_out": 631,
-      "latency_s": 18.61744180000005,
-      "queued_s": 15.583999999999925,
-      "text": "Here are the current announcements that apply to you:\n\n| Date posted | Title | Summary |\n|---|---|---|\n| 2026‑08‑24 | Library working hours extended | Central Library open until 23:00 on weekdays and 20:00 on weekends (effective 1 Aug 2026). |\n| 2026‑08‑19 | Internal Test 1 timetable published | Schedule for all B.Tech programmes is now on department notice boards and the portal (tests 20‑25 Aug 2026). |\n| 2026‑08‑16 | Project allocation for final year | Final‑year Computer Science students must submit project groups & preferred domains by 31 Aug 2026; guide allocation announced next week. |\n| 2026‑08‑15 | Data Structures: Assignment 2 deadline reminder | Assignment 2 due 24 Aug 2026; submit via portal only. |\n| 2026‑08‑14 | TReDS / campus placement drive registration | Eighth‑semester students can register for the 2026‑27 placement season by 5 Sep 2026. |\n| 2026‑08‑12 | Odd Semester 2026‑27 fee payment window open | Tuition & other fees due by 12 Sep 2026; late fee Rs 500 per week thereafter. |\n| 2026‑08‑07 | Convocation 2026 – graduating batch | Convocation scheduled for 20 Dec 2026; registration details to follow. |\n| 2026‑08‑06 | Anti‑ragging committee helpline | Toll‑free helpline and online complaint form active 24/7; complaints handled confidentially. |\n| 2026‑07‑27 | Diwali vacation 7‑15 Nov 2026 | Institute closed for Diwali vacation; classes resume 16 Nov 2026. |\n| 2026‑07‑23 | Guest lecture: industry perspectives | Computer Science department guest lecture on emerging industry trends, 20 Sep 2026, 15:00, seminar hall (recommended for 5th & 7th semester students). |",
+      "tokens_in": 1933,
+      "tokens_out": 847,
+      "latency_s": 21.722742600000856,
+      "queued_s": 18.435000000001818,
+      "text": "Here are the latest announcements that apply to you:\n\n| Date (posted) | Title | Summary |\n|---|---|---|\n| 2026‑08‑24 | Library working hours extended | Central Library now open until 23:00 on weekdays and 20:00 on weekends (effective 1 Aug). |\n| 2026‑08‑19 | Internal Test 1 timetable published | Schedule for all B.Tech programmes is posted on department notice boards and the portal; tests run 20‑25 Aug. |\n| 2026‑08‑16 | Project allocation for final year | Final‑year Computer Science students must submit project groups & preferred domains by 31 Aug; guide allocation announced next week. |\n| 2026‑08‑15 | Data Structures: Assignment 2 deadline reminder | Assignment 2 due 24 Aug; submit via portal only. |\n| 2026‑08‑14 | TReDS / campus placement drive registration | Eighth‑semester students can register for the 2026‑27 placement season by 5 Sep on the Training & Placement portal. |\n| 2026‑08‑12 | Odd Semester 2026‑27 fee payment window open | Tuition & other fees must be paid by 12 Sep; late fee of Rs. 500 per week thereafter. |\n| 2026‑08‑07 | Convocation 2026 – graduating batch | Convocation scheduled for 20 Dec 2026 at the institute auditorium; registration details to follow. |\n| 2026‑08‑06 | Anti‑ragging committee helpline | Toll‑free helpline and online complaint form are active 24 × 7; complaints handled confidentially. |\n| 2026‑07‑27 | Diwali vacation 7‑15 Nov 2026 | Institute closed for Diwali vacation; classes resume 16 Nov. |\n| 2026‑07‑23 | Guest lecture: industry perspectives | Computer Science department guest lecture on emerging industry trends on 20 Sep 2026, 15:00, seminar hall (recommended for 5th & 7th semester students). |\n\nThese are the current announcements visible to you.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -547,7 +554,7 @@
       "ok": true,
       "error": null,
       "path": "fast",
-      "intent": "smalltalk",
+      "intent": "profile_query",
       "tool_runs": [
         {
           "name": "get_my_profile",
@@ -557,11 +564,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1358,
-      "tokens_out": 253,
-      "latency_s": 16.821985999999924,
-      "queued_s": 15.452999999999724,
-      "text": "You are Isha Kanani, a student (roll no 25BCP017) in the Computer Programming department (CP), currently in semester 3, division 1, with a CGPA of 9.68.",
+      "tokens_in": 1382,
+      "tokens_out": 296,
+      "latency_s": 19.772893499999554,
+      "queued_s": 17.91500000000422,
+      "text": "You are a student named **Isha Kanani** (roll no 25BCP017).  \n- Department: Computer Programming (CP)  \n- Semester: 3 (division 1)  \n- Current CGPA: 9.68.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -580,14 +587,23 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy",
-      "tool_runs": [],
+      "intent": "policy_query",
+      "tool_runs": [
+        {
+          "name": "search_university_policies",
+          "args": {
+            "query": "minimum attendance required to sit the end-semester exam"
+          },
+          "ok": true,
+          "error": null
+        }
+      ],
       "citations": 1,
-      "tokens_in": 1805,
-      "tokens_out": 179,
-      "latency_s": 19.59088279999969,
-      "queued_s": 18.1469999999999,
-      "text": "The minimum attendance required to be eligible to sit the end‑semester examination is **75 %** of the total sessions for the course [1].",
+      "tokens_in": 2228,
+      "tokens_out": 226,
+      "latency_s": 25.613494200000787,
+      "queued_s": 20.39900000000518,
+      "text": "The minimum attendance required to be eligible to sit the end‑semester examination is **75 percent** of the course sessions [1].",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -606,7 +622,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy",
+      "intent": "policy_query",
       "tool_runs": [
         {
           "name": "search_university_policies",
@@ -618,11 +634,11 @@
         }
       ],
       "citations": 2,
-      "tokens_in": 2310,
-      "tokens_out": 343,
-      "latency_s": 23.69040610000002,
-      "queued_s": 20.931999999999896,
-      "text": "Yes. Attendance shortfall can be condoned on medical grounds, but only if the student’s overall attendance in the course is at least 65 percent (the “condonation floor”) [1]. Medical grounds are one of the specific reasons listed for condonation – the illness or injury must require hospitalisation or at least three consecutive days of rest, be certified by a registered medical practitioner, and the certificate must state the period of incapacity and be issued during the illness or within seven days of its end [2].",
+      "tokens_in": 2451,
+      "tokens_out": 376,
+      "latency_s": 26.65056849999928,
+      "queued_s": 23.14100000001104,
+      "text": "Yes. Attendance shortfalls can be condoned on medical grounds, but only if the student’s attendance in the course is at least 65 percent and the medical reason is documented as required (hospitalisation or ≥ 3 consecutive days of rest certified by a registered medical practitioner, with the certificate issued during the illness or within 7 days of its end) [1] [2].",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -641,23 +657,14 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy_query",
-      "tool_runs": [
-        {
-          "name": "search_university_policies",
-          "args": {
-            "query": "passing mark course grade decided"
-          },
-          "ok": true,
-          "error": null
-        }
-      ],
+      "intent": "smalltalk",
+      "tool_runs": [],
       "citations": 4,
-      "tokens_in": 2199,
-      "tokens_out": 556,
-      "latency_s": 23.13169119999975,
-      "queued_s": 19.224999999999746,
-      "text": "**Passing mark**\n\n- A student must obtain at least **40 % of the maximum marks** for each assessment component and at least **40 % of the overall course total** after weightage to pass the course [1].\n- If the end‑semester examination (ESE) score is below 40 % the student fails the course even if the Continuous Internal Assessment (CIA) marks are higher, and likewise a CIA aggregate below 40 % causes failure regardless of the ESE result [2].\n\n**How the grade is decided**\n\nThe final course percentage is converted to a letter grade and a grade‑point on a ten‑point scale as follows:\n\n| Course total (%) | Grade | Grade point |\n|------------------|-------|-------------|\n| 90 – 100         | O     | 10 |\n| 80 – 89          | A+    | 9 |\n| 70 – 79          | A     | 8 |\n| 60 – 69          | B+    | 7 |\n| 50 – 59          | B     | 6 |\n| 45 – 49          | C     | 5 |\n| 40 – 44          | P     | 4 |\n| Below 40 (or absent/detained) | F | 0 |\n\nOnly courses with a passing grade (≥ 40 %) earn credits; a semester is recorded as **Pass** only if every course in that semester is passed [3] [4].",
+      "tokens_in": 1807,
+      "tokens_out": 476,
+      "latency_s": 19.463221599999088,
+      "queued_s": 16.20300000000192,
+      "text": "**Passing mark**  \n- A course is passed when the student obtains at least **40 % of the total course marks after weightage** [1].  \n- If the student scores below 40 % in the end‑semester examination, the course is failed regardless of CIA marks, and likewise a score below 40 % in the aggregate CIA causes a fail irrespective of the ESE mark [2].\n\n**How the grade is decided**  \nMarks for the course (percentage) are converted to a letter grade and a grade‑point on a ten‑point scale as follows:\n\n| Course total (%) | Grade | Grade point |\n|------------------|-------|-------------|\n| 90 – 100         | O     | 10 |\n| 80 – 89          | A+    | 9 |\n| 70 – 79          | A     | 8 |\n| 60 – 69          | B+    | 7 |\n| 50 – 59          | B     | 6 |\n| 45 – 49          | C     | 5 |\n| 40 – 44          | P     | 4 |\n| Below 40 (or absent/detained) | F | 0 |\n\nOnly courses with a passing grade (≥ 40 %) earn credits [3] [4].",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -676,23 +683,14 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy",
-      "tool_runs": [
-        {
-          "name": "search_university_policies",
-          "args": {
-            "query": "late fee after due date fee payment"
-          },
-          "ok": true,
-          "error": null
-        }
-      ],
-      "citations": 1,
-      "tokens_in": 2345,
-      "tokens_out": 271,
-      "latency_s": 26.09109269999999,
-      "queued_s": 23.418000000000102,
-      "text": "The late fee is **₹500 for each week (or any part of a week) that payment is delayed**, starting the day after the due date until the fee is paid [1].",
+      "intent": "query_fee_late",
+      "tool_runs": [],
+      "citations": 2,
+      "tokens_in": 2113,
+      "tokens_out": 249,
+      "latency_s": 25.511619199998677,
+      "queued_s": 22.0750000000024,
+      "text": "The late‑fee charge is **₹500 for each week (or any part of a week) that payment is delayed**, starting the day after the due date until the fee is paid. [1] [2]",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -711,23 +709,23 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy",
+      "intent": "information",
       "tool_runs": [
         {
           "name": "search_university_policies",
           "args": {
-            "query": "university scholarships offered amount"
+            "query": "scholarships offered by the university and amounts"
           },
           "ok": true,
           "error": null
         }
       ],
       "citations": 1,
-      "tokens_in": 2333,
-      "tokens_out": 1038,
-      "latency_s": 27.899024400000144,
-      "queued_s": 23.398000000000103,
-      "text": "**University‑offered scholarships (undergraduate, Academic Year 2026‑27)**  \n\n| Scholarship (type) | Funding source | Amount (per semester\\*) | Main eligibility criteria |\n|--------------------|----------------|------------------------|----------------------------|\n| Merit‑cum‑Means Scholarship | University | ₹40,000 | CGPA ≥ 7.50 and family income ≤ ₹6,00,000 / yr |\n| PDEU Merit Scholarship | University | ₹30,000 | CGPA ≥ 8.50 in the preceding semester, no backlog |\n| EWS Tuition Assistance | University | ₹25,000 | Economically Weaker Section certificate; family income ≤ ₹8,00,000 / yr |\n| Sports Excellence Scholarship | University | ₹20,000 | Represented the university at inter‑university, state or national level in the preceding year |\n| Girl Child Education Grant | University | ₹15,000 | Female student; first in family to enter higher education or family income ≤ ₹4,00,000 / yr |\n\n**External (government) schemes that the university verifies**  \n\n| Scheme | Funding source | Amount (per semester\\*) | Main eligibility criteria |\n|--------|----------------|------------------------|----------------------------|\n| MYSY (Mukhyamantri Yuva Swavalamban Yojana) | Government of Gujarat | ₹50,000 | Gujarat domicile, ≥ 80th percentile in qualifying exam, family income ≤ ₹6,00,000 / yr |\n| SC/ST Post‑Matric Scholarship | Government (central/state) | ₹35,000 | SC/ST certificate; income limit as defined by the scheme |\n\n\\*Amounts are stated per semester unless otherwise noted in the policy.  \n\nSource: Scholarship and Financial Aid Policy (SF/2026) – §2.1 Schemes [1].",
+      "tokens_in": 2334,
+      "tokens_out": 906,
+      "latency_s": 29.61357879999923,
+      "queued_s": 21.530000000004804,
+      "text": "**Scholarships (schemes) available to undergraduate students in AY 2026‑27 and their amounts**  \n\n| Scholarship (Scheme) | Type (University / External) | Amount* |\n|----------------------|------------------------------|---------|\n| Merit‑cum‑Means Scholarship | University | ₹40,000 per semester [1] |\n| MYSY (Mukhyamantri) Scholarship | External (Government of Gujarat) | up to ₹6,00,000 per year [1] |\n| Yuva Swavalamban Scholarship | External (Government of Gujarat) | up to ₹6,00,000 per year [1] |\n| PDEU Merit Scholarship | University | ₹30,000 per semester [1] |\n| SC/ST Post‑Matric Scholarship | External (Government) | ₹35,000 per semester [1] |\n| EWS Tuition Assistance | University | ₹25,000 per semester [1] |\n| Sports Excellence Scholarship | University | ₹20,000 per semester [1] |\n| Girl Child Education Grant | University | ₹15,000 per semester [1] |\n\n\\*Amounts are stated per semester unless the description explicitly says “per year.”",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -746,23 +744,23 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy",
+      "intent": "leave_policy",
       "tool_runs": [
         {
           "name": "search_university_policies",
           "args": {
-            "query": "maximum days of leave can be applied for at once"
+            "query": "maximum number of days of leave can be applied for at once"
           },
           "ok": true,
           "error": null
         }
       ],
       "citations": 1,
-      "tokens_in": 2258,
-      "tokens_out": 263,
-      "latency_s": 28.05640560000029,
-      "queued_s": 25.39499999999937,
-      "text": "A single leave application can cover **no more than ten (10) consecutive calendar days** (including the first and last dates). Any longer absence must be split into separate applications. [1]",
+      "tokens_in": 2388,
+      "tokens_out": 283,
+      "latency_s": 28.681223800000225,
+      "queued_s": 24.204000000008605,
+      "text": "A single leave application can cover at most ten (10) consecutive calendar days, counting the first and last dates. [1]",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -773,39 +771,28 @@
     {
       "id": "s21",
       "role": "student",
-      "question": "How do I get a bonafide certificate?",
+      "question": "What is a bonafide certificate used for, and how long does it take to issue?",
       "tags": [
         "policy",
         "services"
       ],
       "ok": true,
       "error": null,
-      "path": "confirm",
-      "intent": "request_document",
-      "tool_runs": [
-        {
-          "name": "request_document",
-          "args": {
-            "doc_type": "bonafide certificate"
-          },
-          "ok": true,
-          "error": null
-        }
-      ],
-      "citations": 0,
-      "tokens_in": 1276,
-      "tokens_out": 115,
-      "latency_s": 11.74382390000028,
-      "queued_s": 10.155000000000127,
-      "text": "",
+      "path": "full",
+      "intent": "smalltalk",
+      "tool_runs": [],
+      "citations": 2,
+      "tokens_in": 1814,
+      "tokens_out": 422,
+      "latency_s": 18.551225999999588,
+      "queued_s": 15.414000000002197,
+      "text": "A Bonafide Certificate **certifies that you are enrolled in your programme, department, batch and semester** and is used for passport and visa applications, opening bank accounts, education‑loan and scholarship applications, and obtaining concession passes [1].\n\nThe standard processing time is **two working days** after the request is received [1]. Processing days are counted from the day after the request and exclude university‑closed days, and during the two weeks after results are declared or the first two weeks of a semester the request may take up to twice as long [2].",
       "routing": null,
       "refusal": null,
-      "citation": false,
+      "citation": true,
       "path_ok": null,
-      "notes": [
-        "no citation"
-      ],
-      "passed": false
+      "notes": [],
+      "passed": true
     },
     {
       "id": "s22",
@@ -818,23 +805,14 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy",
-      "tool_runs": [
-        {
-          "name": "search_university_policies",
-          "args": {
-            "query": "anti-ragging policy"
-          },
-          "ok": true,
-          "error": null
-        }
-      ],
+      "intent": "smalltalk",
+      "tool_runs": [],
       "citations": 5,
-      "tokens_in": 2512,
-      "tokens_out": 897,
-      "latency_s": 26.61908820000008,
-      "queued_s": 22.607000000000156,
-      "text": "**Anti‑Ragging Policy (Odd Semester 2026‑27)**  \n\n- **Prohibition** – Ragging in any form, on‑ or off‑campus, in hostels, transport or online, is absolutely prohibited and is a punishable offence under the University Code of Conduct and the UGC Regulations on Curbing the Menace of Ragging 2009. [1] [2]  \n\n- **Undertaking** – Every student (and parent) must upload an anti‑ragging undertaking on the student portal by 30 June 2026; first‑year students receive a briefing during orientation (2‑13 June 2026). [2]  \n\n- **Anti‑Ragging Squad** – A squad of faculty and wardens makes unannounced surprise visits to hostels, canteens and other common areas throughout the semester (especially the first six weeks, 16 June‑31 July 2026) to monitor and investigate any incident. [2] [3]  \n\n- **Reporting Channels** – A student who is ragged or witnesses ragging may report it **anytime** via:  \n  1. University anti‑ragging helpline (toll‑free, printed on ID cards) [4]  \n  2. Online anonymous complaint form on the student portal [4]  \n  3. National helpline 1800‑180‑5522 or helpline@antiragging.in [4]  \n  4. Directly to any Anti‑Ragging Squad member, warden, Dean of Student Affairs or faculty, who must forward the report to the Committee the same day. [4]  \n\n- **Anti‑Ragging Committee** – Chaired by the Vice‑Chancellor’s nominee and comprising faculty, non‑teaching staff, parents, students, and a police/civil‑administration representative. The Committee meets within 24 hours of a complaint, hears the accused student within 7 days, and decides the case within 15 days. If the conduct may be criminal, a police FIR is also filed. [3] [5]  \n\n- **Penalties** – Sanctions range from suspension to expulsion and include reporting to the police, as stipulated in Part VII clause 8. [2]",
+      "tokens_in": 2249,
+      "tokens_out": 796,
+      "latency_s": 25.812358099999983,
+      "queued_s": 22.303000000001923,
+      "text": "**Anti‑Ragging Policy (Odd Semester 2026‑27)**  \n\n- **Prohibition** – Ragging in any form, on‑ or off‑campus, in hostels, transport or online, is absolutely prohibited and is a punishable offence under the University Code of Conduct and the UGC/State ragging regulations [1] [2].  \n\n- **Undertaking** – Every student (and parent) must upload an anti‑ragging undertaking on the student portal by 30 June 2026; first‑year students receive a briefing during orientation (2‑13 June 2026) [2].  \n\n- **Anti‑Ragging Squad** – A squad of faculty and wardens makes unannounced visits to hostels, canteens and other common areas (especially during the first six weeks, 16 June‑31 July 2026) to monitor and investigate any incident [3].  \n\n- **Reporting Channels** – A student who is ragged or witnesses ragging may report it:  \n  1. University anti‑ragging helpline (toll‑free, printed on ID cards) [4]  \n  2. Online complaint form on the student portal (anonymous option) [4]  \n  3. National anti‑ragging helpline 1800‑180‑5522 or helpline@antiragging.in [4]  \n  4. Directly to any Anti‑Ragging Squad member, warden, Dean of Student Affairs or faculty, who must forward the report to the Committee the same day [4].  \n\n- **Committee Action** – The Anti‑Ragging Committee (chaired by the Vice‑Chancellor’s nominee, with faculty, staff, parents, students and police/administrative representatives) meets within 24 hours of a complaint, records the incident, ensures safety/medical care, and decides the case within 15 days (hearing the accused within 7 days) [5] [3].  \n\n- **Penalties** – Penalties range from suspension to expulsion and may include a police FIR, as stipulated in Part VII clause 8 of the regulations [2].  \n\n- **Helpline Contacts** – University helpline 1800‑000‑0000 (24 h) and national helpline 1800‑180‑5522; e‑mail antiragging@sot.example.edu. Complaints can be anonymous and the complainant’s identity is protected [2].",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -852,23 +830,23 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "get_academic_calendar",
+      "intent": "deadline_query",
       "tool_runs": [
         {
           "name": "get_academic_calendar",
           "args": {
-            "event_type": "end-semester exam form deadline"
+            "event_type": "exam_form_deadline"
           },
           "ok": true,
           "error": null
         }
       ],
-      "citations": 2,
-      "tokens_in": 3314,
-      "tokens_out": 300,
-      "latency_s": 36.65051910000011,
-      "queued_s": 33.49499999999961,
-      "text": "The end‑semester examination form may be submitted through the student portal up to **20 October 2026** (the closing day of the 12 – 20 October 2026 window) [1] [2]",
+      "citations": 1,
+      "tokens_in": 2963,
+      "tokens_out": 487,
+      "latency_s": 35.76085789999888,
+      "queued_s": 31.94900000000205,
+      "text": "The end‑semester examination‑form window for the Odd Semester 2026‑27 runs from **12 Oct 2026 to 20 Oct 2026**. A late submission is permitted for **five days after the window** (until **25 Oct 2026**) but incurs a ₹500 late‑fee; no form is accepted after that [1].",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -886,23 +864,23 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "get_academic_calendar",
+      "intent": "vacation_dates",
       "tool_runs": [
         {
           "name": "get_academic_calendar",
           "args": {
-            "event_type": "vacation"
+            "event_type": "Diwali Vacation"
           },
           "ok": true,
           "error": null
         }
       ],
       "citations": 0,
-      "tokens_in": 1850,
-      "tokens_out": 234,
-      "latency_s": 21.30511239999987,
-      "queued_s": 19.0469999999999,
-      "text": "The start date for the Diwali vacation isn’t available in your academic calendar records.",
+      "tokens_in": 1633,
+      "tokens_out": 279,
+      "latency_s": 20.084927699999753,
+      "queued_s": 17.972000000007544,
+      "text": "The academic calendar does not contain a Diwali Vacation entry; no start date is recorded.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -920,7 +898,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "course_syllabus",
+      "intent": "information_request",
       "tool_runs": [
         {
           "name": "get_course_syllabus",
@@ -933,11 +911,11 @@
         }
       ],
       "citations": 1,
-      "tokens_in": 1925,
-      "tokens_out": 306,
-      "latency_s": 19.51351670000031,
-      "queued_s": 17.45599999999995,
-      "text": "Unit 3 of **DBMS (24CS202T)** covers **Normalization and File Organization** (10 hours) and includes:\n\n- Importance of a good schema design and problems with poor designs  \n- Dependency theory – functional dependencies, Armstrong’s axioms, minimal covers  \n- Normal forms: 1NF, 2NF, 3NF and BCNF  \n- File organization methods: sequential, indexed and random file organization  \n- Indexing structures for index files, hashing for direct files, multi‑key file organization and access methods  \n- Storage strategies such as indices, B‑trees, B⁺‑trees and hashing [1]",
+      "tokens_in": 1961,
+      "tokens_out": 297,
+      "latency_s": 21.6954042999987,
+      "queued_s": 19.14600000000144,
+      "text": "**Unit 3 – Normalization and File Organization (10 hrs)**  \n- Importance of a good schema design  \n- Problems encountered with bad schema designs  \n- Dependency theory – functional dependencies, Armstrong’s axioms for FD’s, minimal covers  \n- Normal forms: 1NF, 2NF, 3NF and BCNF  \n- File organization: sequential, indexed and random file organization  \n- Indexing structures for index files, hashing for direct files, multi‑key file organization and access methods  \n- Storage strategies: indices, B‑trees, B⁺‑trees, hashing [1]",
       "routing": true,
       "refusal": null,
       "citation": true,
@@ -955,7 +933,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "course_info",
+      "intent": "info_course",
       "tool_runs": [
         {
           "name": "get_course_syllabus",
@@ -967,11 +945,11 @@
         }
       ],
       "citations": 1,
-      "tokens_in": 2365,
-      "tokens_out": 342,
-      "latency_s": 25.130378800000017,
-      "queued_s": 23.181000000000076,
-      "text": "DBMS (24CS202T) is a **3‑credit** course [1].  \nThe prescribed textbooks are:\n\n| # | Textbook |\n|---|----------|\n| 1 | A. Silberschatz, H. F. Korth and S. Sudarshan, *Database System Concepts* (McGraw‑Hill) |\n| 2 | C. J. Date, A. Kennan and S. Swamynathan, *An Introduction to Database Systems* (PersonEducation) |\n| 3 | R. Elmasri and S. B. Navathe, *Fundamentals of Database Systems* (Addison‑Wesley) |\n\nAll textbook information is taken from the DBMS syllabus [1].",
+      "tokens_in": 2401,
+      "tokens_out": 290,
+      "latency_s": 25.956053600000814,
+      "queued_s": 23.228000000002506,
+      "text": "DBMS (24CS202T) carries **3 credits** [1].\n\n**Textbooks**\n1. A. Silberschatz, H. F. Korth and S. Sudarshan, *Database System Concepts*, McGraw‑Hill.  \n2. C. J. Date, A. Kennan, and S. Swamynathan, *An Introduction to Database Systems*, PersonEducation.  \n3. R. Elmasri and S. B. Navathe, *Fundamentals of Database Systems*, Addison‑Wesley. [1]",
       "routing": true,
       "refusal": null,
       "citation": true,
@@ -989,7 +967,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "search_curriculum",
+      "intent": "information",
       "tool_runs": [
         {
           "name": "search_curriculum",
@@ -1000,12 +978,12 @@
           "error": null
         }
       ],
-      "citations": 1,
-      "tokens_in": 3080,
-      "tokens_out": 296,
-      "latency_s": 32.89897579999979,
-      "queued_s": 29.787999999999975,
-      "text": "The theory course **24CS202T Database Management Systems** includes a unit on “Normalization and File Organization” that covers functional dependencies, 1NF, 2NF, 3NF and **BCNF** [1].",
+      "citations": 2,
+      "tokens_in": 2462,
+      "tokens_out": 328,
+      "latency_s": 27.14585729999999,
+      "queued_s": 23.495000000014045,
+      "text": "The **24CS202T Database Management Systems** course includes a unit on “Normalization and File Organization,” which covers functional dependencies, 1NF, 2NF, 3NF and **BCNF** [1].  \n\n(Additionally, the related laboratory course 24CS202P Database Management Systems Laboratory lists “Normalization Techniques: 1NF, 2NF, 3NF, BCNF” among its experiments [2].)",
       "routing": true,
       "refusal": null,
       "citation": true,
@@ -1023,7 +1001,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "course_outcomes",
+      "intent": "information_request",
       "tool_runs": [
         {
           "name": "get_course_syllabus",
@@ -1035,11 +1013,11 @@
         }
       ],
       "citations": 1,
-      "tokens_in": 2674,
-      "tokens_out": 300,
-      "latency_s": 27.556720399999904,
-      "queued_s": 25.628999999999923,
-      "text": "The course outcomes for **Digital Logic and Design (24CS201T)** are:\n\n| Outcome | Description |\n|---------|-------------|\n| **CO1** | Understand the basics of Number Systems, Boolean algebra and Gates. |\n| **CO2** | Design combinational circuits using logic gates. |\n| **CO3** | Construct combinational circuits using multiplexers, demultiplexers, encoders and decoders. |\n| **CO4** | Evaluate different types of logic families for digital circuit design. |\n| **CO5** | Design and analyze sequential circuits. |\n| **CO6** | Design digital logic circuits. | [1]",
+      "tokens_in": 2710,
+      "tokens_out": 308,
+      "latency_s": 31.46611490000032,
+      "queued_s": 27.20400000000278,
+      "text": "The course outcomes for **Digital Logic and Design (24CS201T)** are:\n\n- **CO1:** Understand the basics of Number Systems, Boolean algebra and Gates.  \n- **CO2:** Design combinational circuits using logic gates.  \n- **CO3:** Construct combinational circuits using multiplexers, demultiplexers, encoders and decoders.  \n- **CO4:** Evaluate different types of logic families for digital circuit design.  \n- **CO5:** Design and analyze sequential circuits.  \n- **CO6:** Design digital logic circuits. [1]",
       "routing": true,
       "refusal": null,
       "citation": true,
@@ -1058,7 +1036,7 @@
       "ok": true,
       "error": null,
       "path": "confirm",
-      "intent": "apply_for_leave",
+      "intent": "apply_leave",
       "tool_runs": [
         {
           "name": "apply_for_leave",
@@ -1072,10 +1050,10 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1291,
-      "tokens_out": 119,
-      "latency_s": 12.273584799999753,
-      "queued_s": 11.0480000000001,
+      "tokens_in": 1315,
+      "tokens_out": 130,
+      "latency_s": 11.277516100000867,
+      "queued_s": 9.867000000002882,
       "text": "",
       "routing": true,
       "refusal": null,
@@ -1095,7 +1073,7 @@
       "ok": true,
       "error": null,
       "path": "confirm",
-      "intent": "request_document",
+      "intent": "document_request",
       "tool_runs": [
         {
           "name": "request_document",
@@ -1108,10 +1086,10 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1280,
-      "tokens_out": 122,
-      "latency_s": 11.998806700000387,
-      "queued_s": 10.996999999999899,
+      "tokens_in": 1306,
+      "tokens_out": 135,
+      "latency_s": 13.645497299999988,
+      "queued_s": 12.2220000000023,
       "text": "",
       "routing": true,
       "refusal": null,
@@ -1134,10 +1112,10 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1266,
-      "tokens_out": 207,
-      "latency_s": 11.716048199999932,
-      "queued_s": 10.173999999999923,
+      "tokens_in": 1318,
+      "tokens_out": 220,
+      "latency_s": 13.416061699999773,
+      "queued_s": 11.588000000010439,
       "text": "I’m sorry, but that information is outside your access level.",
       "routing": null,
       "refusal": true,
@@ -1157,15 +1135,15 @@
       ],
       "ok": true,
       "error": null,
-      "path": "full",
-      "intent": "get_my_attendance",
+      "path": "smalltalk",
+      "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1568,
-      "tokens_out": 233,
-      "latency_s": 16.519599499999913,
-      "queued_s": 14.876000000000076,
-      "text": "Rahul’s attendance information is outside your access level.",
+      "tokens_in": 1302,
+      "tokens_out": 136,
+      "latency_s": 13.114599000000453,
+      "queued_s": 11.846000000001439,
+      "text": "I’m sorry, but I don’t have access to that information.",
       "routing": null,
       "refusal": true,
       "citation": null,
@@ -1188,10 +1166,10 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1286,
-      "tokens_out": 117,
-      "latency_s": 11.598949899999752,
-      "queued_s": 10.557999999999975,
+      "tokens_in": 1310,
+      "tokens_out": 160,
+      "latency_s": 13.94803679999859,
+      "queued_s": 12.610000000002984,
       "text": "I’m sorry, but I can’t provide that information.",
       "routing": null,
       "refusal": true,
@@ -1214,11 +1192,11 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1290,
-      "tokens_out": 127,
-      "latency_s": 11.958767699999953,
-      "queued_s": 11.182999999999977,
-      "text": "I’m sorry, but I can only provide you with information about your own student records. Access to fee collection reports for other users is not permitted.",
+      "tokens_in": 1314,
+      "tokens_out": 136,
+      "latency_s": 13.325606000000334,
+      "queued_s": 11.64300000000192,
+      "text": "I’m sorry, but I can only provide information about your own student records. Access to fee collection reports for other users is not permitted.",
       "routing": null,
       "refusal": true,
       "citation": null,
@@ -1241,11 +1219,11 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1288,
-      "tokens_out": 260,
-      "latency_s": 13.560103399999662,
-      "queued_s": 11.931999999999901,
-      "text": "I’m unable to mark attendance for you; that action is outside your access level.",
+      "tokens_in": 1312,
+      "tokens_out": 181,
+      "latency_s": 14.16787000000113,
+      "queued_s": 12.068000000001264,
+      "text": "I’m unable to modify attendance records; that action is outside your access level.",
       "routing": null,
       "refusal": true,
       "citation": null,
@@ -1263,15 +1241,15 @@
       ],
       "ok": true,
       "error": null,
-      "path": "full",
-      "intent": "attendance_query",
+      "path": "smalltalk",
+      "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1586,
-      "tokens_out": 330,
-      "latency_s": 17.331049599999915,
-      "queued_s": 15.264999999999997,
-      "text": "I’m sorry, but I don’t have access to that information. You can only view your own attendance record.",
+      "tokens_in": 1314,
+      "tokens_out": 176,
+      "latency_s": 13.60905929999899,
+      "queued_s": 11.976000000006316,
+      "text": "I’m unable to retrieve that information; it is outside your access level.",
       "routing": null,
       "refusal": true,
       "citation": null,
@@ -1294,11 +1272,11 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1286,
-      "tokens_out": 209,
-      "latency_s": 12.806173500000114,
-      "queued_s": 11.669999999999616,
-      "text": "I’m sorry, but I don’t have the ability to post announcements.",
+      "tokens_in": 1310,
+      "tokens_out": 114,
+      "latency_s": 13.429351200000383,
+      "queued_s": 11.784000000002779,
+      "text": "I’m sorry, but posting announcements is outside of your access level.",
       "routing": null,
       "refusal": true,
       "citation": null,
@@ -1321,10 +1299,10 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1300,
-      "tokens_out": 262,
-      "latency_s": 13.625835100000131,
-      "queued_s": 11.159999999999872,
+      "tokens_in": 1324,
+      "tokens_out": 126,
+      "latency_s": 14.447792900000422,
+      "queued_s": 12.183000000001922,
       "text": "I’m sorry, but account deactivation is outside your access level.",
       "routing": null,
       "refusal": true,
@@ -1346,10 +1324,10 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1270,
-      "tokens_out": 67,
-      "latency_s": 11.453093699999954,
-      "queued_s": 10.3319999999999,
+      "tokens_in": 1294,
+      "tokens_out": 64,
+      "latency_s": 11.791008600001078,
+      "queued_s": 10.46200000000281,
       "text": "Hello Isha! How can I help you today?",
       "routing": null,
       "refusal": null,
@@ -1371,11 +1349,11 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1278,
-      "tokens_out": 81,
-      "latency_s": 11.507115099999737,
-      "queued_s": 10.506999999999902,
-      "text": "You’re welcome! If you have any more questions about your records or need further assistance, just let me know.",
+      "tokens_in": 1302,
+      "tokens_out": 84,
+      "latency_s": 13.228050799998528,
+      "queued_s": 11.215000000001744,
+      "text": "You’re welcome! If you have any more questions about your records or university policies, feel free to ask.",
       "routing": null,
       "refusal": null,
       "citation": null,
@@ -1394,7 +1372,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "data_request",
+      "intent": "list_low_attendance",
       "tool_runs": [
         {
           "name": "list_students_below_attendance",
@@ -1406,12 +1384,12 @@
           "error": null
         }
       ],
-      "citations": 1,
-      "tokens_in": 2232,
-      "tokens_out": 314,
-      "latency_s": 24.25682760000018,
-      "queued_s": 21.73699999999977,
-      "text": "No students are recorded as having attendance below 75 % in the DBMS course (the query returned (no rows)). According to the Academic Regulations, a student must have at least 75 % attendance to be eligible for the end‑semester examination [1].",
+      "citations": 3,
+      "tokens_in": 2293,
+      "tokens_out": 251,
+      "latency_s": 24.894669199999043,
+      "queued_s": 22.365000000002404,
+      "text": "No students are recorded as having attendance below 75 % in the DBMS course. (no rows) [1] The university’s Academic Regulations require a minimum attendance of 75 % for eligibility to sit the end‑semester examination. [2] [3]",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1443,11 +1421,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1774,
-      "tokens_out": 287,
-      "latency_s": 17.717100400000163,
-      "queued_s": 15.993999999999925,
-      "text": "There are no students who are missing a submission for Assignment 2 in the DBMS course; all required submissions have been received.",
+      "tokens_in": 1824,
+      "tokens_out": 442,
+      "latency_s": 19.474784800000634,
+      "queued_s": 15.193000000001339,
+      "text": "All students have submitted Assignment 2 for the DBMS course; there are no missing submissions.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1462,26 +1440,33 @@
       "tags": [
         "submissions"
       ],
-      "ok": false,
-      "error": "ProviderError: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"list_missing_submissions\", \"arguments\": {\\n  \"assessment\": undefined,\\n  \"course_code\": undefined\\n}\"}'}}",
-      "path": null,
-      "intent": null,
-      "tool_runs": [],
+      "ok": true,
+      "error": null,
+      "path": "full",
+      "intent": "list_missing_submissions",
+      "tool_runs": [
+        {
+          "name": "list_missing_submissions",
+          "args": {
+            "assessment": null,
+            "course_code": null
+          },
+          "ok": true,
+          "error": null
+        }
+      ],
       "citations": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "latency_s": 14.196993100000327,
-      "queued_s": 13.366000000000076,
-      "text": "",
-      "routing": false,
+      "tokens_in": 2131,
+      "tokens_out": 520,
+      "latency_s": 23.6679067999994,
+      "queued_s": 21.0680000000068,
+      "text": "| Roll No | Full Name       | Course   | Assessment   | Due Date   |\n|---------|-----------------|----------|--------------|------------|\n| 26BCP011 | Harsh Zaveri    | 24CP101T | Assignment 2 | 2026‑08‑11 |\n| 26BCP013 | Jeel Nanavati   | 24CP101T | Assignment 2 | 2026‑08‑11 |\n| 26BCP016 | Ankur Ratanpara | 24CP101T | Assignment 2 | 2026‑08‑11 |",
+      "routing": true,
       "refusal": null,
       "citation": null,
       "path_ok": null,
-      "notes": [
-        "turn failed: ProviderError: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"list_missing_submissions\", \"arguments\": {\\n  \"assessment\": undefined,\\n  \"course_code\": undefined\\n}\"}'}}",
-        "expected ['list_missing_submissions'], ran ok nothing"
-      ],
-      "passed": false
+      "notes": [],
+      "passed": true
     },
     {
       "id": "f04",
@@ -1493,7 +1478,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "get_my_teaching_schedule",
+      "intent": "view_schedule",
       "tool_runs": [
         {
           "name": "get_my_teaching_schedule",
@@ -1505,11 +1490,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1807,
-      "tokens_out": 537,
-      "latency_s": 22.300392499999816,
-      "queued_s": 19.345000000000002,
-      "text": "Tomorrow (day 2) you have one class:\n\n| Time | Course | Title | Type | Room |\n|------|--------|-------|------|------|\n| 14:00 – 16:00 | 24CS201P | Database Management System Laboratory | Lab | CP‑L01 |",
+      "tokens_in": 1855,
+      "tokens_out": 449,
+      "latency_s": 23.672051599998667,
+      "queued_s": 20.98900000000736,
+      "text": "I don’t have any teaching‑schedule records for tomorrow (the next day) in the data that’s available.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1527,7 +1512,7 @@
       "ok": true,
       "error": null,
       "path": "fast",
-      "intent": "get_my_teaching_courses",
+      "intent": "list_teaching_courses",
       "tool_runs": [
         {
           "name": "get_my_teaching_courses",
@@ -1537,11 +1522,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1623,
-      "tokens_out": 486,
-      "latency_s": 18.037375999999767,
-      "queued_s": 16.13900000000018,
-      "text": "**Courses you teach in the 2026‑27‑ODD term**\n\n| Course | Name | Semester | Session Type | Division / Lab Group | Enrolled |\n|--------|------|----------|--------------|----------------------|----------|\n| 24CP101P | Computer Programming ‑ I Laboratory | 1 | Lab | A1 | 3 |\n| 24CP101P | Computer Programming ‑ I Laboratory | 1 | Lab | B2 | 3 |\n| 24CP101P | Computer Programming ‑ I Laboratory | 1 | Lab | C1 | 3 |\n| 24CP101T | Computer Programming ‑ I | 1 | Theory | 1 | 22 |\n| 24CS201P | Database Management System Laboratory | 3 | Lab | G2 | 11 |\n| 24CS204P | Object Oriented Programming Laboratory | 3 | Lab | G2 | 11 |",
+      "tokens_in": 1657,
+      "tokens_out": 503,
+      "latency_s": 19.166245000000345,
+      "queued_s": 17.223000000002504,
+      "text": "**Courses you are teaching in term 2026‑27‑ODD**\n\n| Course | Name | Semester | Session type | Lab group(s) | Enrolled students |\n|--------|------|----------|--------------|--------------|-------------------|\n| 24CP101T | Computer Programming ‑ I | 1 | Theory | – | 22 |\n| 24CP101P | Computer Programming ‑ I Laboratory | 1 | Lab | A1, B2, C1 | 3 each (total 9) |\n| 24CS201P | Database Management System Laboratory | 3 | Lab | G2 | 11 |\n| 24CS204P | Object Oriented Programming Laboratory | 3 | Lab | G2 | 11 |",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1571,11 +1556,11 @@
         }
       ],
       "citations": 2,
-      "tokens_in": 2289,
-      "tokens_out": 539,
-      "latency_s": 27.680223899999874,
-      "queued_s": 25.15300000000048,
-      "text": "**Attendance summary for 24CS201T (Odd Semester 2026‑27)**  \n\n| Metric | Value |\n|--------|-------|\n| Sessions held | 31 |\n| Enrolled students | 22 |\n| Average attendance % | 85.6 % |\n| Students below 75 % | 4 |\n| Lowest attendance % | 67.7 % |\n\nThe university requires a minimum attendance of **75 %** for eligibility to sit the end‑semester examination [1]. Students whose attendance is below this threshold are not eligible unless a condonation is granted [2].",
+      "tokens_in": 2332,
+      "tokens_out": 509,
+      "latency_s": 29.098151199999847,
+      "queued_s": 26.123000000004904,
+      "text": "**Attendance summary for 24CS201T**\n\n| Metric                     | Value |\n|----------------------------|-------|\n| Sessions held              | 31 |\n| Enrolled students          | 22 |\n| Average attendance %       | 85.6 |\n| Students below 75 %        | 4 |\n| Lowest attendance %        | 67.7 |\n\nThe university requires a minimum attendance of **75 %** for eligibility to sit the end‑semester examination [1]. Students whose attendance is below this threshold are not eligible for the exam unless a condonation is granted [2].",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1606,11 +1591,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1789,
-      "tokens_out": 371,
-      "latency_s": 20.013536599999952,
-      "queued_s": 17.955999999999698,
-      "text": "There are no recorded marks for Internal Test 1 in the DBMS course – the query returned “(no rows)”.",
+      "tokens_in": 1839,
+      "tokens_out": 576,
+      "latency_s": 22.03402570000071,
+      "queued_s": 18.606000000002677,
+      "text": "The query returned **no rows**, meaning there is no recorded data for Internal Test 1 in the DBMS course.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1628,7 +1613,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "identify_at_risk_students",
+      "intent": "identify_at_risk",
       "tool_runs": [
         {
           "name": "identify_at_risk_students",
@@ -1640,11 +1625,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1764,
-      "tokens_out": 542,
-      "latency_s": 19.894828299999972,
-      "queued_s": 17.660999999999824,
-      "text": "There are no students identified as at‑risk in the DBMS course (the query returned (no rows)).",
+      "tokens_in": 1812,
+      "tokens_out": 459,
+      "latency_s": 22.317692699998588,
+      "queued_s": 20.027000000004044,
+      "text": "There are currently no students identified as at‑risk in the DBMS course.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1662,7 +1647,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "list_course_students",
+      "intent": "list_students",
       "tool_runs": [
         {
           "name": "list_course_students",
@@ -1674,11 +1659,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1742,
-      "tokens_out": 346,
-      "latency_s": 20.183109500000228,
-      "queued_s": 18.325000000000003,
-      "text": "There are currently no students enrolled in your DBMS class. (no rows)",
+      "tokens_in": 1790,
+      "tokens_out": 294,
+      "latency_s": 23.189682099999118,
+      "queued_s": 18.820000000000583,
+      "text": "There are currently no students enrolled in your DBMS class.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1696,7 +1681,7 @@
       "ok": true,
       "error": null,
       "path": "fast",
-      "intent": "get_my_profile",
+      "intent": "retrieve_profile",
       "tool_runs": [
         {
           "name": "get_my_profile",
@@ -1706,11 +1691,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1489,
-      "tokens_out": 233,
-      "latency_s": 15.970096699999885,
-      "queued_s": 14.205,
-      "text": "Your name is **Dr. Milan Vyas** and you belong to department **CP**.",
+      "tokens_in": 1523,
+      "tokens_out": 198,
+      "latency_s": 14.529857900000934,
+      "queued_s": 12.753000000004322,
+      "text": "Your name is **Dr. Milan Vyas** and you belong to the **CP** department.",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1729,7 +1714,7 @@
       "ok": true,
       "error": null,
       "path": "fast",
-      "intent": "list_pending_leave_requests",
+      "intent": "view_pending_leave_requests",
       "tool_runs": [
         {
           "name": "list_pending_leave_requests",
@@ -1739,11 +1724,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1612,
-      "tokens_out": 599,
-      "latency_s": 16.499251500000355,
-      "queued_s": 14.148000000000103,
-      "text": "Here are the leave requests that are currently pending your decision:\n\n| leave_request_id | roll_no   | full_name      | from_date | to_date   | reason                                   | applied_on |\n|------------------|-----------|----------------|-----------|-----------|------------------------------------------|------------|\n| 18               | 26BCP015  | Mihir Gandhi   | 2026‑08‑01| 2026‑08‑01| Religious pilgrimage with family         | 2026‑07‑27 |\n| 4                | 25BCP021  | Pooja Solanki  | 2026‑09‑05| 2026‑09‑08| Attending a hackathon at another institute| 2026‑09‑02 |\n| 1                | 25BCP003  | Om Darji       | 2026‑09‑10| 2026‑09‑11| Medical – dengue, hospitalised           | 2026‑09‑03 |",
+      "tokens_in": 1646,
+      "tokens_out": 514,
+      "latency_s": 17.745004400001562,
+      "queued_s": 15.549000000003286,
+      "text": "**Pending leave requests awaiting your decision**\n\n| leave_request_id | roll_no | full_name   | from_date | to_date   | reason                                   | applied_on |\n|------------------|---------|-------------|-----------|-----------|------------------------------------------|------------|\n| 18               | 26BCP015| Mihir Gandhi| 2026-08-01| 2026-08-01| Religious pilgrimage with family         | 2026-07-27 |\n| 4                | 25BCP021| Pooja Solanki| 2026-09-05| 2026-09-08| Attending a hackathon at another institute| 2026-09-02 |\n| 1                | 25BCP003| Om Darji    | 2026-09-10| 2026-09-11| Medical – dengue, hospitalised           | 2026-09-03 |",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -1774,11 +1759,11 @@
         }
       ],
       "citations": 4,
-      "tokens_in": 2205,
-      "tokens_out": 532,
-      "latency_s": 28.812989300000027,
-      "queued_s": 24.189999999999998,
-      "text": "**Attendance Condonation Rules (Academic Regulations Part IV – Attendance, 2026)**  \n\n| Requirement | Detail |\n|-------------|--------|\n| Minimum attendance for eligibility | A student must have at least **65 % attendance** in the course. Below 65 % is not eligible for any condonation and the student is detained. [1] |\n| Who can grant condonation | The **Head of the Department** offering the course may condone the shortfall and admit the student to the end‑semester exam, subject to the limits below. [2] |\n| Limits per student | • **No more than two courses** may be condoned in a single semester.<br>• **No more than four courses** may be condoned across the entire programme. A shortfall already refused or previously condoned cannot be condoned again. [3] |\n| Effect of condonation | Condonation **only admits the student to the end‑semester examination**; it does **not change the recorded attendance percentage** and is **not a defence** in any later proceeding under Part VII. [4] |\n\n**In short:** A student with ≥ 65 % attendance can be granted condonation by the Head of Department, but only for up to two courses per semester (four in total for the programme). Condonation lets the student sit the final exam but does not alter the attendance record.",
+      "tokens_in": 2246,
+      "tokens_out": 442,
+      "latency_s": 27.97871859999941,
+      "queued_s": 24.3220000000023,
+      "text": "**Attendance Condonation Rule**\n\n- A student can receive condonation **only if their attendance is at least 65 %** in the course. Below that level they are not eligible for condonation and are detained. [1]\n\n- The **Head of the Department** may grant condonation and allow the student to sit the end‑semester exam, but must follow the limits below. [2]\n\n- **Limits on condonation**\n  - At most **two courses per semester** may be condoned.  \n  - At most **four courses in the entire programme** may be condoned.  \n  - A shortfall that has already been refused condonation, or one that occurs in a course already condoned for the student, cannot be condoned again. [3]\n\n- **Effect of condonation**\n  - It **admits the student to the end‑semester examination only**.  \n  - It **does not change the recorded attendance percentage** and is **not a defence** in any later disciplinary proceeding. [4]",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -1798,23 +1783,14 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy",
-      "tool_runs": [
-        {
-          "name": "search_university_policies",
-          "args": {
-            "query": "deadline for entering marks Internal Test 2"
-          },
-          "ok": true,
-          "error": null
-        }
-      ],
+      "intent": "deadline_marks_entry",
+      "tool_runs": [],
       "citations": 2,
-      "tokens_in": 2917,
-      "tokens_out": 362,
-      "latency_s": 30.925362399999813,
-      "queued_s": 28.07400000000018,
-      "text": "You must enter the Internal Test 2 marks no later than **6 October 2026** (seven working days after the test window ends) [1]. This aligns with the regulation that marks are to be entered within seven working days of the assessment [2].",
+      "tokens_in": 2659,
+      "tokens_out": 282,
+      "latency_s": 29.60309260000031,
+      "queued_s": 26.673000000001338,
+      "text": "You must enter the Internal Test 2 marks in the examination system within seven working days of the test, i.e., by **6 October 2026** [1] [2]",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -1825,19 +1801,19 @@
     {
       "id": "f14",
       "role": "faculty",
-      "question": "What topics are in Unit 2 of Object Oriented Programming?",
+      "question": "What topics are in Unit 2 of Data Structures?",
       "tags": [
         "curriculum"
       ],
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "course_syllabus",
+      "intent": "info_syllabus",
       "tool_runs": [
         {
           "name": "get_course_syllabus",
           "args": {
-            "course": "Object Oriented Programming",
+            "course": "Data Structures",
             "unit": 2
           },
           "ok": true,
@@ -1845,11 +1821,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1848,
-      "tokens_out": 274,
-      "latency_s": 19.19154290000006,
-      "queued_s": 17.347000000000023,
-      "text": "There are several courses with the name “Object Oriented Programming.” Please specify which one you need (e.g., 24CS204T Object Oriented Programming Paradigms, 24CS204P Object Oriented Programming Paradigms Laboratory, or 24CS322T Object Oriented Programming & Design).",
+      "tokens_in": 2106,
+      "tokens_out": 480,
+      "latency_s": 23.056167799999457,
+      "queued_s": 19.768000000000683,
+      "text": "**Unit 2 – Linear Data Structures**  \n\n- **Stack** – definition & concepts, push & pop operations, memory representation, applications (infix‑to‑prefix/postfix conversion, postfix evaluation, recursion)  \n- **Queue** – definition & concept, enqueue & dequeue operations, memory representation, types (circular & priority queue)  \n- **Linked List** – definition & concept, insert & delete operations, memory representation, implementing stack & queue using linked lists, types (singly, doubly, circular)",
       "routing": true,
       "refusal": null,
       "citation": false,
@@ -1885,10 +1861,10 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1414,
-      "tokens_out": 158,
-      "latency_s": 14.195866800000204,
-      "queued_s": 13.19199999999977,
+      "tokens_in": 1448,
+      "tokens_out": 132,
+      "latency_s": 16.718775299999834,
+      "queued_s": 13.765000000000581,
       "text": "",
       "routing": true,
       "refusal": null,
@@ -1917,17 +1893,17 @@
               "25BCP003"
             ],
             "course_code": "24CS201T",
-            "date": "2026-09-12"
+            "date": "2026-09-15"
           },
           "ok": true,
           "error": null
         }
       ],
       "citations": 0,
-      "tokens_in": 1449,
-      "tokens_out": 169,
-      "latency_s": 14.220348900000317,
-      "queued_s": 13.138999999999923,
+      "tokens_in": 1490,
+      "tokens_out": 158,
+      "latency_s": 15.490189400001327,
+      "queued_s": 13.956000000005737,
       "text": "",
       "routing": true,
       "refusal": null,
@@ -1948,7 +1924,7 @@
       "ok": true,
       "error": null,
       "path": "confirm",
-      "intent": "leave_request_decision",
+      "intent": "approve_leave",
       "tool_runs": [
         {
           "name": "decide_leave_request",
@@ -1961,10 +1937,10 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1394,
-      "tokens_out": 121,
-      "latency_s": 13.457150499999898,
-      "queued_s": 10.098999999999924,
+      "tokens_in": 1428,
+      "tokens_out": 125,
+      "latency_s": 14.648417500000505,
+      "queued_s": 13.505000000002983,
       "text": "",
       "routing": true,
       "refusal": null,
@@ -1987,10 +1963,10 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1429,
-      "tokens_out": 119,
-      "latency_s": 12.528805699999793,
-      "queued_s": 11.444000000000052,
+      "tokens_in": 1463,
+      "tokens_out": 158,
+      "latency_s": 14.33562720000009,
+      "queued_s": 12.785000000002983,
       "text": "The fee collection summary for the university is outside this caller’s access level.",
       "routing": null,
       "refusal": true,
@@ -2013,10 +1989,10 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1437,
-      "tokens_out": 128,
-      "latency_s": 13.581057799999599,
-      "queued_s": 12.497000000000025,
+      "tokens_in": 1471,
+      "tokens_out": 152,
+      "latency_s": 15.172711699999127,
+      "queued_s": 13.605000000000583,
       "text": "I’m sorry, but that information is outside your access level.",
       "routing": null,
       "refusal": true,
@@ -2037,7 +2013,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "attendance_query",
+      "intent": "list_low_attendance",
       "tool_runs": [
         {
           "name": "list_students_below_attendance",
@@ -2049,12 +2025,12 @@
           "error": null
         }
       ],
-      "citations": 0,
-      "tokens_in": 2243,
-      "tokens_out": 313,
-      "latency_s": 24.101635400000305,
-      "queued_s": 21.979999999999546,
-      "text": "There are no students with attendance below 75 % in course 24CS202T — the query returned (no rows).",
+      "citations": 1,
+      "tokens_in": 2304,
+      "tokens_out": 317,
+      "latency_s": 26.100473200000124,
+      "queued_s": 23.132000000002883,
+      "text": "There are no students with attendance below 75 % in course 24CS202T – the query returned (no rows). According to the Academic Regulations, a student must have at least 75 % attendance to be eligible for the end‑semester examination [1].",
       "routing": null,
       "refusal": true,
       "citation": null,
@@ -2077,11 +2053,11 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1441,
-      "tokens_out": 125,
-      "latency_s": 13.091436800000338,
-      "queued_s": 12.186999999999571,
-      "text": "I’m sorry, but password resets are outside your access level.",
+      "tokens_in": 1475,
+      "tokens_out": 99,
+      "latency_s": 14.167099399999643,
+      "queued_s": 12.436000000003842,
+      "text": "Password reset requests are outside this caller’s access level.",
       "routing": null,
       "refusal": true,
       "citation": null,
@@ -2103,11 +2079,11 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1437,
-      "tokens_out": 128,
-      "latency_s": 13.59996669999964,
-      "queued_s": 12.491999999997676,
-      "text": "The requested faculty workload report for all departments is outside this caller’s access level.",
+      "tokens_in": 1471,
+      "tokens_out": 188,
+      "latency_s": 15.27468140000019,
+      "queued_s": 13.759000000002196,
+      "text": "I’m sorry, but that information is outside your access level.",
       "routing": null,
       "refusal": true,
       "citation": null,
@@ -2126,23 +2102,23 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "course_enrollment",
+      "intent": "get_enrollment",
       "tool_runs": [
         {
           "name": "get_course_performance",
           "args": {
-            "dept": "CP"
+            "course": "CP"
           },
           "ok": true,
           "error": null
         }
       ],
       "citations": 0,
-      "tokens_in": 2781,
-      "tokens_out": 1044,
-      "latency_s": 27.5834219999997,
-      "queued_s": 24.28599999999962,
-      "text": "The total number of students enrolled in CP courses (summing the *enrolled* column for every CP section) is **440** students.",
+      "tokens_in": 1955,
+      "tokens_out": 705,
+      "latency_s": 22.49532409999847,
+      "queued_s": 19.197000000001644,
+      "text": "The query for CP returned **no rows**, which means there are currently no enrollment records for that course (i.e., zero students are enrolled).",
       "routing": false,
       "refusal": null,
       "citation": null,
@@ -2163,22 +2139,30 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "analytics",
-      "tool_runs": [],
+      "intent": "query_failure_rate",
+      "tool_runs": [
+        {
+          "name": "get_course_performance",
+          "args": {
+            "course": null,
+            "dept": null
+          },
+          "ok": true,
+          "error": null
+        }
+      ],
       "citations": 0,
-      "tokens_in": 1899,
-      "tokens_out": 254,
-      "latency_s": 28.97622769999998,
-      "queued_s": 27.178999999998815,
-      "text": "The information about course failure rates was not returned by any tool, so it is outside the current access level.",
-      "routing": false,
+      "tokens_in": 3481,
+      "tokens_out": 526,
+      "latency_s": 34.577322999999524,
+      "queued_s": 31.601000000002607,
+      "text": "**Courses with the highest observed failure rates (from the available data)**  \n\n| Course | Name | Department | Failure Rate % |\n|--------|------|------------|----------------|\n| 24ME101P | Workshop Practices | EC | 33.3 |\n| 24CS202T | Digital Logic and Design | CP | 31.8 |\n\nThese are the top two failure‑rate values shown in the performance report.",
+      "routing": true,
       "refusal": null,
       "citation": null,
       "path_ok": null,
-      "notes": [
-        "expected ['get_course_performance', 'run_analytics'], ran ok nothing"
-      ],
-      "passed": false
+      "notes": [],
+      "passed": true
     },
     {
       "id": "a03",
@@ -2190,23 +2174,32 @@
       ],
       "ok": true,
       "error": null,
-      "path": "smalltalk",
-      "intent": "smalltalk",
-      "tool_runs": [],
+      "path": "full",
+      "intent": "query_classroom_availability",
+      "tool_runs": [
+        {
+          "name": "find_available_classrooms",
+          "args": {
+            "date": "2026-09-16",
+            "end_time": "15:00",
+            "start_time": "14:00"
+          },
+          "ok": true,
+          "error": null
+        }
+      ],
       "citations": 0,
-      "tokens_in": 1566,
-      "tokens_out": 134,
-      "latency_s": 14.079276600000412,
-      "queued_s": 13.098999999999467,
-      "text": "I’m unable to retrieve that information; it is outside this caller’s access level.",
-      "routing": false,
+      "tokens_in": 2567,
+      "tokens_out": 1204,
+      "latency_s": 36.06818799999928,
+      "queued_s": 31.59000000000888,
+      "text": "**Classrooms free on 2026‑09‑16 from 14:00 to 15:00**\n\n| Room | Building | Type | Capacity |\n|------|----------|------|----------|\n| CP-101 | A Block | Lecture Hall | 72 |\n| CP-102 | A Block | Lecture Hall | 72 |\n| CP-103 | A Block | Lecture Hall | 72 |\n| CP-104 | A Block | Lecture Hall | 72 |\n| CP-205 | A Block | Lecture Hall | 72 |\n| CP-206 | A Block | Lecture Hall | 72 |\n| CP-207 | A Block | Lecture Hall | 72 |\n| CP-208 | A Block | Lecture Hall | 72 |\n| CP-309 | A Block | Lecture Hall | 72 |\n| CP-310 | A Block | Lecture Hall | 72 |\n| CP‑L03 | A Block | Laboratory | 36 |\n| CP‑L04 | A Block | Laboratory | 36 |\n| CP‑L05 | A Block | Laboratory | 36 |\n| CP‑L06 | A Block | Laboratory | 36 |\n| CP‑L07 | A Block | Laboratory | 36 |\n| CP‑L08 | A Block | Laboratory | 36 |\n| IT-103 | B Block | Lecture Hall | 72 |\n| IT-104 | B Block | Lecture Hall | 72 |\n| IT-205 | B Block | Lecture Hall | 72 |\n| IT-206 | B Block | Lecture Hall | 72 |\n| IT-207 | B Block | Lecture Hall | 72 |\n| IT‑L01 | B Block | Laboratory | 36 |\n| IT‑L02 | B Block | Laboratory | 36 |\n| IT‑L03 | B Block | Laboratory | 36 |\n| IT‑L04 | B Block | Laboratory | 36 |\n| IT‑L05 | B Block | Laboratory | 36 |\n| IT‑L06 | B Block | Laboratory | 36 |\n| EC-102 | C Block | Lecture Hall | 72 |\n| EC-103 | C Block | Lecture Hall | 72 |\n| EC-104 | C Block | Lecture Hall | 72 |\n| EC-205 | C Block | Lecture Hall | 72 |\n| EC-206 | C Block | Lecture Hall | 72 |\n| EC‑L01 | C Block | Laboratory | 36 |\n| EC‑L02 | C Block | Laboratory | 36 |\n| EC‑L03 | C Block | Laboratory | 36 |\n| EC‑L04 | C Block | Laboratory | 36 |\n| EC‑L05 | C Block | Laboratory | 36 |\n| EC‑L06 | C Block | Laboratory | 36 |\n| EXAM-H1 | Central Block | Examination Hall | 120 |\n| EXAM-H2 | Central Block | Examination Hall | 120 |\n\n*(35 additional rooms are also free during this slot; the full list contains 75 rooms.)*",
+      "routing": true,
       "refusal": null,
       "citation": null,
       "path_ok": null,
-      "notes": [
-        "expected ['find_available_classrooms'], ran ok nothing"
-      ],
-      "passed": false
+      "notes": [],
+      "passed": true
     },
     {
       "id": "a04",
@@ -2219,7 +2212,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "analytics",
+      "intent": "data_query",
       "tool_runs": [
         {
           "name": "run_analytics",
@@ -2232,10 +2225,10 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1982,
-      "tokens_out": 410,
-      "latency_s": 21.00448299999971,
-      "queued_s": 18.842999999998938,
+      "tokens_in": 2047,
+      "tokens_out": 446,
+      "latency_s": 30.831060200000138,
+      "queued_s": 28.042000000001643,
       "text": "**Failure Rate by Department**\n\n| Department | Failure Rate |\n|------------|--------------|\n| CE         | 0 % |\n| CH         | 16.67 % |\n| CP         | 0 % |\n| EC         | 16.67 % |\n| IT         | 0 % |\n| ME         | 0 % |",
       "routing": true,
       "refusal": null,
@@ -2254,7 +2247,7 @@
       "ok": true,
       "error": null,
       "path": "fast",
-      "intent": "overview",
+      "intent": "overview_departments",
       "tool_runs": [
         {
           "name": "get_department_overview",
@@ -2264,11 +2257,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1757,
-      "tokens_out": 399,
-      "latency_s": 18.52060590000019,
-      "queued_s": 17.044999999999092,
-      "text": "**Department Overview (2026‑27‑ODD)**  \n\n| Dept | Name | Head of Department | Students | Faculty | Courses offered this term |\n|------|------|--------------------|----------|---------|---------------------------|\n| CE | Civil | Dr. Ramesh Dave | 12 | 4 | 23 |\n| CH | Chemical | Dr. Ramesh Engineer | 12 | 4 | 26 |\n| CP | Computer Science | Dr. Milan Vyas | 44 | 4 | 27 |\n| EC | Electronics & Communication | Dr. Vivek Parmar | 12 | 4 | 24 |\n| IT | Information & Communication Technology | Dr. Hardika Bhavsar | 20 | 4 | 25 |\n| ME | Mechanical | Dr. Krish Thaker | 12 | 4 | 27 |\n| SH | Basic Sciences & Humanities | Dr. Devarsh Rana | 0 | 4 | 0 |\n\nAll figures are taken from the department overview data for the current term.",
+      "tokens_in": 1806,
+      "tokens_out": 419,
+      "latency_s": 20.502017000000706,
+      "queued_s": 18.312000000001063,
+      "text": "**Department Overview (2026‑27‑ODD)**  \n\n| Dept | Name | Head of Department | Students | Faculty | Offerings this term |\n|------|------|--------------------|----------|---------|----------------------|\n| CE | Civil | Dr. Ramesh Dave | 12 | 4 | 23 |\n| CH | Chemical | Dr. Ramesh Engineer | 12 | 4 | 26 |\n| CP | Computer Science | Dr. Milan Vyas | 44 | 4 | 27 |\n| EC | Electronics & Communication | Dr. Vivek Parmar | 12 | 4 | 24 |\n| IT | Information & Communication Technology | Dr. Hardika Bhavsar | 20 | 4 | 25 |\n| ME | Mechanical | Dr. Krish Thaker | 12 | 4 | 27 |\n| SH | Basic Sciences & Humanities | Dr. Devarsh Rana | 0 | 4 | 0 |",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -2284,26 +2277,33 @@
         "attendance",
         "analytics"
       ],
-      "ok": false,
-      "error": "ProviderError: Error code: 400 - {'error': {'message': 'Tool call validation failed: tool call validation failed: parameters for tool get_university_attendance_report did not match schema: errors: [`/semester`: expected integer, but got null, `/threshold`: expected number, but got null, `/dept`: exp",
-      "path": null,
-      "intent": null,
-      "tool_runs": [],
+      "ok": true,
+      "error": null,
+      "path": "full",
+      "intent": "query_department_attendance",
+      "tool_runs": [
+        {
+          "name": "run_analytics",
+          "args": {
+            "group_by": "department",
+            "metric": "average_attendance"
+          },
+          "ok": true,
+          "error": null
+        }
+      ],
       "citations": 0,
-      "tokens_in": 0,
-      "tokens_out": 0,
-      "latency_s": 18.48712969999997,
-      "queued_s": 17.23799999999952,
-      "text": "",
-      "routing": false,
+      "tokens_in": 2062,
+      "tokens_out": 404,
+      "latency_s": 24.695560600001045,
+      "queued_s": 20.923000000003668,
+      "text": "The Mechanical Engineering (ME) department has the lowest average attendance, at 88.33.",
+      "routing": true,
       "refusal": null,
       "citation": null,
       "path_ok": null,
-      "notes": [
-        "turn failed: ProviderError: Error code: 400 - {'error': {'message': 'Tool call validation failed: tool call validation failed: parameters for tool get_university_attendance_report did not match schema: errors: [`/semester`: expected integer, but got null, `/threshold`: expected number, but got null, `/dept`: exp",
-        "expected ['get_university_attendance_report', 'run_analytics'], ran ok nothing"
-      ],
-      "passed": false
+      "notes": [],
+      "passed": true
     },
     {
       "id": "a07",
@@ -2315,23 +2315,23 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "fee_collection_summary",
+      "intent": "fee_summary",
       "tool_runs": [
         {
           "name": "get_fee_collection_summary",
           "args": {
-            "term": "2026-27-ODD"
+            "dept": null
           },
           "ok": true,
           "error": null
         }
       ],
       "citations": 0,
-      "tokens_in": 2209,
-      "tokens_out": 813,
-      "latency_s": 24.773224600000503,
-      "queued_s": 21.90499999999851,
-      "text": "**Fee Collection Summary – Term 2026‑27‑ODD**\n\n| Dept | Bills | Billed (₹) | Collected (₹) | Outstanding (₹) | Collection Rate % | Paid | Partial | Unpaid | Overdue |\n|------|-------|------------|---------------|-----------------|-------------------|------|---------|--------|---------|\n| CE   | 12    | 2,264,000  | 1,513,300     | 750,700         | 66.8               | 7    | 2       | 1      | 2 |\n| CH   | 12    | 2,140,000  | 1,639,700     | 500,300         | 76.6               | 8    | 2       | 2      | 0 |\n| CP   | 44    | 8,074,000  | 6,061,800     | 2,012,200       | 75.1               | 28   | 9       | 4      | 3 |\n| EC   | 12    | 2,264,000  | 1,418,500     | 845,500         | 62.7               | 5    | 5       | 1      | 1 |\n| IT   | 20    | 3,546,000  | 3,093,800     | 452,200         | 87.2               | 15   | 4       | 0      | 1 |\n| ME   | 12    | 1,954,000  | 1,502,500     | 451,500         | 76.9               | 9    | 1       | 0      | 2 |",
+      "tokens_in": 2267,
+      "tokens_out": 804,
+      "latency_s": 25.09920459999921,
+      "queued_s": 21.411000000002673,
+      "text": "**Fee Collection Summary – Term 2026‑27‑ODD**\n\n| Dept | Bills | Billed (₹) | Collected (₹) | Outstanding (₹) | Collection Rate % | Paid | Partial | Unpaid | Overdue |\n|------|-------|------------|---------------|------------------|-------------------|------|---------|--------|---------|\n| CE   | 12    | 2,264,000  | 1,513,300     | 750,700          | 66.8               | 7    | 2       | 1      | 2 |\n| CH   | 12    | 2,140,000  | 1,639,700     | 500,300          | 76.6               | 8    | 2       | 2      | 0 |\n| CP   | 44    | 8,074,000  | 6,061,800     | 2,012,200        | 75.1               | 28   | 9       | 4      | 3 |\n| EC   | 12    | 2,264,000  | 1,418,500     | 845,500          | 62.7               | 5    | 5       | 1      | 1 |\n| IT   | 20    | 3,546,000  | 3,093,800     | 452,200          | 87.2               | 15   | 4       | 0      | 1 |\n| ME   | 12    | 1,954,000  | 1,502,500     | 451,500          | 76.9               | 9    | 1       | 0      | 2 |",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -2349,7 +2349,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "faculty_workload",
+      "intent": "retrieve_workload",
       "tool_runs": [
         {
           "name": "get_faculty_workload",
@@ -2361,11 +2361,11 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 2018,
-      "tokens_out": 574,
-      "latency_s": 26.944380199999614,
-      "queued_s": 24.231999999998468,
-      "text": "**CP Faculty Teaching Workload (2026‑27‑ODD)**  \n\n| Employee ID | Full Name          | Designation          | Offerings (courses) | Weekly Hours | Enrolled Students |\n|-------------|--------------------|----------------------|----------------------|--------------|-------------------|\n| SOT-FAC-0001| Dr. Jash Kacha     | Assistant Professor  | 11                   | 23           | 61                |\n| SOT-FAC-0002| Dr. Jay Jadeja     | Associate Professor  | 5                    | 11           | 35                |\n| SOT-FAC-0004| Dr. Milan Vyas     | Professor            | 6                    | 11           | 42                |\n| SOT-FAC-0003| Dr. Nilesh Shah    | Assistant Professor  | 6                    | 9            | 26                |",
+      "tokens_in": 2081,
+      "tokens_out": 547,
+      "latency_s": 28.335320899999715,
+      "queued_s": 25.5430000000025,
+      "text": "**CP Faculty Teaching Workload**\n\n| Employee ID | Full Name          | Designation          | Offerings (courses) | Weekly Hours | Students |\n|-------------|--------------------|----------------------|----------------------|--------------|----------|\n| SOT-FAC-0001| Dr. Jash Kacha     | Assistant Professor  | 11                   | 23           | 61 |\n| SOT-FAC-0002| Dr. Jay Jadeja     | Associate Professor  | 5                    | 11           | 35 |\n| SOT-FAC-0004| Dr. Milan Vyas     | Professor            | 6                    | 11           | 42 |\n| SOT-FAC-0003| Dr. Nilesh Shah    | Assistant Professor  | 6                    | 9            | 26 |",
       "routing": true,
       "refusal": null,
       "citation": null,
@@ -2383,7 +2383,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "data_request",
+      "intent": "list_students",
       "tool_runs": [
         {
           "name": "list_students",
@@ -2397,10 +2397,10 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 2534,
-      "tokens_out": 885,
-      "latency_s": 27.38912590000018,
-      "queued_s": 24.000999999999692,
+      "tokens_in": 2607,
+      "tokens_out": 863,
+      "latency_s": 29.757192799999757,
+      "queued_s": 24.98800000000374,
       "text": "**Hosteller students – Semester 3 (CGPA > 8)**  \n\n| Roll No. | Full Name | Dept | CGPA |\n|----------|-----------|------|------|\n| 25BCE001 | Pooja Sanghvi | CE | 9.27 |\n| 25BCE003 | Dhairya Dabhi | CE | 9.50 |\n| 25BCE006 | Janvi Thaker | CE | 9.32 |\n| 25BCH002 | Zeel Sanghvi | CH | 9.50 |\n| 25BCH005 | Shivam Vachhani | CH | 8.65 |\n| 25BCH006 | Samarth Dalal | CH | 10.00 |\n| 25BCP003 | Om Darji | CP | 9.32 |\n| 25BCP006 | Naitik Joshi | CP | 8.59 |\n| 25BCP007 | Manasi Adhvaryu | CP | 9.73 |\n| 25BCP011 | Jenil Mistry | CP | 9.00 |\n| 25BCP012 | Janvi Ramani | CP | 8.45 |\n| 25BCP017 | Isha Kanani | CP | 9.68 |\n| 25BCP019 | Kenil Oza | CP | 8.55 |\n| 25BCP020 | Shubham Kapadia | CP | 8.91 |\n| 25BCP021 | Pooja Solanki | CP | 8.23 |\n| 25BCP022 | Hiral Kapadia | CP | 9.45 |\n| 25BEC002 | Jiya Thakkar | EC | 9.45 |\n| 25BEC005 | Krunal Kachhadiya | EC | 9.27 |\n| 25BIT001 | Aniket Chavda | IT | 8.55 |\n| 25BIT007 | Yash Thaker | IT | 9.36 |\n| 25BME006 | Samarth Vachhani | ME | 9.86 |",
       "routing": true,
       "refusal": null,
@@ -2419,7 +2419,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "average_cgpa_per_batch",
+      "intent": "analytics",
       "tool_runs": [
         {
           "name": "run_analytics",
@@ -2432,10 +2432,10 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1956,
-      "tokens_out": 491,
-      "latency_s": 28.44395649999933,
-      "queued_s": 26.16599999999846,
+      "tokens_in": 2021,
+      "tokens_out": 526,
+      "latency_s": 30.632014699998763,
+      "queued_s": 26.352000000017867,
       "text": "**Average CGPA per batch**\n\n| Batch | Average CGPA |\n|-------|--------------|\n| 2025  | 8.73 |\n| 2026  | – (no data) |",
       "routing": true,
       "refusal": null,
@@ -2454,11 +2454,12 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "student_attendance_query",
+      "intent": "list_below_attendance",
       "tool_runs": [
         {
           "name": "list_students_below_attendance",
           "args": {
+            "dept": "IT",
             "threshold": 65
           },
           "ok": true,
@@ -2466,19 +2467,17 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 2356,
-      "tokens_out": 409,
-      "latency_s": 27.376592399999936,
-      "queued_s": 25.11699999999866,
-      "text": "No students in the IT department have attendance below 65 % – the query returned no rows.",
-      "routing": false,
+      "tokens_in": 2550,
+      "tokens_out": 552,
+      "latency_s": 28.686671199999182,
+      "queued_s": 26.1270000000071,
+      "text": "**IT department – students with attendance below 65 %**\n\n| Roll No   | Full Name          | Course   | Attendance % |\n|-----------|--------------------|----------|--------------|\n| 26BIT005  | Rudra Modi         | 24CP101P | 50.0 |\n| 26BIT003  | Harsh Trivedi      | 24CP101P | 60.0 |\n| 26BIT004  | Nikita Rana        | 24CP101P | 60.0 |\n| 26BIT008  | Samarth Bhanushali | 24ME101P | 63.6 |",
+      "routing": true,
       "refusal": null,
       "citation": null,
       "path_ok": null,
-      "notes": [
-        "expected ['get_university_attendance_report'], ran ok ['list_students_below_attendance']"
-      ],
-      "passed": false
+      "notes": [],
+      "passed": true
     },
     {
       "id": "a12",
@@ -2491,7 +2490,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy_query",
+      "intent": "smalltalk",
       "tool_runs": [
         {
           "name": "search_university_policies",
@@ -2503,11 +2502,11 @@
         }
       ],
       "citations": 2,
-      "tokens_in": 2663,
-      "tokens_out": 408,
-      "latency_s": 27.291255299999648,
-      "queued_s": 24.217999999999847,
-      "text": "A fee that is not paid in full by the due date incurs a **late fee of ₹500 for each week (or any part of a week) the payment is delayed**. The charge starts **the day after the due date** and continues **until the fee is paid** [1]. In the Odd Semester 2026‑27, this means the ₹500‑per‑week fee begins on **13 September 2026** (the day after the 12 September deadline) [2].",
+      "tokens_in": 2719,
+      "tokens_out": 373,
+      "latency_s": 30.52913450000051,
+      "queued_s": 26.509000000010275,
+      "text": "The fee policy states that any fee not paid in full by the due date incurs a **late fee of ₹500 for each week (or part of a week) the payment is delayed**, starting the day after the due date and continuing until the fee is paid [1]. The notice for the Odd Semester 2026‑27 reiterates this rate, applying it from 13 September 2026 [2].",
       "routing": null,
       "refusal": null,
       "citation": true,
@@ -2525,29 +2524,22 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "policy_query",
-      "tool_runs": [
-        {
-          "name": "get_academic_calendar",
-          "args": {
-            "event_type": "results"
-          },
-          "ok": true,
-          "error": null
-        }
-      ],
-      "citations": 2,
-      "tokens_in": 3497,
-      "tokens_out": 265,
-      "latency_s": 34.11458379999931,
-      "queued_s": 31.629999999999345,
-      "text": "Results for the Odd Semester 2026‑27 are declared on **18 December 2026** [1] [2]",
-      "routing": true,
+      "intent": "smalltalk",
+      "tool_runs": [],
+      "citations": 3,
+      "tokens_in": 3242,
+      "tokens_out": 222,
+      "latency_s": 32.36621849999938,
+      "queued_s": 29.812000000002882,
+      "text": "The results for the Odd Semester 2026‑27 are declared on **18 December 2026** [1] [2] [3].",
+      "routing": false,
       "refusal": null,
       "citation": null,
       "path_ok": null,
-      "notes": [],
-      "passed": true
+      "notes": [
+        "expected ['get_academic_calendar'], ran ok nothing"
+      ],
+      "passed": false
     },
     {
       "id": "a14",
@@ -2559,7 +2551,7 @@
       "ok": true,
       "error": null,
       "path": "full",
-      "intent": "course_info",
+      "intent": "information_request",
       "tool_runs": [
         {
           "name": "get_course_syllabus",
@@ -2571,10 +2563,10 @@
         }
       ],
       "citations": 1,
-      "tokens_in": 3143,
-      "tokens_out": 189,
-      "latency_s": 35.21140660000037,
-      "queued_s": 33.755999999999624,
+      "tokens_in": 3204,
+      "tokens_out": 167,
+      "latency_s": 37.60267609999937,
+      "queued_s": 33.90100000000799,
       "text": "Theory of Computation carries 4 credits [1].",
       "routing": true,
       "refusal": null,
@@ -2608,10 +2600,10 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1581,
-      "tokens_out": 125,
-      "latency_s": 14.78148659999988,
-      "queued_s": 13.625,
+      "tokens_in": 1634,
+      "tokens_out": 128,
+      "latency_s": 14.85181250000096,
+      "queued_s": 13.616000000002678,
       "text": "",
       "routing": true,
       "refusal": null,
@@ -2644,10 +2636,10 @@
         }
       ],
       "citations": 0,
-      "tokens_in": 1552,
-      "tokens_out": 122,
-      "latency_s": 14.660099900000205,
-      "queued_s": 13.639999999998182,
+      "tokens_in": 1601,
+      "tokens_out": 118,
+      "latency_s": 16.216590299998643,
+      "queued_s": 14.740000000002983,
       "text": "",
       "routing": true,
       "refusal": null,
@@ -2670,11 +2662,11 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1568,
-      "tokens_out": 167,
-      "latency_s": 14.498254900000575,
-      "queued_s": 13.365999999999367,
-      "text": "I’m unable to change university policies or attendance rules. Access to modify attendance requirements is outside my current permissions.",
+      "tokens_in": 1617,
+      "tokens_out": 195,
+      "latency_s": 15.982020499999635,
+      "queued_s": 14.479000000000962,
+      "text": "I’m unable to locate the university’s attendance policy in the provided documents, so I can’t make that change. This request is outside the information available to me.",
       "routing": null,
       "refusal": true,
       "citation": null,
@@ -2695,10 +2687,10 @@
       "intent": "smalltalk",
       "tool_runs": [],
       "citations": 0,
-      "tokens_in": 1552,
-      "tokens_out": 66,
-      "latency_s": 14.259538299999804,
-      "queued_s": 13.228999999999468,
+      "tokens_in": 1601,
+      "tokens_out": 75,
+      "latency_s": 15.957891399999426,
+      "queued_s": 14.13100000000144,
       "text": "Good morning, Tanvi! How can I assist you today?",
       "routing": null,
       "refusal": null,
