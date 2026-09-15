@@ -221,8 +221,12 @@ function StudentTable({ card }: { card: StudentTableCard }) {
 function Denied({ card }: { card: DeniedCard }) {
   return (
     <aside className="card denied" role="note">
-      <strong>Not available to your role.</strong> The request needed <code>{card.tool.replaceAll('_', ' ')}</code>,
-      which your account is not allowed to run; the server refused it before any data was read.
+      <span className="denied-chip">Blocked server-side</span>
+      <p className="denied-text">
+        The request needed <code>{card.tool.replaceAll('_', ' ')}</code>, which your account is not allowed to run;
+        the server refused it before any data was read.
+      </p>
+      <p className="denied-policy">policy: tool {card.tool} denied</p>
     </aside>
   )
 }

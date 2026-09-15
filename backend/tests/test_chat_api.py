@@ -6,6 +6,8 @@ orchestrator -> tools -> persistence path runs offline against the real DB.
 """
 from __future__ import annotations
 
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
@@ -225,6 +227,110 @@ def test_queued_wait_is_reported_not_hidden():
         assert r.status_code == 200
         assert r.json()["queued_seconds"] > 0
         assert float(r.headers["x-queued-seconds"]) == r.json()["queued_seconds"]
+    finally:
+        app.dependency_overrides.pop(chat_api.get_provider, None)
+
+
+# --- streaming ---------------------------------------------------------------
+# `POST /api/chat/stream` runs the same turn as `POST /api/chat` but as SSE.
+# TestClient drains the whole response before returning it, so these tests
+# check event *order* and content, not real incrementality (that's the `curl
+# -N` check in the plan file's manual verification step) — but they do run
+# the generator through Starlette's real threadpool-backed StreamingResponse,
+# which is what caught the `queued_notifier` contextvars bug during manual
+# testing (a `with` block spanning several `yield`s broke when Starlette
+# resumed the generator on a different OS thread mid-stream).
+
+def _parse_sse(text: str) -> list[tuple[str, dict]]:
+    events = []
+    for frame in text.strip("\n").split("\n\n"):
+        if not frame.strip():
+            continue
+        event, data = "message", ""
+        for line in frame.split("\n"):
+            if line.startswith("event:"):
+                event = line[len("event:"):].strip()
+            elif line.startswith("data:"):
+                data += line[len("data:"):].strip()
+        events.append((event, json.loads(data)))
+    return events
+
+
+def test_stream_emits_incremental_events_and_matches_non_streaming(scripted):
+    scripted.responses += [
+        route(tools=["get_my_attendance"]),
+        plan(("get_my_attendance", {})),
+        answer("You are at 68% in 24CS201T.", tokens=(400, 80)),
+    ]
+    r = client.post("/api/chat/stream", json={"message": "what's my attendance?"}, headers=_headers())
+    assert r.status_code == 200
+    events = _parse_sse(r.text)
+    kinds = [k for k, _ in events]
+    assert kinds[0] == "status" and kinds[-1] == "done"
+    assert "tool" in kinds and "cards" in kinds and "delta" in kinds
+
+    tool = next(d for k, d in events if k == "tool")
+    assert tool == {"name": "get_my_attendance", "args": {}, "ok": True, "error": None}
+
+    # the scripted provider has no stream_chat, so the whole answer arrives as one delta
+    deltas = [d["text"] for k, d in events if k == "delta"]
+    assert "".join(deltas) == "You are at 68% in 24CS201T."
+
+    done = next(d for k, d in events if k == "done")
+    assert done["text"] == "You are at 68% in 24CS201T."
+    (card,) = done["cards"]
+    assert card["type"] == "attendance"
+    assert done["trace"]["tool_runs"][0]["name"] == "get_my_attendance"
+    assert done["queued_seconds"] == 0
+
+    rows = _message_rows(done["conversation_id"])
+    assert [m.role for m in rows] == ["user", "assistant"]
+    assert rows[1].content == "You are at 68% in 24CS201T."
+
+
+def test_stream_rate_limited_emits_error_event_and_persists_nothing():
+    _use(ExplodingProvider(ProviderRateLimited("429", retry_after=7)))
+    try:
+        with SessionLocal() as db:
+            before = db.scalar(select(Message.id).order_by(Message.id.desc()).limit(1))
+        r = client.post("/api/chat/stream", json={"message": "hi"}, headers=_headers())
+        assert r.status_code == 200  # the stream itself always opens with 200
+        events = _parse_sse(r.text)
+        # a "routing" status lands before Call A actually runs and blows up
+        assert events[-1] == (
+            "error", {"status": 503, "detail": "the assistant is busy — please retry shortly", "retry_after": 7}
+        )
+        assert all(k == "status" for k, _ in events[:-1])
+        with SessionLocal() as db:
+            after = db.scalar(select(Message.id).order_by(Message.id.desc()).limit(1))
+        assert after == before  # no orphan user row
+    finally:
+        app.dependency_overrides.pop(chat_api.get_provider, None)
+
+
+def test_stream_queued_wait_is_reported_and_survives_the_threadpool():
+    """Same setup as `test_queued_wait_is_reported_not_hidden`, over SSE: this is
+    the case that actually exercises the `queued_notifier` contextvars fix —
+    `__enter__` and `__exit__` straddle every `status`/`tool`/`delta` yield.
+    """
+    from app.ai.budget import BudgetedProvider
+
+    scripted = ScriptedProvider(route(intent="smalltalk"), answer("hi"))
+    now = [0.0]
+    budgeted = BudgetedProvider(
+        scripted, tpm=600, rpm=1000, clock=lambda: now[0],
+        sleeper=lambda s: now.__setitem__(0, now[0] + s),
+    )
+    budgeted.tokens.take(600)  # drain it so the first call has to queue
+    _use(budgeted)
+    try:
+        r = client.post("/api/chat/stream", json={"message": "hi"}, headers=_headers())
+        assert r.status_code == 200
+        events = _parse_sse(r.text)
+        queued = next(d for k, d in events if k == "queued")
+        done = next(d for k, d in events if k == "done")
+        assert queued["seconds"] > 0
+        assert done["queued_seconds"] == queued["seconds"]
     finally:
         app.dependency_overrides.pop(chat_api.get_provider, None)
 

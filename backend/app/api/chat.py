@@ -21,6 +21,7 @@ model: the tool's own one-line result is the reply.
 """
 from __future__ import annotations
 
+import contextvars
 import json
 import logging
 
@@ -192,6 +193,7 @@ def chat_stream(
     body: ChatIn,
     ctx: AuthContext = Depends(get_auth_context),
     db: Session = Depends(get_db),
+    provider: LLMProvider = Depends(get_provider),
 ) -> StreamingResponse:
     """Same turn as `POST /api/chat`, as Server-Sent Events instead of one blocking reply.
 
@@ -223,7 +225,7 @@ def chat_stream(
             result: TurnResult | None = None
             with queued_notifier(lambda seconds, _reason: waits.append(seconds)):
                 for event in iter_turn(
-                    question=question, ctx=ctx, db=session, history=history, provider=get_budgeted_provider()
+                    question=question, ctx=ctx, db=session, history=history, provider=provider
                 ):
                     if isinstance(event, TurnStatus):
                         yield _sse("status", {"stage": event.stage})
@@ -261,7 +263,7 @@ def chat_stream(
             session.close()
 
     return StreamingResponse(
-        events(),
+        _pinned_context(events()),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
@@ -437,6 +439,28 @@ def _chat_out(convo: Conversation, reply: Message, result: TurnResult, queued: f
 
 def _sse(event: str, data: Any) -> str:
     return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
+def _pinned_context(gen: Iterator[str]) -> Iterator[str]:
+    """Resume `gen` in the same `contextvars.Context` every time.
+
+    Starlette drains a sync generator passed to `StreamingResponse` by calling
+    `next()` via a threadpool, which may run each call on a different OS
+    thread. `queued_notifier` (in events(), above) is a context manager that
+    spans several `yield`s — its `__exit__` resets a `contextvars.Token`
+    created by `__enter__`, and that reset raises `ValueError: ... was created
+    in a different Context` the moment the two calls land on different
+    threads. Running every resumption through the same captured `Context`
+    keeps the notifier's state consistent regardless of which thread actually
+    executes it.
+    """
+    ctx = contextvars.copy_context()
+    while True:
+        try:
+            item = ctx.run(next, gen)
+        except StopIteration:
+            return
+        yield item
 
 
 def _own_conversation(db: Session, ctx: AuthContext, conversation_id: int) -> Conversation:

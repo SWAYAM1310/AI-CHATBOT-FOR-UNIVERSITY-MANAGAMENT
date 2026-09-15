@@ -30,3 +30,6 @@ Thumbs.db
 node_modules/
 frontend/dist/
 frontend/.vite/
+
+# Playwright MCP
+.playwright-mcp/

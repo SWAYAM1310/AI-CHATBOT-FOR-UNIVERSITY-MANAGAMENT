@@ -23,7 +23,7 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [conversations, setConversations] = useState<ConversationOut[]>([])
-  const [railOpen, setRailOpen] = useState(false)
+  const [railOpen, setRailOpen] = useState<boolean>(initialRailOpen)
   const [showTrace, setShowTrace] = useState<boolean>(() => readFlag(TRACE_KEY))
   const endRef = useRef<HTMLDivElement>(null)
   const transcriptRef = useRef<HTMLElement>(null)
@@ -65,6 +65,10 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
   useEffect(() => {
     saveActiveConversation(session.subjectRef, conversationId)
   }, [session.subjectRef, conversationId])
+
+  useEffect(() => {
+    writeFlag(RAIL_KEY, railOpen)
+  }, [railOpen])
 
   function patch(id: string, change: Partial<Turn> | ((t: Turn) => Partial<Turn>)) {
     setTurns((ts) =>
@@ -156,7 +160,6 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
 
   async function openConversation(id: number) {
     if (busy) return
-    setRailOpen(false)
     try {
       const messages = await api.messages(id)
       setConversationId(id)
@@ -174,7 +177,6 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
   }
 
   function newConversation() {
-    setRailOpen(false)
     setConversationId(null)
     setTurns([])
     inputRef.current?.focus()
@@ -216,40 +218,19 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
     }
   }
 
-  const who = describeCaller(session, me)
+  const activeTitle =
+    conversationId != null ? conversations.find((c) => c.id === conversationId)?.title || 'Untitled' : 'New conversation'
+
+  function toggleTrace() {
+    setShowTrace((v) => {
+      const next = !v
+      writeFlag(TRACE_KEY, next)
+      return next
+    })
+  }
 
   return (
     <div className="app">
-      <header className="topbar">
-        <button
-          type="button"
-          className="linklike rail-toggle"
-          onClick={() => setRailOpen((o) => !o)}
-          aria-expanded={railOpen}
-          aria-controls="rail"
-        >
-          Menu
-        </button>
-        <span className="wordmark">UniAssist</span>
-        <span className="caller">{who}</span>
-        <span className="topbar-actions">
-          <label className="trace-toggle">
-            <input
-              type="checkbox"
-              checked={showTrace}
-              onChange={(e) => {
-                setShowTrace(e.target.checked)
-                writeFlag(TRACE_KEY, e.target.checked)
-              }}
-            />
-            Trace
-          </label>
-          <button type="button" className="linklike" onClick={onSignOut}>
-            Sign out
-          </button>
-        </span>
-      </header>
-
       <Rail
         conversations={conversations}
         activeId={conversationId}
@@ -260,56 +241,102 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
         open={railOpen}
         onClose={() => setRailOpen(false)}
       />
+      {railOpen && <div className="scrim" onClick={() => setRailOpen(false)} />}
 
-      <main className="transcript" aria-live="polite" ref={transcriptRef} onScroll={onTranscriptScroll}>
-        {turns.length === 0 ? (
-          <div className="empty">
-            <p>Ask about your own records or about the University's regulations.</p>
-            <ul className="empty-suggestions">
-              {SUGGESTIONS[session.role].map((q) => (
-                <li key={q}>
-                  <button type="button" onClick={() => ask(q)}>
-                    {q}
-                  </button>
-                </li>
-              ))}
-            </ul>
+      <div className="main-col">
+        <header className="chat-header">
+          {!railOpen && (
+            <button type="button" className="icon-btn" onClick={() => setRailOpen(true)} aria-label="Open sidebar" title="Open sidebar">
+              <PanelIcon />
+            </button>
+          )}
+          <div className="chat-header-title">
+            <p className="chat-title">{activeTitle}</p>
           </div>
-        ) : (
-          turns.map((t) => (
-            <Message
-              key={t.id}
-              turn={t}
-              showTrace={showTrace}
-              onConfirm={(card) => confirm(t.id, card)}
-              onCancel={() => cancel(t.id)}
-            />
-          ))
-        )}
-        <div ref={endRef} />
-      </main>
+          <div className="chat-header-actions">
+            <button type="button" className="linklike" onClick={toggleTrace}>
+              {showTrace ? 'Hide trace' : 'Show trace'}
+            </button>
+            <button type="button" className="linklike" onClick={onSignOut}>
+              Sign out
+            </button>
+          </div>
+        </header>
 
-      <form className="composer" onSubmit={submit}>
-        <textarea
-          ref={inputRef}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={onKey}
-          placeholder={busy ? 'Waiting for the answer…' : 'Ask UniAssist'}
-          rows={1}
-          disabled={busy}
-          autoFocus
-          aria-label="Your question"
-        />
-        <button type="submit" className="primary" disabled={busy || !draft.trim()}>
-          Send
-        </button>
-      </form>
+        <div className="chat-body">
+          <main className="transcript" aria-live="polite" ref={transcriptRef} onScroll={onTranscriptScroll}>
+            {turns.length === 0 ? (
+              <div className="empty">
+                <p>Ask about your own records or about the University's regulations.</p>
+                <ul className="empty-suggestions">
+                  {SUGGESTIONS[session.role].map((q) => (
+                    <li key={q}>
+                      <button type="button" onClick={() => ask(q)}>
+                        {q}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              turns.map((t) => (
+                <Message
+                  key={t.id}
+                  turn={t}
+                  showTrace={showTrace}
+                  onConfirm={(card) => confirm(t.id, card)}
+                  onCancel={() => cancel(t.id)}
+                />
+              ))
+            )}
+            <div ref={endRef} />
+          </main>
+        </div>
+
+        <form className="composer" onSubmit={submit}>
+          <div className="composer-pill">
+            <textarea
+              ref={inputRef}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={onKey}
+              placeholder={busy ? 'Waiting for the answer…' : 'Ask about your attendance, fees, or the regulations…'}
+              rows={1}
+              disabled={busy}
+              autoFocus
+              aria-label="Your question"
+            />
+            <button type="submit" className="primary composer-send" disabled={busy || !draft.trim()}>
+              Send
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
 
+function PanelIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="3" />
+      <line x1="9.5" y1="4" x2="9.5" y2="20" />
+    </svg>
+  )
+}
+
+function initialRailOpen(): boolean {
+  try {
+    if (window.innerWidth <= 800) return false
+    const raw = localStorage.getItem(RAIL_KEY)
+    return raw === null ? true : raw === '1'
+  } catch {
+    return true
+  }
+}
+
 const TRACE_KEY = 'uniassist.trace'
+const RAIL_KEY = 'uniassist.railOpen'
 const MAX_AUTO_WAIT = 20 // seconds: longer than this and the person should decide
 
 function readFlag(key: string): boolean {
@@ -384,15 +411,6 @@ async function chatStreamWithOneRetry(
     }
     throw err
   }
-}
-
-function describeCaller(session: Session, me: Me | null): string {
-  const role = session.role[0].toUpperCase() + session.role.slice(1)
-  const p = me?.profile as Record<string, unknown> | null | undefined
-  const name = p && typeof p.full_name === 'string' ? p.full_name : null
-  const ref = session.subjectRef.split(':').pop()
-  const hod = me?.is_hod ? ', HOD' : ''
-  return name ? `${name} (${role}${hod})` : `${role}${hod} ${ref ?? ''}`.trim()
 }
 
 function describe(err: unknown): string {

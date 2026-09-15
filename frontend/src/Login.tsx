@@ -35,6 +35,7 @@ export function Login({ onSignedIn }: { onSignedIn: (s: Session) => void }) {
   return (
     <main className="login">
       <section className="login-card">
+        <img src="/Pandit_Deendayal_Energy_University_logo.png" alt="PDEU" className="login-logo" />
         <h1 className="wordmark">UniAssist</h1>
         <p className="login-lede">
           Ask about your attendance, marks, fees and timetable, or about the University's regulations.

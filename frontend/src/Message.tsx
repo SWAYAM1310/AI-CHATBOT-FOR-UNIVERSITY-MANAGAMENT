@@ -27,48 +27,72 @@ export function Message({
   if (turn.pending) {
     return (
       <article className="msg msg-assistant pending" aria-busy="true">
-        <p className="thinking">
-          <span>{turn.queuedSeconds ? `Queued — the assistant is busy, retrying in ${turn.queuedSeconds}s` : stageLabel(turn.stage)}</span>
-          <span className="dot" aria-hidden="true" />
-          <span className="dot" aria-hidden="true" />
-          <span className="dot" aria-hidden="true" />
-        </p>
+        <div className="msg-card">
+          <p className="thinking">
+            <span>{turn.queuedSeconds ? `Queued — the assistant is busy, retrying in ${turn.queuedSeconds}s` : stageLabel(turn.stage)}</span>
+            <span className="dot" aria-hidden="true" />
+            <span className="dot" aria-hidden="true" />
+            <span className="dot" aria-hidden="true" />
+          </p>
+        </div>
       </article>
     )
   }
   if (turn.error) {
     return (
       <article className="msg msg-assistant">
-        <p className="msg-error" role="alert">{turn.error}</p>
+        <div className="msg-card">
+          <p className="msg-error" role="alert">{turn.error}</p>
+        </div>
       </article>
     )
   }
   const confirmCard = turn.cards.find((c): c is ConfirmCard => c.type === 'confirm')
+  const tools = turn.trace?.tool_runs ?? turn.liveTools ?? []
   return (
     <article className="msg msg-assistant">
-      {turn.queuedSeconds ? (
-        <p className="muted small">Queued {turn.queuedSeconds}s behind the rate limit.</p>
-      ) : null}
-      {turn.text && <Prose text={turn.text} />}
-      {turn.streaming && <span className="caret" aria-hidden="true" />}
-      {confirmCard && (
-        <Confirm card={confirmCard} outcome={turn.outcome} onConfirm={() => onConfirm(confirmCard)} onCancel={onCancel} />
-      )}
-      {turn.cards.filter((c) => c.type !== 'confirm').map((c, i) => (
-        <DataCard key={i} card={c} />
-      ))}
-      {turn.citations.length > 0 && (
-        <ol className="footnotes" aria-label="Sources">
-          {turn.citations.map((c) => (
-            <li key={c.n} id={`${turn.id}-fn${c.n}`} value={c.n}>
-              <span className="fn-doc">{c.document ?? 'Document'}</span>
-              {c.section && <span className="fn-section"> — {c.section}</span>}
-              {c.page != null && <span className="fn-page">, p.{c.page}</span>}
-              {c.snippet && <details><summary>passage</summary><p className="fn-snippet">{c.snippet}</p></details>}
-            </li>
-          ))}
-        </ol>
-      )}
+      <div className="msg-card">
+        {tools.length > 0 && (
+          <div className="tool-pills">
+            {tools.map((t, i) => (
+              <span key={i} className={`tool-pill ${t.ok ? 'ok' : 'bad'}`}>
+                <span className="tool-dot" aria-hidden="true" />
+                {t.name}
+                {Object.keys(t.args ?? {}).length > 0 && <span className="tool-args"> {JSON.stringify(t.args)}</span>}
+              </span>
+            ))}
+          </div>
+        )}
+        {turn.queuedSeconds ? (
+          <p className="muted small">Queued {turn.queuedSeconds}s behind the rate limit.</p>
+        ) : null}
+        {turn.text && <Prose text={turn.text} />}
+        {turn.streaming && <span className="caret" aria-hidden="true" />}
+        {confirmCard && (
+          <Confirm card={confirmCard} outcome={turn.outcome} onConfirm={() => onConfirm(confirmCard)} onCancel={onCancel} />
+        )}
+        {turn.cards.filter((c) => c.type !== 'confirm').map((c, i) => (
+          <DataCard key={i} card={c} />
+        ))}
+        {turn.citations.length > 0 && (
+          <div className="cited">
+            <p className="cited-label">Cited</p>
+            <ol className="cited-list" aria-label="Sources">
+              {turn.citations.map((c) => (
+                <li key={c.n} id={`${turn.id}-fn${c.n}`} value={c.n}>
+                  <span className="cited-badge" aria-hidden="true">{c.n}</span>
+                  <span className="cited-body">
+                    <span className="fn-doc">{c.document ?? 'Document'}</span>
+                    {c.section && <span className="fn-section"> · {c.section}</span>}
+                    {c.page != null && <span className="fn-page">, p.{c.page}</span>}
+                    {c.snippet && <details><summary>passage</summary><p className="fn-snippet">{c.snippet}</p></details>}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
       {showTrace && turn.trace && <Trace trace={turn.trace} queuedSeconds={turn.queuedSeconds} />}
     </article>
   )
