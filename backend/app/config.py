@@ -52,5 +52,26 @@ class Settings(BaseSettings):
     # Academic context (matches scripts/academic_data.py)
     current_term: str = "2026-27-ODD"
 
+    # Email notifications (leave apply/decide, phase 1). "off" drafts and sends
+    # nothing (eval runs); "console" logs the message and never touches the
+    # network (pytest/CI default); "smtp" sends for real, to either a local
+    # Mailpit sandbox or a real provider depending on smtp_host/smtp_port.
+    email_mode: str = "console"  # off | console | smtp
+    email_draft_enabled: bool = False  # off by default: protects the Groq daily cap (eval never confirms)
+    email_from: str = "UniAssist <noreply@sot.pdpu.ac.in>"
+    smtp_host: str = "localhost"
+    smtp_port: int = 1025
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_starttls: bool = False
+    # Demo safety net: with this set, every outgoing mail is redirected here
+    # regardless of recipient, with the true address kept in a header and a
+    # body banner (see app/notify/mailer.py). Synthetic recipients are not
+    # real people, and some personal_email values look like real gmail
+    # addresses — never send to one without this set, or a domain allowlisted
+    # in email_allowed_domains.
+    email_redirect_to: str = ""
+    email_allowed_domains: str = "sot.pdpu.ac.in"  # comma-separated
+
 
 settings = Settings()

@@ -18,6 +18,12 @@ takes the signed token off the confirm card, re-runs the tool through the
 registry with `confirmed=True` — so RBAC is re-checked at execution time and a
 role change between preview and click still denies — and never talks to the
 model: the tool's own one-line result is the reply.
+
+An action tool that also notifies someone by email (apply_for_leave,
+decide_leave_request) queues the message in the same DB transaction as its
+write (app/notify/mailer.py); this endpoint flushes it — actually sends —
+only after `db.commit()`, so a send failure can never lose the write, and a
+rolled-back write can never have sent an email.
 """
 from __future__ import annotations
 
@@ -46,6 +52,8 @@ from app.ai.orchestrator import (
 )
 from app.ai.tools import confirm
 from app.ai.tools.registry import REGISTRY, ToolDenied
+from app.notify.mailer import collecting as collecting_outbox
+from app.notify.mailer import flush_outbox
 from app.ai.providers import (
     LLMProvider,
     Msg,
@@ -286,14 +294,15 @@ def confirm_action(
 
     convo = _own_conversation(db, ctx, body.conversation_id) if body.conversation_id else None
 
-    try:
-        result = REGISTRY.invoke(tool_name, ctx, db, args, confirmed=True)
-    except ToolDenied as exc:  # role changed since the preview; audited as 'denied'
-        db.rollback()
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "not permitted for your role") from exc
-    except (KeyError, ValueError) as exc:  # token names something that is not an action tool
-        db.rollback()
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "invalid confirmation token") from exc
+    with collecting_outbox() as outbox_rows:
+        try:
+            result = REGISTRY.invoke(tool_name, ctx, db, args, confirmed=True)
+        except ToolDenied as exc:  # role changed since the preview; audited as 'denied'
+            db.rollback()
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "not permitted for your role") from exc
+        except (KeyError, ValueError) as exc:  # token names something that is not an action tool
+            db.rollback()
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "invalid confirmation token") from exc
 
     if not isinstance(result, dict) or not result.get("done"):
         db.rollback()
@@ -311,6 +320,7 @@ def confirm_action(
         )
         db.add(reply)
     db.commit()
+    flush_outbox(db, outbox_rows)  # only once the write is durable — see module docstring
     confirm.consume(body.token)  # only once the write is durable
 
     return ConfirmOut(

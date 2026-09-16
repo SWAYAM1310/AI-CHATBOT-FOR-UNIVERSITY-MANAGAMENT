@@ -16,7 +16,7 @@ from app.ai.tools import confirm
 from app.api import chat as chat_api
 from app.db.session import SessionLocal
 from app.main import app
-from app.models import LeaveRequest, Message, User
+from app.models import EmailOutbox, LeaveRequest, Message, User
 from tests.test_chat_api import _headers, _message_rows
 from tests.test_orchestrator import ScriptedProvider, answer, plan, route
 
@@ -36,11 +36,19 @@ def scripted():
 
 @pytest.fixture()
 def undo():
+    """Delete every LeaveRequest AND EmailOutbox row a test's real confirm
+    execution wrote — apply_for_leave queues a HOD notification alongside the
+    write, and /api/chat/confirm flushes (commits) it for real.
+    """
     with SessionLocal() as s:
-        high = s.scalar(select(func.coalesce(func.max(LeaveRequest.id), 0)))
+        high = {
+            LeaveRequest: s.scalar(select(func.coalesce(func.max(LeaveRequest.id), 0))),
+            EmailOutbox: s.scalar(select(func.coalesce(func.max(EmailOutbox.id), 0))),
+        }
     yield
     with SessionLocal() as s:
-        s.execute(delete(LeaveRequest).where(LeaveRequest.id > high))
+        s.execute(delete(EmailOutbox).where(EmailOutbox.id > high[EmailOutbox]))
+        s.execute(delete(LeaveRequest).where(LeaveRequest.id > high[LeaveRequest]))
         s.commit()
 
 

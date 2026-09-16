@@ -27,6 +27,7 @@ from app.models import (
     AttendanceSession,
     AuditLog,
     DocumentRequest,
+    EmailOutbox,
     LeaveRequest,
     Mark,
     Student,
@@ -336,6 +337,16 @@ def test_decide_leave_request_approves_once(db):
         assert (row.status, row.decided_by, row.decided_on) == ("approved", HOD_CP, date.today())
         assert "already approved" in REGISTRY.invoke("decide_leave_request", hod, db, args)["error"]
     finally:
+        # this test commits to restore shared fixture state for the tests that
+        # follow it, which would otherwise also durably commit the EmailOutbox
+        # row decide_leave_request queues alongside the decision — clean that
+        # up too, or its idempotency_key (tests/test_notify.py) blocks a real
+        # queue on the next test that decides leave #PENDING_CP_LEAVE.
+        db.execute(
+            delete(EmailOutbox).where(
+                EmailOutbox.related_type == "leave_request", EmailOutbox.related_id == PENDING_CP_LEAVE
+            )
+        )
         row = db.get(LeaveRequest, PENDING_CP_LEAVE)
         row.status, row.decided_by, row.decided_on = "pending", None, None
         db.commit()

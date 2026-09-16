@@ -49,6 +49,7 @@ from app.models.ai import (  # noqa: F401
     Document,
     Message,
 )
+from app.models.notify import EmailOutbox  # noqa: F401
 from app.models.syllabus import (  # noqa: F401
     CourseOutcome,
     SyllabusCourse,

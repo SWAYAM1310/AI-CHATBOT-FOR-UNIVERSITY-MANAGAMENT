@@ -232,7 +232,7 @@ function Confirm({
   onConfirm: () => void
   onCancel: () => void
 }) {
-  const { summary, ...rest } = card.preview
+  const { summary, email_preview: emailPreview, ...rest } = card.preview
   const fields = Object.entries(rest).filter(([, v]) => v !== null && v !== undefined && v !== '')
   return (
     <section className={`confirm ${outcome ? (outcome.ok ? 'settled' : 'failed') : 'open'}`} aria-label="Confirm action">
@@ -246,6 +246,22 @@ function Confirm({
             </div>
           ))}
         </dl>
+      )}
+      {emailPreview && (
+        <div className="confirm-email">
+          <p className="confirm-email-title">Email that will be sent</p>
+          <dl>
+            <div>
+              <dt>to</dt>
+              <dd>{emailPreview.to ?? '(no address on file)'}</dd>
+            </div>
+            <div>
+              <dt>subject</dt>
+              <dd>{emailPreview.subject}</dd>
+            </div>
+          </dl>
+          <pre className="confirm-email-body">{emailPreview.body}</pre>
+        </div>
       )}
       {outcome ? (
         <p className={outcome.ok ? 'confirm-outcome' : 'msg-error'}>{outcome.text}</p>

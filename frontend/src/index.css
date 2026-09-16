@@ -837,6 +837,36 @@ code {
   margin: 0;
 }
 
+.confirm-email {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.confirm-email-title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.confirm-email dl {
+  margin: 0 0 8px;
+}
+
+.confirm-email-body {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--amber-soft);
+  font-family: inherit;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .confirm-actions {
   display: flex;
   gap: 10px;

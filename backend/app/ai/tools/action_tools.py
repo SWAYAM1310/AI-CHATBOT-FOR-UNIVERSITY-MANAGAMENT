@@ -32,6 +32,14 @@ from app.ai.tools import confirm
 from app.ai.tools.registry import Scope, tool
 from app.auth.context import AuthContext, Role
 from app.auth.security import hash_password
+from app.notify.draft import draft as draft_email_body
+from app.notify.mailer import queue_email
+from app.notify.templates import (
+    leave_applied_body,
+    leave_applied_subject,
+    leave_decided_body,
+    leave_decided_subject,
+)
 from app.models import (
     Announcement,
     Assessment,
@@ -121,11 +129,11 @@ def _roster(db: Session, offering_id: int) -> dict[str, Student]:
     return {s.roll_no: s for s in rows}
 
 
-def _hod_name(db: Session, dept_id: int | None) -> str | None:
+def _hod(db: Session, dept_id: int | None) -> Faculty | None:
     if dept_id is None:
         return None
     return db.scalar(
-        select(Faculty.full_name)
+        select(Faculty)
         .join(Department, Department.hod_faculty_id == Faculty.id)
         .where(Department.id == dept_id)
     )
@@ -141,7 +149,16 @@ def _hod_name(db: Session, dept_id: int | None) -> str | None:
     action=True,
 )
 def apply_for_leave(
-    *, ctx: AuthContext, db: Session, from_date: str, to_date: str, reason: str, confirmed: bool = False, **_: Any
+    *,
+    ctx: AuthContext,
+    db: Session,
+    from_date: str,
+    to_date: str,
+    reason: str,
+    email_subject: str | None = None,
+    email_body: str | None = None,
+    confirmed: bool = False,
+    **_: Any,
 ) -> dict[str, Any]:
     start = _parse_date(from_date, "from_date")
     if isinstance(start, dict):
@@ -174,13 +191,41 @@ def apply_for_leave(
         return _error(f"overlaps your existing leave request #{clash}")
 
     student = db.get(Student, ctx.student_id)
-    approver = _hod_name(db, ctx.dept_id)
-    args = {"from_date": start.isoformat(), "to_date": end.isoformat(), "reason": reason}
+    hod = _hod(db, ctx.dept_id)
+    approver = hod.full_name if hod else None
+
+    # A model tool call never carries email_subject/email_body (schema.py hides
+    # them); they arrive non-None only on the confirmed round-trip, frozen
+    # exactly as the confirm card showed them (app/ai/tools/confirm.py). The
+    # preview branch is what fills them in, once.
+    if email_subject is None or email_body is None:
+        email_ctx = dict(
+            full_name=student.full_name,
+            roll_no=student.roll_no,
+            from_date=start.isoformat(),
+            to_date=end.isoformat(),
+            days=days,
+            reason=reason,
+            approver=approver,
+        )
+        email_subject = leave_applied_subject(student.roll_no, start.isoformat(), end.isoformat())
+        email_body = draft_email_body("leave_applied", **email_ctx) or leave_applied_body(**email_ctx)
+
+    args = {
+        "from_date": start.isoformat(),
+        "to_date": end.isoformat(),
+        "reason": reason,
+        "email_subject": email_subject,
+        "email_body": email_body,
+    }
     preview = {
         "summary": f"Apply for {days}-day leave, {start.isoformat()} to {end.isoformat()}",
-        **args,
+        "from_date": args["from_date"],
+        "to_date": args["to_date"],
+        "reason": reason,
         "days": days,
         "approver": approver,
+        "email_preview": {"to": hod.university_email if hod else None, "subject": email_subject, "body": email_body},
     }
     if not confirmed:
         return confirm.pending(ctx, "apply_for_leave", args, preview)
@@ -196,6 +241,18 @@ def apply_for_leave(
     )
     db.add(row)
     db.flush()
+
+    if hod and hod.university_email:
+        queue_email(
+            db,
+            idempotency_key=f"leave_applied:{row.id}",
+            to_addr=hod.university_email,
+            subject=email_subject,
+            body=email_body,
+            related_type="leave_request",
+            related_id=row.id,
+        )
+
     who = f" from {approver}" if approver else ""
     return {
         "done": True,
@@ -569,7 +626,15 @@ def list_pending_leave_requests(*, ctx: AuthContext, db: Session, **_: Any) -> l
     action=True,
 )
 def decide_leave_request(
-    *, ctx: AuthContext, db: Session, leave_request_id: int, decision: str, confirmed: bool = False, **_: Any
+    *,
+    ctx: AuthContext,
+    db: Session,
+    leave_request_id: int,
+    decision: str,
+    email_subject: str | None = None,
+    email_body: str | None = None,
+    confirmed: bool = False,
+    **_: Any,
 ) -> dict[str, Any]:
     verb = {"approve": "approve", "approved": "approve", "reject": "reject", "rejected": "reject"}.get(
         (decision or "").strip().lower()
@@ -594,23 +659,57 @@ def decide_leave_request(
     if req.status != "pending":
         return _error(f"leave request #{req_id} is already {req.status}")
 
-    args = {"leave_request_id": req_id, "decision": verb}
+    decided_status = LEAVE_DECISIONS[verb]
+    hod = db.get(Faculty, ctx.faculty_id)
+    decided_by = hod.full_name if hod else None
+
+    if email_subject is None or email_body is None:
+        email_ctx = dict(
+            full_name=student.full_name,
+            from_date=req.from_date.isoformat(),
+            to_date=req.to_date.isoformat(),
+            decision=decided_status,
+            decided_by=decided_by,
+        )
+        email_subject = leave_decided_subject(student.roll_no, decided_status)
+        email_body = draft_email_body("leave_decided", **email_ctx) or leave_decided_body(**email_ctx)
+
+    args = {
+        "leave_request_id": req_id,
+        "decision": verb,
+        "email_subject": email_subject,
+        "email_body": email_body,
+    }
     preview = {
         "summary": f"{verb.capitalize()} leave request #{req_id} of {student.roll_no} {student.full_name}",
-        **args,
+        "leave_request_id": req_id,
+        "decision": verb,
         "roll_no": student.roll_no,
         "full_name": student.full_name,
         "from_date": req.from_date.isoformat(),
         "to_date": req.to_date.isoformat(),
         "reason": req.reason,
+        "email_preview": {"to": student.university_email, "subject": email_subject, "body": email_body},
     }
     if not confirmed:
         return confirm.pending(ctx, "decide_leave_request", args, preview)
 
-    req.status = LEAVE_DECISIONS[verb]
+    req.status = decided_status
     req.decided_by = ctx.faculty_id
     req.decided_on = _today()
     db.flush()
+
+    if student.university_email:
+        queue_email(
+            db,
+            idempotency_key=f"leave_decided:{req.id}",
+            to_addr=student.university_email,
+            subject=email_subject,
+            body=email_body,
+            related_type="leave_request",
+            related_id=req.id,
+        )
+
     return {
         "done": True,
         "leave_request_id": req_id,

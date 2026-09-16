@@ -1,15 +1,14 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated **2026-09-15, 5b eval
-harness completed end-to-end**. Phases 0–5a complete and committed (`89c5ecc`);
-5c + the 5b eval-fix pass below are **uncommitted** unless a later commit says
-otherwise. Groq key set; the live path is verified for all three roles, the
-confirm flow and curriculum/calendar questions (§11). 5b is now functionally
-done (§12): full 80-case run scored 77/80, the 3 misses were root-caused and
-fixed (router/tool-description prompt edits), and all 3 pass individually on
-a live re-check — **the fixed golden set has not yet been re-run end-to-end**
-(see §12 for exactly what's still open). Next: finish that confirmation run,
-then **6 — report / demo prep**.
+Snapshot for picking the work back up. Last updated **2026-09-16, Phase 6
+(agentic email notifications) built and verified offline + against a local
+Mailpit sandbox — see §14**. Phases 0–5c are committed (git log has
+`77bd76a`/`c82b426`/`ef59ee3` on top of the 5c work this file once called
+uncommitted). Phase 6's code is **uncommitted**, reported and awaiting the
+go-ahead. Still open from §12/§14: the fixed 80-case golden set has not been
+re-run end-to-end, and §14's live Gmail proof + a real chat-UI click-through
+need the user (an app password for the former; both spend Groq tokens the
+daily cap has already interrupted twice, so neither was run unprompted).
 
 **Machine move note (2026-09-15):** this repo was moved to a new machine
 (`D:\Coding Files\University Assistant`, user `fenil`) since the last
@@ -1449,4 +1448,122 @@ Docker Desktop was started; full pass run against the live stack.
     up/down arrows next to Send at narrow widths.
   - `npm run build`/`npm run lint` clean after the CSS fix.
 
-Nothing committed yet.
+---
+
+## 14. Phase 6 — agentic email notifications, leave apply/decide (2026-09-16)
+
+The first genuinely agentic feature: `apply_for_leave` now drafts and queues a
+notification to the student's HOD, and `decide_leave_request` drafts and
+queues one back to the student — finally meeting clause 4.3 of
+`docs/policies/student_leave_policy.md` ("notified on the portal **and by
+e-mail**"), which nothing in the system had implemented until now.
+
+**Why synthetic data made this hard:** nobody owns `@sot.pdpu.ac.in`, and the
+generator's `personal_email()` produces plausible `firstname.lastname<NNN>
+@gmail.com` addresses that could hit a real stranger's inbox. Solved with a
+local Mailpit sandbox as the default dev/test transport (accepts every
+synthetic address, nothing leaves the machine) plus a redirect-and-guard
+scheme (`EMAIL_REDIRECT_TO` / `EMAIL_ALLOWED_DOMAINS`) that fails closed
+against a real SMTP host. No website credentials were needed — every
+synthetic account's password is `uniassist` — and no friend's inbox either:
+the user's own Gmail is reachable via the Gmail MCP connector for live proof.
+
+### New — `backend/app/notify/`
+- `transport.py` — `Transport` protocol; `ConsoleTransport` (default,
+  network-free), `MemoryTransport` (tests), `SmtpTransport` (stdlib
+  `smtplib`/`EmailMessage`, serves both Mailpit and a real provider — same
+  code, only host/port/credentials differ). Mirrors `app/ai/providers` for the
+  LLM.
+- `templates.py` — deterministic bodies (`leave_applied_*`, `leave_decided_*`)
+  — the fallback and what drafting fills in.
+- `draft.py` — `draft(kind, **ctx)`: best-effort LLM body via
+  `get_budgeted_provider()`, gated by `EMAIL_DRAFT_ENABLED` (**off by
+  default** — `eval/run_eval.py` never confirms, so it hits the preview branch
+  of both leave tools on every run; drafting on by default would add LLM
+  calls to a run already killed twice by the Groq daily cap). Any provider
+  error or empty reply falls back to the template silently.
+- `mailer.py` — `queue_email()` writes a `queued`/`suppressed` `email_outbox`
+  row in the caller's own transaction (idempotent on `idempotency_key`, so a
+  replayed confirm can't double-send); `flush_outbox()` sends for real, only
+  called by `/api/chat/confirm` *after* `db.commit()` — a send failure can
+  never lose the write, a rolled-back write can never have sent an email. A
+  `collecting()` ContextVar (same pattern as `budget.py`'s `queued_notifier`)
+  lets the confirm endpoint flush exactly the rows one request's tool call
+  queued, without knowing which tool it was.
+
+### The agentic part
+The drafted (or template) body is computed once, in the tool's preview
+branch, and put into the tool's `args` — which `confirm.pending()`
+HMAC-signs. The confirmed round-trip receives those exact frozen strings back
+as `email_subject`/`email_body` kwargs, so **the model cannot redraft
+something different after a human approved the preview text** — the existing
+two-phase confirm becomes the human-in-the-loop gate for free. `email_subject`
+and `email_body` were added to `schema.py`'s `INJECTED` set so the model never
+sees them as fields to fill in.
+
+### Modified
+- `backend/app/models/notify.py` (new `EmailOutbox`), migration
+  `a1b2c3d4e5f6_email_outbox` (head, on top of `cc3862737634`).
+- `backend/app/config.py` / `.env.example` — `email_mode` (off|console|smtp,
+  default console), `email_draft_enabled` (default false), `email_from`,
+  `smtp_host/port/user/password/starttls` (defaults point at Mailpit),
+  `email_redirect_to`, `email_allowed_domains` (default `sot.pdpu.ac.in`).
+- `docker-compose.yml` — `mailpit` service (`axllent/mailpit`, ports
+  1025/8025).
+- `backend/app/ai/tools/action_tools.py` — `apply_for_leave` and
+  `decide_leave_request` draft + queue; `_hod_name` widened to `_hod`
+  (returns the `Faculty` row, not just a name, so the university_email is
+  reachable).
+- `backend/app/api/chat.py` — `collecting_outbox()` wraps `REGISTRY.invoke`
+  in `/api/chat/confirm`; `flush_outbox()` called right after `db.commit()`,
+  before `confirm.consume()`.
+- `frontend/src/types.ts` (`EmailPreview`), `frontend/src/Message.tsx` (the
+  `Confirm()` card renders `email_preview`'s To/Subject/body separately —
+  previously `preview` was flattened straight into a `<dl>`, which would have
+  mangled a multi-line body), `frontend/src/index.css` (`.confirm-email*`).
+
+### Tests — `backend/tests/test_notify.py` (new, 13 cases)
+Redirect rewriting, the stranger-domain guard (suppressed on a real host with
+no redirect, allowed on Mailpit or an allowlisted domain), replayed-token
+idempotency, transactional rollback leaving no queued row, `flush_outbox`
+send/fail/skip-suppressed, and both leave tools' preview-freezes-the-sent-body
+property end to end.
+
+**Found and fixed two real test-isolation bugs** this wiring exposed: two
+pre-existing tests (`tests/test_action_tools.py::test_decide_leave_request_
+approves_once`, which restores shared fixture `PENDING_CP_LEAVE` to `pending`
+in a `finally: db.commit()`; and `tests/test_confirm_api.py`'s whole-module
+`undo` fixture, which drives the real `/api/chat/confirm` endpoint) committed
+real writes through the newly-wired leave tools but only cleaned up
+`LeaveRequest`, not the `EmailOutbox` row now queued alongside it. Both
+fixtures widened to delete `EmailOutbox` rows above their recorded
+high-water mark too. Full suite: **409 passed**, zero `email_outbox` rows or
+extra `leave_requests` rows left in the dev DB afterward (verified directly).
+
+### Live verification (Mailpit, real SMTP, zero LLM cost)
+`EMAIL_DRAFT_ENABLED=false` (template body, no Groq call) so this proof
+spends nothing against the daily cap. Ran `apply_for_leave` then
+`decide_leave_request` through the real `REGISTRY.invoke(..., confirmed=True)`
++ `flush_outbox()` path (the same code `/api/chat/confirm` calls) against
+`SMTP_HOST=localhost:1025`. Mailpit's REST API
+(`GET localhost:8025/api/v1/messages`) confirmed both messages actually
+arrived — correct `To`, correct subject, and a body that is byte-for-byte
+the text shown in the tool's preview. Cleaned up afterward (DB rows removed,
+Mailpit inbox cleared); dev DB and test dataset untouched by the proof run.
+
+### Not yet done — needs the user
+1. **Live Gmail proof** — set `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`,
+   `SMTP_USER`/`SMTP_PASSWORD` (a Gmail **app password**, not the account
+   password) and `EMAIL_REDIRECT_TO=<real inbox>` in `backend/.env` (never
+   committed); repeat the same proof; verify arrival via the Gmail MCP
+   connector.
+2. **A real chat-UI click-through** (typing "apply for leave..." and clicking
+   Confirm in the browser) exercises the live orchestrator's routing/plan
+   calls, which cost real Groq tokens — deferred pending the user's OK, given
+   the daily cap has already been hit twice this project.
+3. `eval/run_eval.py --filter leave --dry-run` confirmed the 5 leave-related
+   golden-set cases are unaffected (no LLM calls made); a live `--filter
+   leave` run to confirm token/turn counts haven't moved was **not** run, for
+   the same cap reason.
+
+Nothing committed yet — reported and awaiting the go-ahead per usual.

@@ -4,7 +4,10 @@ Schemas are built by introspecting the tool function's own signature, so a tool
 can never drift from its advertised contract — there is no second place to edit.
 
 Two things are deliberately never emitted:
-  * `ctx` and `db` — injected by the registry, not by the model;
+  * `ctx`, `db`, `confirmed`, `email_subject`, `email_body` — injected by the
+    registry or filled in by the tool itself (app/notify/draft.py), never by
+    the model. Hiding the email fields here means the model can only ever see
+    the body the tool drafted at preview time, never write one of its own.
   * anything in IDENTITY_ARGS — RBAC Layer 3 strips those at invoke time, and
     omitting them here means the model is never even shown a `student_id` field
     to hallucinate a value into. Layer 3 stays as the enforcing check; this is
@@ -20,7 +23,7 @@ from typing import Any
 from app.auth.context import Role
 from app.ai.tools.registry import IDENTITY_ARGS, REGISTRY, ToolSpec
 
-INJECTED = frozenset({"ctx", "db", "confirmed"})
+INJECTED = frozenset({"ctx", "db", "confirmed", "email_subject", "email_body"})
 
 _JSON_TYPES: dict[Any, str] = {
     str: "string",

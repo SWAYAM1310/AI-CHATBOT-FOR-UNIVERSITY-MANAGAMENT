@@ -28,12 +28,20 @@ export interface Citation {
   snippet: string
 }
 
+// A drafted email a confirm card previews (apply_for_leave, decide_leave_request)
+// — the exact text that gets sent if the card is confirmed, never redrafted after.
+export interface EmailPreview {
+  to: string | null
+  subject: string
+  body: string
+}
+
 // A two-phase confirm card: the turn stopped before answering and wants a yes.
 export interface ConfirmCard {
   type: 'confirm'
   tool: string
   args: Record<string, unknown>
-  preview: Record<string, unknown> & { summary?: string }
+  preview: Record<string, unknown> & { summary?: string; email_preview?: EmailPreview }
   token: string
   needs_confirmation?: boolean
 }
