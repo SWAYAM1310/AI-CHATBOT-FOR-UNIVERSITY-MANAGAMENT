@@ -1,14 +1,15 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated **2026-09-16, Phase 6
-(agentic email notifications) built and verified offline + against a local
-Mailpit sandbox — see §14**. Phases 0–5c are committed (git log has
+Snapshot for picking the work back up. Last updated **2026-09-17, Phase 6
+(agentic email notifications) committed (`2c52868`) and verified offline,
+against a local Mailpit sandbox, and through a real chat-UI click-through —
+see §14**. Phases 0–5c are committed (git log has
 `77bd76a`/`c82b426`/`ef59ee3` on top of the 5c work this file once called
-uncommitted). Phase 6's code is **uncommitted**, reported and awaiting the
-go-ahead. Still open from §12/§14: the fixed 80-case golden set has not been
-re-run end-to-end, and §14's live Gmail proof + a real chat-UI click-through
-need the user (an app password for the former; both spend Groq tokens the
-daily cap has already interrupted twice, so neither was run unprompted).
+uncommitted). The click-through that was paused mid-verification on
+2026-09-16 was **finished on 2026-09-17 and passed** — see "§14 — resumed and
+finished" at the very end of this file. Still open from §12/§14: the fixed
+80-case golden set has not been re-run end-to-end. The live Gmail proof is
+**done** (2026-09-17) — Gmail's SMTP server accepted both messages.
 
 **Machine move note (2026-09-15):** this repo was moved to a new machine
 (`D:\Coding Files\University Assistant`, user `fenil`) since the last
@@ -1566,4 +1567,189 @@ Mailpit inbox cleared); dev DB and test dataset untouched by the proof run.
    leave` run to confirm token/turn counts haven't moved was **not** run, for
    the same cap reason.
 
-Nothing committed yet — reported and awaiting the go-ahead per usual.
+Committed as `2c52868` ("Add agentic email notifications for leave
+apply/decide"), after review and go-ahead.
+
+### §14 — paused here (2026-09-16, mid live-verification)
+
+After the commit above, the user asked for both remaining live proofs
+("Both" — live Gmail + a real chat-UI click-through). Progress and exact
+state to resume from:
+
+- **Gmail proof — blocked on the user.** They can't currently sign in to
+  their Google account to generate an app password (2-Step Verification →
+  App passwords). Deferred; not started. When ready, they add to
+  `backend/.env` (never paste the password into chat):
+  ```
+  EMAIL_MODE=smtp
+  SMTP_HOST=smtp.gmail.com
+  SMTP_PORT=587
+  SMTP_STARTTLS=true
+  SMTP_USER=<their gmail address>
+  SMTP_PASSWORD=<app password>
+  EMAIL_REDIRECT_TO=<connector-gmail>
+  ```
+  Then re-run the same direct-invoke proof used for Mailpit (§14's "Live
+  verification" above) pointed at Gmail instead, and check arrival via the
+  Gmail MCP connector (search + read back subject/headers/body).
+
+- **Chat-UI click-through — in progress, paused, not blocked on the user.**
+  Plan: start backend (`uvicorn app.main:app --port 8000` from `backend/`,
+  Postgres + Mailpit already up via `docker compose up -d`), added
+  `EMAIL_MODE=smtp` to `backend/.env` (SMTP_HOST/PORT already default to
+  Mailpit's `localhost:1025` in `app/config.py`; drafting left off to save
+  Groq tokens — only the routing/plan calls the chat turn itself needs), then
+  drive `http://localhost:5173` with Playwright: log in as
+  `25bcp017@sot.pdpu.ac.in` / `uniassist`, send "apply for leave from 20 to
+  21 october 2026 for a family wedding", screenshot the confirm card, click
+  Confirm, screenshot the outcome, then check Mailpit's REST API
+  (`localhost:8025/api/v1/messages`) for the real send.
+  - Backend came up fine (`/health` → `{"status":"ok","db":"up"}`, login
+    smoke-tested).
+  - **Blocker hit: no Playwright MCP tool in this environment** (the repo's
+    `.playwright-mcp/` dir is from a session where one existed) — fell back
+    to installing the `playwright` pip package + Chromium directly.
+    `playwright install chromium --with-deps` hung for 20+ minutes: the full
+    Chromium build (1.2 GB) did finish downloading, but `--with-deps` (a
+    Linux-apt-get concept, meaningless on Windows) appears to have stalled
+    rather than no-op'd, and it never reached the separate
+    `chromium_headless_shell` download that `chromium.launch(headless=True)`
+    actually needs (confirmed: launch failed with "Executable doesn't exist
+    at ...chromium_headless_shell-1243\...", while the plain chromium-1234
+    build was already fully present). This machine's network is generically
+    slow for large pulls — the Mailpit Docker image pull earlier in this same
+    session also took several minutes for a two-layer image.
+  - Killed the stuck install, started a plain `playwright install chromium`
+    (no `--with-deps`) in the background to let it finish the headless-shell
+    download unattended — **that install and the backend server were both
+    stopped** (per the user's request, so nothing is left running
+    unattended) before it could confirm completion.
+  - The driver script is saved at `chat_leave_flow.py` in this session's
+    scratchpad (not in the repo — it's a one-off verification script, not
+    project code) if picking this up in the same environment; otherwise
+    rewrite it fresh, it's short.
+
+**To resume:** `docker compose up -d` (Postgres + Mailpit are cheap to leave
+running, or bring back up in ~seconds), re-run `playwright install chromium`
+to completion (check `%LOCALAPPDATA%\ms-playwright\` for a
+`chromium_headless_shell-*` directory as the completion signal), start
+uvicorn again, then drive the UI. None of this touches code — it's pure
+verification of what's already committed.
+
+### §14 — resumed and finished: chat-UI click-through PASSED (2026-09-17)
+
+Picked up on the **original `E:\ALL PROJECTS\University Assistant` machine
+(user `ASUS`)**, not the `D:\Coding Files` one the 2026-09-15 move note
+describes — so that note is stale again for this session. Here everything the
+last session was blocked on was already in place: `backend/.venv` points at
+this machine's Python 3.11.9 and works, and Playwright's Chromium is fully
+installed (`chromium-1234` + `chromium_headless_shell-1234` in
+`%LOCALAPPDATA%\ms-playwright\`, launches at 151.0.7922.34). **The
+Playwright/Chromium blocker was environment-specific and does not exist
+here.** No code changes were needed — see "code health" below.
+
+**Code health check first (nothing to fix).** `docker compose up -d`
+(Postgres volume intact: 112 students, alembic at head `a1b2c3d4e5f6`, zero
+`email_outbox` rows); full suite **409 passed, exit 0**; working tree clean
+apart from this file.
+
+**1. Mailpit direct-invoke proof re-run (zero LLM cost).** Same proof as the
+original §14 "Live verification", re-run here: both leave tools through
+`REGISTRY.invoke(..., confirmed=True)` + `flush_outbox()` against
+`localhost:1025`, `EMAIL_DRAFT_ENABLED=false`. Both messages arrived in
+Mailpit with the right `To`/`Subject` and the preview's exact body; rows and
+inbox cleaned up. One gotcha worth recording for any future proof script:
+**SMTP normalises the body's line endings to CRLF**, so a "byte-for-byte
+equals the preview" assertion must compare `body.replace("\r\n", "\n")` —
+the raw comparison fails on a difference that is wire encoding, not drift.
+
+**2. Chat-UI click-through — DONE, passed.** The one proof that spends real
+Groq tokens (routing/plan for the turn itself; drafting stayed off, so the
+body is the template). Headless Chromium against `localhost:5173` with
+uvicorn on `:8000` and `EMAIL_MODE=smtp` → Mailpit. Logged in as
+`25bcp017@sot.pdpu.ac.in` / `uniassist`, sent "apply for leave from 20 to 21
+october 2026 for a family wedding", and:
+- The confirm card rendered correctly — the typed fields in a `<dl>` and the
+  **email preview as its own block** with To / Subject / a multi-line `<pre>`
+  body (the `Message.tsx` change from §14 doing its job; the body is not
+  mangled).
+- Clicking **Confirm** settled the card ("Leave application #41 submitted
+  (2026-10-20 to 2026-10-21), pending approval from Dr. Milan Vyas.").
+- Exactly **one** real SMTP message reached Mailpit, `To:
+  milan.vyas@sot.pdpu.ac.in`, and its body is **identical to the text shown
+  on the confirm card before the click** — the preview-freezes-the-send
+  property, proven through the real HTTP path rather than a direct invoke.
+- Backend log shows exactly three calls: `POST /api/auth/login`,
+  `/api/chat/stream`, `/api/chat/confirm` — no 429, no Groq cap hit.
+- `email_outbox` row: `status=sent`, `attempts=1`, `error` null.
+- Cleaned up afterward: leave request #41 and its outbox row deleted; dev DB
+  back to 32 leave requests / 0 outbox rows. The delivered message was left
+  in Mailpit (`http://localhost:8025`) so it can be eyeballed; Postgres and
+  Mailpit left running, **uvicorn and vite both stopped**.
+- Screenshots + both driver scripts (`mailpit_proof.py`,
+  `chat_leave_flow.py`) are in this session's scratchpad, deliberately not in
+  the repo — one-off verification, not project code.
+
+**Still open (unchanged, both need the user):**
+1. **Live Gmail proof** — still blocked on a Gmail app password; the
+   `backend/.env` block and the procedure in "§14 — paused here" above are
+   still exactly what to do.
+2. The fixed 80-case golden set has not been re-run end-to-end (§12), and a
+   live `eval/run_eval.py --filter leave` run to confirm token/turn counts
+   haven't moved was not run — both spend Groq tokens.
+
+### §14 — live Gmail proof: SMTP accepted both (2026-09-17)
+
+*(This repo is public, so the two real inboxes involved are written here as
+`<sender-gmail>` — the Gmail account whose app password sends — and
+`<connector-gmail>` — the account the Gmail MCP connector reads. The real
+values live only in `backend/.env`, which is gitignored.)*
+
+The last blocked item. Gmail rejects ordinary account passwords on
+`smtp.gmail.com` (Google removed "less secure app" sign-in), so this needed a
+**16-character app password** — the user generated one for
+`<sender-gmail>` and pasted it straight into `backend/.env`
+(gitignored, never committed, never echoed).
+
+Config used (`backend/.env`): `EMAIL_MODE=smtp`, `SMTP_HOST=smtp.gmail.com`,
+`SMTP_PORT=587`, `SMTP_STARTTLS=true`, `SMTP_USER=<sender-gmail>`,
+`EMAIL_REDIRECT_TO=<sender-gmail>` (send-to-self — the user's
+choice). `EMAIL_DRAFT_ENABLED` stayed false, so this cost zero Groq tokens.
+
+Ran the same direct-invoke proof as the Mailpit one, pointed at Gmail
+(`gmail_proof.py` in the scratchpad — reads every credential from `.env`,
+refuses to run if any is missing, warns if the password is not 16 chars):
+
+- `apply_for_leave` — intended for `milan.vyas@sot.pdpu.ac.in`, redirected to
+  `<sender-gmail>`: **status=sent**.
+- `decide_leave_request` — intended for `25bcp021@sot.pdpu.ac.in`, redirected:
+  **status=sent**.
+- 2/2 accepted by Gmail's SMTP server over STARTTLS with no exception — so
+  the app-password auth, the TLS handshake and `SmtpTransport` against a real
+  provider are all proven. **`SmtpTransport` needed no changes between
+  Mailpit and Gmail** — only host/port/credentials differ, which was the
+  design intent.
+- The redirect guard did its job: neither synthetic address was ever
+  contacted; the true recipient survives in the `X-UniAssist-Intended-To`
+  header and the body's `--- DEMO REDIRECT ---` banner.
+- Cleaned up: outbox and leave rows deleted, `PENDING_CP_LEAVE` restored to
+  `pending`, 0 `email_outbox` rows left.
+
+**Caveat on verification:** arrival in the inbox was *not* machine-verified.
+The Gmail MCP connector in this session is authenticated to
+`<connector-gmail>`, and the redirect was pointed at
+`<sender-gmail>` — searching the connected account for "UniAssist"
+returns nothing, as expected. What is proven is that Gmail's SMTP server
+**accepted** both messages for delivery; visual confirmation in the inbox is
+the user's to make. To have it machine-verified next time, set
+`EMAIL_REDIRECT_TO=<connector-gmail>` (the connector's own account) and
+re-run.
+
+**Note for the next chat-UI run:** `backend/.env` now points at Gmail, not
+Mailpit. To go back to the local sandbox, set `SMTP_HOST=localhost`,
+`SMTP_PORT=1025`, `SMTP_STARTTLS=false` and blank `EMAIL_REDIRECT_TO`. Both
+proof scripts set their own transport in code, so they are unaffected either
+way.
+
+With this, **every §14 verification is done except the golden-set re-runs**
+(§12), which are the only remaining open item and cost Groq tokens.
