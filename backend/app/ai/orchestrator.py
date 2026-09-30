@@ -17,8 +17,10 @@ a model that ignores its prompt still cannot reach another student's data.
 from __future__ import annotations
 
 import logging
+import time
 from collections.abc import Iterator, Sequence
-from dataclasses import dataclass, field
+from contextlib import contextmanager
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -35,6 +37,7 @@ from app.ai.prompts.system import (
 from app.ai.providers import LLMProvider, LLMResponse, Msg, StreamDelta, StreamEvent, Usage, parse_json_object
 from app.ai.rag.citations import IncrementalCitations
 from app.ai.rag.citations import resolve as resolve_citations
+from app.ai.scoring import Scores, score_turn
 from app.ai.tools.registry import REGISTRY, ToolDenied
 from app.ai.tools.schema import model_params, schemas_for
 from app.auth.context import AuthContext, Role
@@ -77,9 +80,28 @@ class ToolRun:
     preview: dict[str, Any] | None = None  # set by a two-phase-confirm action tool
     passages: list[dict[str, Any]] | None = None  # set by a retrieval tool (PASSAGE_TOOLS)
     cards: list[dict[str, Any]] = field(default_factory=list)  # typed cards for the UI (app.ai.cards)
+    latency_ms: int = 0  # wall clock of the registry call (RBAC checks + query), for the trace
 
     def as_prompt_block(self) -> dict[str, Any]:
         return {"name": self.name, "args": self.args, "markdown": self.markdown}
+
+
+@dataclass(frozen=True)
+class Timings:
+    """Where a turn's wall-clock time went, in ms. `None` = that stage did not run this turn.
+
+    Each stage includes any rate-limit wait the budgeted provider absorbed inside it,
+    so the sum can exceed the model's own latency on a busy free tier (the trace shows
+    the wait separately). `first_token_ms` is measured from the start of the turn.
+    """
+
+    route_ms: int = 0
+    plan_ms: int | None = None
+    tools_ms: int | None = None
+    retrieve_ms: int | None = None
+    synthesize_ms: int | None = None
+    first_token_ms: int | None = None
+    total_ms: int = 0
 
 
 @dataclass(frozen=True)
@@ -91,6 +113,9 @@ class TurnResult:
     usage: Usage = field(default_factory=Usage)
     intent: str = ""
     path: str = "full"  # full | fast | smalltalk | confirm | error
+    timings: Timings = field(default_factory=Timings)
+    scores: Scores = field(default_factory=Scores)  # reference-free quality signals (app.ai.scoring)
+    passages: list[dict[str, Any]] = field(default_factory=list)  # every passage offered to Call C, in retrieval order (the eval reads this)
 
 
 @dataclass(frozen=True)
@@ -126,6 +151,46 @@ class TurnDelta:
 
 # What iter_turn yields; always ends on exactly one TurnResult.
 TurnEvent = TurnStatus | TurnTool | TurnCards | TurnDelta | TurnResult
+
+
+def _ms(started: float) -> int:
+    return int((time.perf_counter() - started) * 1000)
+
+
+class _Stopwatch:
+    """Accumulates per-stage wall time for one turn; `snapshot()` freezes it into `Timings`."""
+
+    def __init__(self) -> None:
+        self._t0 = time.perf_counter()
+        self._stages: dict[str, int] = {}
+        self._first_token_ms: int | None = None
+
+    @contextmanager
+    def stage(self, name: str) -> Iterator[None]:
+        started = time.perf_counter()
+        try:
+            yield
+        finally:
+            self.add(name, _ms(started))
+
+    def add(self, name: str, ms: int) -> None:
+        self._stages[name] = self._stages.get(name, 0) + ms
+
+    def first_token(self) -> None:
+        if self._first_token_ms is None:
+            self._first_token_ms = _ms(self._t0)
+
+    def snapshot(self) -> Timings:
+        s = self._stages
+        return Timings(
+            route_ms=s.get("route", 0),
+            plan_ms=s.get("plan"),
+            tools_ms=s.get("tools"),
+            retrieve_ms=s.get("retrieve"),
+            synthesize_ms=s.get("synthesize"),
+            first_token_ms=self._first_token_ms,
+            total_ms=_ms(self._t0),
+        )
 
 
 def run_turn(
@@ -168,17 +233,19 @@ def iter_turn(
     caller = _caller_name(db, ctx)
     recent = _trim(history)
     usage = Usage()
+    sw = _Stopwatch()
 
     # --- Call A: route ------------------------------------------------------
     yield TurnStatus("routing")
     index = REGISTRY.index_for(ctx.role)
-    route = provider.chat(
-        system=route_system(ctx, index, caller),
-        messages=[*recent, {"role": "user", "content": question}],
-        model=settings.llm_model_router,
-        reasoning_effort="low",
-        json_object=True,
-    )
+    with sw.stage("route"):
+        route = provider.chat(
+            system=route_system(ctx, index, caller),
+            messages=[*recent, {"role": "user", "content": question}],
+            model=settings.llm_model_router,
+            reasoning_effort="low",
+            json_object=True,
+        )
     usage += route.usage
     plan = parse_json_object(route.text)
     if not plan and route.tool_calls:
@@ -195,23 +262,26 @@ def iter_turn(
     if intent == "smalltalk" and not candidates and not needs_rag:
         yield TurnStatus("writing")
         final: LLMResponse | None = None
-        for event in _stream(
-            provider,
-            system=synthesize_system(ctx, caller),
-            messages=[*recent, {"role": "user", "content": question}],
-            model=settings.llm_model_main,
-            reasoning_effort="low",
-            max_tokens=300,
-        ):
-            if isinstance(event, StreamDelta):
-                yield TurnDelta(event.text)
-            else:
-                final = event
+        with sw.stage("synthesize"):
+            for event in _stream(
+                provider,
+                system=synthesize_system(ctx, caller),
+                messages=[*recent, {"role": "user", "content": question}],
+                model=settings.llm_model_main,
+                reasoning_effort="low",
+                max_tokens=300,
+            ):
+                if isinstance(event, StreamDelta):
+                    sw.first_token()
+                    yield TurnDelta(event.text)
+                else:
+                    final = event
         yield TurnResult(
             text=final.text if final else "",
             usage=usage + (final.usage if final else Usage()),
             intent=intent,
             path="smalltalk",
+            timings=sw.snapshot(),
         )
         return
 
@@ -227,13 +297,14 @@ def iter_turn(
     elif candidates:
         # --- Call B: plan ---------------------------------------------------
         yield TurnStatus("planning")
-        planned = provider.chat(
-            system=plan_system(ctx, caller),
-            messages=[*recent, {"role": "user", "content": question}],
-            model=settings.llm_model_main,
-            tools=schemas_for(candidates, ctx.role),
-            reasoning_effort="low",
-        )
+        with sw.stage("plan"):
+            planned = provider.chat(
+                system=plan_system(ctx, caller),
+                messages=[*recent, {"role": "user", "content": question}],
+                model=settings.llm_model_main,
+                tools=schemas_for(candidates, ctx.role),
+                reasoning_effort="low",
+            )
         usage += planned.usage
         calls = [(c.name, c.arguments) for c in planned.tool_calls[:MAX_TOOL_CALLS]]
 
@@ -242,7 +313,7 @@ def iter_turn(
         yield TurnStatus("running_tools")
     runs: list[ToolRun] = []
     for tool_name, args in calls:
-        run = _execute(tool_name, args, ctx, db)
+        run = _timed_execute(sw, tool_name, args, ctx, db)
         runs.append(run)
         yield TurnTool(name=run.name, args=run.args, ok=run.ok, error=run.error)
 
@@ -250,7 +321,10 @@ def iter_turn(
     if card is not None:
         # a tool wants confirmation: return the preview and stop before synthesis
         yield TurnCards([card])
-        yield TurnResult(cards=[card], tool_runs=runs, usage=usage, intent=intent, path="confirm")
+        yield TurnResult(
+            cards=[card], tool_runs=runs, usage=usage, intent=intent, path="confirm", timings=sw.snapshot(),
+            scores=score_turn(question=question, text="", citations=[], passages=[], tool_runs=runs),
+        )
         return
     data_cards = [c for r in runs for c in r.cards]
     if data_cards:
@@ -262,55 +336,18 @@ def iter_turn(
         rag_query = next((POLICY_CONTEXT[r.name] for r in runs if r.ok and r.name in POLICY_CONTEXT), "")
     if rag_query:
         yield TurnStatus("retrieving")
-    passages = _retrieve(rag_query, ctx, db) if rag_query else []
+    if rag_query:
+        with sw.stage("retrieve"):
+            passages = _retrieve(rag_query, ctx, db)
+    else:
+        passages = []
     passages = _merge_passages(passages, runs)
 
     # --- Call C: synthesize (no tools attached, by design) -------------------
     yield TurnStatus("writing")
     incr = IncrementalCitations(passages)
     final = None
-    for event in _stream(
-        provider,
-        system=synthesize_system(ctx, caller),
-        messages=[
-            *recent,
-            {
-                "role": "user",
-                "content": synthesize_user(
-                    question, [r.as_prompt_block() for r in runs if r.name not in PASSAGE_TOOLS], passages
-                ),
-            },
-        ],
-        model=settings.llm_model_main,
-        reasoning_effort="medium",
-    ):
-        if isinstance(event, StreamDelta):
-            shown = incr.feed(event.text)
-            if shown:
-                yield TurnDelta(shown)
-        else:
-            final = event
-    usage += final.usage if final else Usage()
-    raw_text = final.text if final else ""
-
-    if not raw_text and final and final.tool_calls:
-        # the model wanted more data mid-answer (salvaged from a no-tools rejection): run
-        # those calls through the registry like any others, then synthesize once more
-        yield TurnStatus("running_tools")
-        extra: list[ToolRun] = []
-        for c in final.tool_calls[:MAX_TOOL_CALLS]:
-            run = _execute(c.name, c.arguments, ctx, db)
-            extra.append(run)
-            yield TurnTool(name=run.name, args=run.args, ok=run.ok, error=run.error)
-        runs += extra
-        extra_cards = [c for r in extra for c in r.cards]
-        data_cards += extra_cards
-        if extra_cards:
-            yield TurnCards(extra_cards)
-        passages = _merge_passages(passages, extra)
-        incr = IncrementalCitations(passages)
-        yield TurnStatus("writing")
-        final = None
+    with sw.stage("synthesize"):
         for event in _stream(
             provider,
             system=synthesize_system(ctx, caller),
@@ -329,14 +366,60 @@ def iter_turn(
             if isinstance(event, StreamDelta):
                 shown = incr.feed(event.text)
                 if shown:
+                    sw.first_token()
                     yield TurnDelta(shown)
             else:
                 final = event
+    usage += final.usage if final else Usage()
+    raw_text = final.text if final else ""
+
+    if not raw_text and final and final.tool_calls:
+        # the model wanted more data mid-answer (salvaged from a no-tools rejection): run
+        # those calls through the registry like any others, then synthesize once more
+        yield TurnStatus("running_tools")
+        extra: list[ToolRun] = []
+        for c in final.tool_calls[:MAX_TOOL_CALLS]:
+            run = _timed_execute(sw, c.name, c.arguments, ctx, db)
+            extra.append(run)
+            yield TurnTool(name=run.name, args=run.args, ok=run.ok, error=run.error)
+        runs += extra
+        extra_cards = [c for r in extra for c in r.cards]
+        data_cards += extra_cards
+        if extra_cards:
+            yield TurnCards(extra_cards)
+        passages = _merge_passages(passages, extra)
+        incr = IncrementalCitations(passages)
+        yield TurnStatus("writing")
+        final = None
+        with sw.stage("synthesize"):
+            for event in _stream(
+                provider,
+                system=synthesize_system(ctx, caller),
+                messages=[
+                    *recent,
+                    {
+                        "role": "user",
+                        "content": synthesize_user(
+                            question, [r.as_prompt_block() for r in runs if r.name not in PASSAGE_TOOLS], passages
+                        ),
+                    },
+                ],
+                model=settings.llm_model_main,
+                reasoning_effort="medium",
+            ):
+                if isinstance(event, StreamDelta):
+                    shown = incr.feed(event.text)
+                    if shown:
+                        sw.first_token()
+                        yield TurnDelta(shown)
+                else:
+                    final = event
         usage += final.usage if final else Usage()
         raw_text = final.text if final else ""
 
     tail = incr.flush()
     if tail:
+        sw.first_token()
         yield TurnDelta(tail)
 
     text, citations = resolve_citations(raw_text, passages)
@@ -348,6 +431,9 @@ def iter_turn(
         usage=usage,
         intent=intent,
         path=path,
+        timings=sw.snapshot(),
+        scores=score_turn(question=question, text=text, citations=citations, passages=passages, tool_runs=runs),
+        passages=passages,
     )
 
 
@@ -387,6 +473,15 @@ def _candidate_names(raw: Any, role: Role) -> list[str]:
         if REGISTRY.get(item).visible_to(role):
             out.append(item)
     return out[:MAX_CANDIDATES]
+
+
+def _timed_execute(sw: _Stopwatch, name: str, args: dict[str, Any], ctx: AuthContext, db: Session) -> ToolRun:
+    """`_execute`, with the call's wall time on the run and added to the turn's tools stage."""
+    started = time.perf_counter()
+    run = _execute(name, args, ctx, db)
+    ms = _ms(started)
+    sw.add("tools", ms)
+    return replace(run, latency_ms=ms)
 
 
 def _execute(name: str, args: dict[str, Any], ctx: AuthContext, db: Session) -> ToolRun:

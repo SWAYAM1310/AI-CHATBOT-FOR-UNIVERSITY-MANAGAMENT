@@ -53,6 +53,40 @@ export interface ToolRunOut {
   args: Record<string, unknown>
   ok: boolean
   error: string | null
+  latency_ms?: number  // absent on tool pills that arrive live, and on stored turns
+}
+
+// Where a turn's wall time went, in ms; null = that stage did not run this turn.
+export interface Timings {
+  route_ms: number
+  plan_ms: number | null
+  tools_ms: number | null
+  retrieve_ms: number | null
+  synthesize_ms: number | null
+  first_token_ms: number | null  // from the start of the turn
+  total_ms: number
+}
+
+// Reference-free quality signals (backend/app/ai/scoring.py). null = the check
+// did not apply this turn (nothing to measure), which is not the same as 0.
+export interface Scores {
+  passages: number
+  top_score: number | null
+  both_branches: number
+  dense_only: number
+  sparse_only: number
+  cited: number
+  context_precision: number | null
+  claims: number
+  claims_cited: number
+  citation_coverage: number | null
+  numbers: number
+  numbers_grounded: number
+  numeric_grounding: number | null
+  ungrounded_numbers: string[]
+  tools_run: number
+  tools_ok: number
+  tool_success: number | null
 }
 
 export interface Trace {
@@ -60,6 +94,8 @@ export interface Trace {
   intent: string
   tool_runs: ToolRunOut[]
   usage: { tokens_in: number; tokens_out: number }
+  timings?: Timings  // absent on a reopened conversation: timings and scores are not stored
+  scores?: Scores
 }
 
 export interface ChatOut {

@@ -32,6 +32,7 @@ import json
 import logging
 
 from collections.abc import Iterator
+from dataclasses import asdict
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -91,13 +92,49 @@ class UsageOut(BaseModel):
     tokens_out: int
 
 
+class TimingsOut(BaseModel):
+    """Where the turn's wall time went, in ms; None = that stage did not run (see orchestrator.Timings)."""
+
+    route_ms: int
+    plan_ms: int | None
+    tools_ms: int | None
+    retrieve_ms: int | None
+    synthesize_ms: int | None
+    first_token_ms: int | None
+    total_ms: int
+
+
+class ScoresOut(BaseModel):
+    """Reference-free quality signals; None = the check did not apply (see app.ai.scoring.Scores)."""
+
+    passages: int
+    top_score: float | None
+    both_branches: int
+    dense_only: int
+    sparse_only: int
+    cited: int
+    context_precision: float | None
+    claims: int
+    claims_cited: int
+    citation_coverage: float | None
+    numbers: int
+    numbers_grounded: int
+    numeric_grounding: float | None
+    ungrounded_numbers: list[str]
+    tools_run: int
+    tools_ok: int
+    tool_success: float | None
+
+
 class TraceOut(BaseModel):
     """What the turn did, for the dev tool-trace panel: never shown by default."""
 
     path: str
     intent: str
-    tool_runs: list[dict[str, Any]]  # {name, args, ok, error}
+    tool_runs: list[dict[str, Any]]  # {name, args, ok, error, latency_ms}
     usage: UsageOut
+    timings: TimingsOut
+    scores: ScoresOut
 
 
 class ChatOut(BaseModel):
@@ -441,8 +478,13 @@ def _chat_out(convo: Conversation, reply: Message, result: TurnResult, queued: f
         trace=TraceOut(
             path=result.path,
             intent=result.intent,
-            tool_runs=[{"name": r.name, "args": r.args, "ok": r.ok, "error": r.error} for r in result.tool_runs],
+            tool_runs=[
+                {"name": r.name, "args": r.args, "ok": r.ok, "error": r.error, "latency_ms": r.latency_ms}
+                for r in result.tool_runs
+            ],
             usage=UsageOut(tokens_in=result.usage.tokens_in, tokens_out=result.usage.tokens_out),
+            timings=TimingsOut(**asdict(result.timings)),
+            scores=ScoresOut(**asdict(result.scores)),
         ),
     )
 

@@ -72,6 +72,10 @@ class Hit:
             "page": self.page,
             "excerpt": self.content[:CONTENT_CHARS],
             **({"parent": self.parent_content[:CONTENT_CHARS]} if self.parent_content else {}),
+            # how it was found: read by the trace's retrieval score, not by the synthesis prompt
+            "score": round(self.score, 5),
+            "dense_rank": self.dense_rank,
+            "sparse_rank": self.sparse_rank,
         }
 
 

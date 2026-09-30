@@ -87,6 +87,12 @@ def test_first_message_creates_conversation_and_persists_both_rows(scripted):
     assert {"course", "name", "attended", "total", "percent"} <= set(card["rows"][0])
     assert body["trace"]["path"] == "full" and [t["name"] for t in body["trace"]["tool_runs"]] == ["get_my_attendance"]
     assert body["trace"]["tool_runs"][0]["ok"] is True and body["trace"]["usage"] == body["usage"]
+    timings = body["trace"]["timings"]
+    assert timings["total_ms"] >= timings["route_ms"] >= 0 and timings["plan_ms"] is not None
+    assert isinstance(body["trace"]["tool_runs"][0]["latency_ms"], int)
+    scores = body["trace"]["scores"]
+    assert scores["tools_run"] == 1 and scores["tool_success"] == 1.0
+    assert scores["numbers_grounded"] == scores["numbers"] and scores["ungrounded_numbers"] == []  # "68%" is in the tool table
     # Call A + Call B + Call C usage summed into the one assistant row
     assert body["usage"] == {"tokens_in": 720, "tokens_out": 150}
     assert body["queued_seconds"] == 0

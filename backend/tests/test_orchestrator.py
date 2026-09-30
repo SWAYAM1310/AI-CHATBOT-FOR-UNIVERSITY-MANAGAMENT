@@ -178,6 +178,38 @@ def test_full_turn_routes_plans_executes_and_synthesizes(student_ctx, db):
     assert out.usage == Usage(720, 150)  # every call is metered into the turn
 
 
+def test_timings_cover_every_stage_that_ran_and_only_those(student_ctx, db):
+    provider = ScriptedProvider(
+        route(tools=["get_my_attendance", "get_my_courses"]),
+        plan(("get_my_attendance", {"course": "24CS201T"})),
+        answer(),
+    )
+    out = run_turn(question="how is my attendance in 24CS201T?", ctx=student_ctx, db=db, provider=provider)
+
+    t = out.timings
+    assert t.plan_ms is not None and t.tools_ms is not None and t.synthesize_ms is not None
+    assert t.retrieve_ms is not None  # attendance triggers the policy lookup even though the router did not ask
+    assert t.first_token_ms is not None and t.first_token_ms <= t.total_ms
+    assert t.route_ms + t.plan_ms + t.tools_ms + t.retrieve_ms + t.synthesize_ms <= t.total_ms + 1
+    assert out.tool_runs[0].latency_ms == t.tools_ms  # one tool, so the stage is that tool
+
+
+def test_timings_leave_skipped_stages_empty(student_ctx, db):
+    fast = run_turn(
+        question="what am I enrolled in?", ctx=student_ctx, db=db,
+        provider=ScriptedProvider(route(tools=["get_my_courses"]), answer()),
+    )
+    assert fast.timings.plan_ms is None and fast.timings.retrieve_ms is None  # fast path, no rule to fetch
+    assert fast.timings.tools_ms is not None
+
+    chat = run_turn(
+        question="hi there", ctx=student_ctx, db=db,
+        provider=ScriptedProvider(route(intent="smalltalk"), answer(text="Hello!")),
+    )
+    assert chat.timings.plan_ms is None and chat.timings.tools_ms is None and chat.timings.retrieve_ms is None
+    assert chat.timings.synthesize_ms is not None and chat.timings.first_token_ms is not None
+
+
 def test_call_c_is_given_no_tools(student_ctx, db):
     provider = ScriptedProvider(route(tools=["get_my_courses"]), answer())
     run_turn(question="what am I enrolled in?", ctx=student_ctx, db=db, provider=provider)
