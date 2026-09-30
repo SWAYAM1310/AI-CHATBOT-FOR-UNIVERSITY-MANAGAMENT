@@ -14,6 +14,13 @@
 #   must_not_contain substrings that would prove a leak (case-insensitive)
 #   expect_citation  true -> the answer must carry at least one resolved citation
 #   expect_path      optional: fast | full | smalltalk | confirm
+#   expect_sources   optional, any-of: [{doc, section}] acceptable sources. `doc` is a substring of the
+#                    document title, `section` a substring of the section label ("" = any section;
+#                    "§4.2" also matches "§4.2.1"). Scored as retrieval recall/precision and citation
+#                    precision over the passages offered to the model. Reported, not gating.
+#   expect_facts     optional: facts the answer must state. Each entry is a string, or a list of
+#                    acceptable phrasings (any one counts); case-insensitive substring match with
+#                    markdown, [n] markers and thousands commas removed. Reported as fact recall.
 #   tags             free labels for --filter
 #
 # Default accounts (all passwords "uniassist"):
@@ -32,6 +39,12 @@
   question: "Am I short on attendance in any course?"
   expected_tools: [get_my_attendance]
   expect_citation: true
+  expect_sources:
+    - {doc: "Part IV", section: "§4.2"}
+    - {doc: "Part IV", section: "§4.3"}
+    - {doc: "Part IV", section: "§4.5"}
+    - {doc: "Part IV", section: "§5."}
+  expect_facts: ["75", ["67.7", "68"], ["24CS201T", "DBMS", "Database Management"]]
   tags: [attendance, personal-policy, signature-demo]
 
 - id: s02
@@ -39,6 +52,12 @@
   question: "What is my attendance in DBMS?"
   expected_tools: [get_my_attendance]
   expect_citation: true
+  expect_sources:
+    - {doc: "Part IV", section: "§4.2"}
+    - {doc: "Part IV", section: "§4.3"}
+    - {doc: "Part IV", section: "§4.5"}
+    - {doc: "Part IV", section: "§5."}
+  expect_facts: [["67.7", "68"]]
   tags: [attendance]
 
 - id: s03
@@ -89,6 +108,9 @@
   question: "Is my fee overdue, and what is the late fee?"
   expected_tools: [get_my_fees]
   expect_citation: true
+  expect_sources:
+    - {doc: "Fee Policy", section: "§4.1"}
+  expect_facts: ["500"]
   tags: [fees, personal-policy]
 
 - id: s11
@@ -124,6 +146,9 @@
   question: "What is the minimum attendance required to sit the end-semester exam?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Part IV", section: "§4.2"}
+  expect_facts: ["75"]
   tags: [policy, attendance]
 
 - id: s16
@@ -131,6 +156,10 @@
   question: "Can attendance shortage be condoned on medical grounds?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Part IV", section: "§5.3"}
+    - {doc: "Part IV", section: "§5.2"}
+  expect_facts: ["medical", ["65", "certificate", "registered medical practitioner"]]
   tags: [policy, attendance]
 
 - id: s17
@@ -138,6 +167,10 @@
   question: "What is the passing mark in a course and how is the grade decided?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Part V", section: "§3.1"}
+    - {doc: "Part V", section: "§6.1"}
+  expect_facts: ["40", ["grade point", "letter grade", "ten-point", "10-point"]]
   tags: [policy, examination]
 
 - id: s18
@@ -145,6 +178,9 @@
   question: "How much is the late fee if I pay my fees after the due date?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Fee Policy", section: "§4.1"}
+  expect_facts: ["500", "week"]
   tags: [policy, fees]
 
 - id: s19
@@ -152,6 +188,9 @@
   question: "What scholarships does the university offer and how much are they?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Scholarship", section: "§2.1"}
+  expect_facts: [["merit-cum-means", "merit cum means"], "40000"]
   tags: [policy, scholarship]
 
 - id: s20
@@ -159,6 +198,9 @@
   question: "How many days of leave can I apply for at once?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Leave", section: "§3.3"}
+  expect_facts: [["ten", "10 consecutive", "10 calendar", "10 days", "10-day"]]
   tags: [policy, leave]
 
 - id: s21
@@ -166,6 +208,9 @@
   question: "What is a bonafide certificate used for, and how long does it take to issue?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Student Services", section: "§3.1"}
+  expect_facts: [["two working days", "2 working days"], "passport"]
   tags: [policy, services]
 
 - id: s22
@@ -173,6 +218,10 @@
   question: "What is the anti-ragging policy?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Part VII", section: "§4."}
+    - {doc: "Notice DSA/N/2026/03", section: ""}
+  expect_facts: ["helpline", ["punish", "penalt", "prohibit"]]
   tags: [policy, conduct]
 
 - id: s23
@@ -195,6 +244,9 @@
   question: "What's in Unit 3 of DBMS?"
   expected_tools: [get_course_syllabus, search_curriculum]
   expect_citation: true
+  expect_sources:
+    - {doc: "B.Tech Computer Engineering", section: "Database Management Systems / Unit 3"}
+  expect_facts: [["normalization", "normalisation"]]
   tags: [curriculum]
 
 - id: s26
@@ -202,6 +254,9 @@
   question: "How many credits is DBMS and what are the textbooks?"
   expected_tools: [get_course_syllabus]
   expect_citation: true
+  expect_sources:
+    - {doc: "B.Tech Computer Engineering", section: "24CS202T Database Management Systems"}
+  expect_facts: ["3 credits", "silberschatz"]
   tags: [curriculum]
 
 - id: s27
@@ -209,6 +264,9 @@
   question: "Which course covers normalization and BCNF?"
   expected_tools: [search_curriculum, get_course_syllabus]
   expect_citation: true
+  expect_sources:
+    - {doc: "B.Tech Computer Engineering", section: "Database Management Systems / Unit 3"}
+  expect_facts: [["database management", "dbms"]]
   tags: [curriculum]
 
 - id: s28
@@ -216,6 +274,9 @@
   question: "What are the course outcomes of Digital Logic and Design?"
   expected_tools: [get_course_syllabus, search_curriculum]
   expect_citation: true
+  expect_sources:
+    - {doc: "B.Tech Computer Engineering", section: "24CS201T Digital Logic and Design"}
+  expect_facts: ["boolean", "combinational"]
   tags: [curriculum]
 
 # ----------------------------------------------------------------------------
@@ -400,6 +461,9 @@
   question: "What is the attendance condonation rule I should tell my students?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Part IV", section: "§5."}
+  expect_facts: ["65"]
   tags: [policy, attendance]
 
 - id: f13
@@ -407,6 +471,10 @@
   question: "By when do I have to enter marks for Internal Test 2?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Notice COE/N/2026/11", section: ""}
+    - {doc: "Part V", section: "§2.5"}
+  expect_facts: ["6 october"]
   tags: [policy, notice, faculty-only-doc]
 
 - id: f14
@@ -414,6 +482,8 @@
   question: "What topics are in Unit 2 of Data Structures?"
   expected_tools: [get_course_syllabus, search_curriculum]
   expect_citation: true
+  expect_sources:
+    - {doc: "B.Tech Computer Engineering", section: "Data Structures / Unit 2"}
   tags: [curriculum]
 
 # ----------------------------------------------------------------------------
@@ -559,6 +629,9 @@
   question: "What is the late-fee rule for overdue payments?"
   expected_tools: []
   expect_citation: true
+  expect_sources:
+    - {doc: "Fee Policy", section: "§4.1"}
+  expect_facts: ["500"]
   tags: [policy, fees]
 
 - id: a13
@@ -572,6 +645,9 @@
   question: "How many credits is Theory of Computation?"
   expected_tools: [get_course_syllabus]
   expect_citation: true
+  expect_sources:
+    - {doc: "B.Tech Computer Engineering", section: "24CS208T Theory of Computation"}
+  expect_facts: ["4 credits"]
   tags: [curriculum]
 
 # ----------------------------------------------------------------------------

@@ -10,7 +10,19 @@ tools, real DB, real retrieval, the live LLM provider - and scores:
   citation rate      cases with expect_citation: at least one resolved citation
   path accuracy      cases with expect_path: the orchestrator took that path
   median latency     wall-clock per turn, with and without rate-limit waits
+  stage latency      median / p90 per stage: route, plan, tools, retrieve, write, first word
   mean tokens/turn   prompt + completion tokens over the turn's 1-3 calls
+
+and, for cases that carry expectations (expect_sources / expect_facts), the
+reference-based quality scores - reported, not gating:
+
+  retrieval recall   R@1/3/5 + MRR: an acceptable source is among the passages offered
+  retrieval precision  share of the offered passages that are acceptable
+  citation precision   share of the answer's cited passages that are acceptable
+  fact recall        share of the expected facts the answer states
+
+plus the reference-free scores of app.ai.scoring (context precision, citation
+coverage, numeric grounding, tool success), which the chat trace shows live.
 
 It runs in-process (no HTTP server needed) with the backend venv:
 
@@ -46,6 +58,7 @@ from sqlalchemy import select  # noqa: E402
 from app.ai.budget import queued_notifier  # noqa: E402
 from app.ai.orchestrator import TurnResult, run_turn  # noqa: E402
 from app.ai.providers.base import ProviderError  # noqa: E402
+from app.ai.scoring import KS, fact_recall, retrieval_metrics  # noqa: E402
 from app.ai.tools.registry import REGISTRY  # noqa: E402
 from app.auth.context import AuthContext, Role, build_auth_context  # noqa: E402
 from app.config import settings  # noqa: E402
@@ -75,6 +88,8 @@ class Case:
     must_not_contain: list[str] = field(default_factory=list)
     expect_citation: bool = False
     expect_path: str | None = None
+    expect_sources: list[dict[str, str]] = field(default_factory=list)  # any-of: {doc, section} acceptable sources
+    expect_facts: list[Any] = field(default_factory=list)  # each a string, or a list of acceptable phrasings
     tags: list[str] = field(default_factory=list)
 
     @property
@@ -116,6 +131,15 @@ def validate(cases: list[Case]) -> list[str]:
             out.append(f"{c.id}: unknown expect_path {c.expect_path!r}")
         if c.expect_path == "confirm" and not c.expected_tools:
             out.append(f"{c.id}: a confirm case must name the action tool")
+        for src in c.expect_sources:
+            if not isinstance(src, dict) or not src.get("doc") or "section" not in src:
+                out.append(f"{c.id}: expect_sources entries need doc and section (section may be empty): {src!r}")
+        for fact in c.expect_facts:
+            options = [fact] if isinstance(fact, str) else fact
+            if not isinstance(options, list) or not options or not all(isinstance(o, str) and o.strip() for o in options):
+                out.append(f"{c.id}: expect_facts entries are a string or a list of strings: {fact!r}")
+        if (c.expect_sources or c.expect_facts) and c.expect_refusal:
+            out.append(f"{c.id}: a refusal case cannot carry expected sources or facts")
     return out
 
 
@@ -145,6 +169,14 @@ class Outcome:
     latency_s: float = 0.0        # wall clock, including any rate-limit wait
     queued_s: float = 0.0
     text: str = ""
+    timings: dict[str, Any] = field(default_factory=dict)   # per-stage ms (orchestrator.Timings)
+    scores: dict[str, Any] = field(default_factory=dict)    # reference-free (app.ai.scoring.Scores)
+    offered: list[dict[str, Any]] = field(default_factory=list)  # passages given to the model, in order
+    cited: list[Any] = field(default_factory=list)                # chunk ids the answer cited
+    # reference-based, None = the case carries no expectation for it (reported, not gating)
+    retrieval: dict[str, Any] | None = None
+    fact_recall: float | None = None
+    facts_missing: list[str] = field(default_factory=list)
     # scores: None = not applicable to this case
     routing: bool | None = None
     refusal: bool | None = None
@@ -182,6 +214,9 @@ def run_case(case: Case, *, verbose: bool) -> Outcome:
     out.citations = len(result.citations)
     out.tokens_in, out.tokens_out = result.usage.tokens_in, result.usage.tokens_out
     out.text = result.text
+    out.timings, out.scores = asdict(result.timings), asdict(result.scores)
+    out.offered = [{k: p.get(k) for k in ("chunk_id", "document", "section")} for p in result.passages]
+    out.cited = [c.get("chunk_id") for c in result.citations]
     if verbose:
         print(f"    path={result.path} intent={result.intent!r} tools={[(r.name, r.ok) for r in result.tool_runs]} "
               f"cites={out.citations} tokens={out.tokens_in}+{out.tokens_out}")
@@ -223,6 +258,18 @@ def score(case: Case, out: Outcome, ctx: AuthContext) -> Outcome:
         out.path_ok = out.path == case.expect_path
         if not out.path_ok:
             out.notes.append(f"path {out.path!r}, expected {case.expect_path!r}")
+
+    if out.ok and case.expect_sources:
+        out.retrieval = retrieval_metrics(out.offered, [{"chunk_id": c} for c in out.cited], case.expect_sources)
+        if not out.retrieval["hit@5"]:
+            out.notes.append(f"quality: no acceptable source among the {len(out.offered)} passages offered")
+        elif out.retrieval["cite_precision"] == 0:
+            out.notes.append("quality: cited passages were all off-target")
+
+    if out.ok and case.expect_facts:
+        out.fact_recall, out.facts_missing = fact_recall(out.text, case.expect_facts)
+        if out.facts_missing:
+            out.notes.append(f"quality: answer lacks {out.facts_missing}")
 
     if not out.ok:
         out.notes.insert(0, f"turn failed: {out.error}")
@@ -281,8 +328,59 @@ def summarize(outcomes: list[Outcome]) -> dict[str, Any]:
             "total_wait_s": sum(o.queued_s for o in outcomes),
         },
         "paths": dict(Counter(o.path for o in completed)),
+        "stage_latency_ms": stage_latency(completed),
+        "quality": quality(completed),
         "by_role": by_role,
         "failed_ids": [o.id for o in outcomes if not o.passed],
+    }
+
+
+STAGES = ("route_ms", "plan_ms", "tools_ms", "retrieve_ms", "synthesize_ms", "first_token_ms", "total_ms")
+
+
+def stage_latency(outcomes: list[Outcome]) -> dict[str, Any]:
+    """Median / p90 / n per stage, over the turns where the stage ran. Stages include any rate-limit wait."""
+    out: dict[str, Any] = {}
+    for stage in STAGES:
+        xs = [o.timings[stage] for o in outcomes if o.timings.get(stage) is not None]
+        out[stage] = {"median": statistics.median(xs) if xs else None, "p90": _p90(xs), "n": len(xs)}
+    return out
+
+
+def _mean(xs: list[float]) -> float | None:
+    return statistics.fmean(xs) if xs else None
+
+
+def quality(outcomes: list[Outcome]) -> dict[str, Any]:
+    """Reference-based scores (cases with expectations) and reference-free ones (every answer with something to measure)."""
+    with_src = [o.retrieval for o in outcomes if o.retrieval]
+    ranks = [r["rank"] for r in with_src]
+    facts = [o for o in outcomes if o.fact_recall is not None]
+    scored = [o.scores for o in outcomes if o.scores]
+    n_num = sum(s["numbers"] for s in scored)
+    n_claim = sum(s["claims"] for s in scored)
+    return {
+        "retrieval": {
+            "n": len(with_src),
+            **{f"recall@{k}": _mean([float(r[f"hit@{k}"]) for r in with_src]) for k in KS},
+            "mrr": _mean([1 / r if r else 0.0 for r in ranks]),
+            "precision": _mean([r["precision"] for r in with_src if r["precision"] is not None]),
+            "citation_precision": _mean([r["cite_precision"] for r in with_src if r["cite_precision"] is not None]),
+        },
+        "facts": {
+            "n": len(facts),
+            "recall": _mean([o.fact_recall for o in facts]),
+            "answers_complete": sum(o.fact_recall == 1.0 for o in facts),
+        },
+        "reference_free": {
+            "context_precision": _mean([s["context_precision"] for s in scored if s["context_precision"] is not None]),
+            "citation_coverage": {"hits": sum(s["claims_cited"] for s in scored), "n": n_claim,
+                                  "rate": sum(s["claims_cited"] for s in scored) / n_claim if n_claim else None},
+            "numeric_grounding": {"hits": sum(s["numbers_grounded"] for s in scored), "n": n_num,
+                                  "rate": sum(s["numbers_grounded"] for s in scored) / n_num if n_num else None,
+                                  "answers_with_ungrounded": sum(bool(s["ungrounded_numbers"]) for s in scored)},
+            "tool_success": _mean([s["tool_success"] for s in scored if s["tool_success"] is not None]),
+        },
     }
 
 
@@ -316,10 +414,20 @@ def print_report(summary: dict[str, Any], outcomes: list[Outcome]) -> None:
     print(f"  mean tokens / turn      {tok['mean']:.0f}  (max {tok['max']}; gate: < 5000)" if tok["mean"] is not None else "  mean tokens / turn      n/a")
     print(f"  rate-limit waits        {rl['turns_that_waited']} turns, {rl['total_wait_s']:.0f}s in total")
     print(f"  paths                   {summary['paths']}")
+    print_quality(summary)
     print(f"  completed / passed      {summary['completed']} / {summary['passed']} of {summary['cases']}")
     for role, d in summary["by_role"].items():
         print(f"    {role:8s} {d['passed']}/{d['n']} passed   routing {fmt_rate(d['routing'])}   "
               f"refusal {fmt_rate(d['refusal'])}   citation {fmt_rate(d['citation'])}")
+    misses = [o for o in outcomes if o.passed and any(n.startswith("quality:") for n in o.notes)]
+    if misses:
+        print()
+        print("Quality misses (passed, but the answer or its sources fell short of the expectations):")
+        for o in misses:
+            print(f"  {o.id:4s} [{o.role}] {o.question[:60]!r}")
+            for n in o.notes:
+                if n.startswith("quality:"):
+                    print(f"         - {n[9:]}")
     failed = [o for o in outcomes if not o.passed]
     if failed:
         print()
@@ -329,6 +437,30 @@ def print_report(summary: dict[str, Any], outcomes: list[Outcome]) -> None:
             for n in o.notes:
                 print(f"         - {n}")
     print()
+
+
+def _p(x: float | None, digits: int = 1) -> str:
+    return "n/a" if x is None else f"{100 * x:.{digits}f}%"
+
+
+def print_quality(summary: dict[str, Any]) -> None:
+    q, st = summary["quality"], summary["stage_latency_ms"]
+    r, f, rf = q["retrieval"], q["facts"], q["reference_free"]
+    print()
+    print("  stage latency (median / p90 ms; a stage includes any rate-limit wait)")
+    for stage in STAGES:
+        d = st[stage]
+        if d["n"]:
+            print(f"    {stage[:-3]:12s} {d['median']:8.0f} / {d['p90']:<8.0f} n={d['n']}")
+    print()
+    print(f"  retrieval  ({r['n']} cases with expect_sources)")
+    print(f"    recall@1 {_p(r['recall@1'])}  @3 {_p(r['recall@3'])}  @5 {_p(r['recall@5'])}   MRR {r['mrr'] if r['mrr'] is None else round(r['mrr'], 3)}")
+    print(f"    precision of offered passages {_p(r['precision'])}   precision of cited passages {_p(r['citation_precision'])}")
+    print(f"  fact recall  {_p(f['recall'])}  ({f['answers_complete']}/{f['n']} answers state every expected fact)")
+    cc, ng = rf["citation_coverage"], rf["numeric_grounding"]
+    print("  reference-free")
+    print(f"    context precision {_p(rf['context_precision'])}   citation coverage {_p(cc['rate'])} ({cc['hits']}/{cc['n']})   "
+          f"numeric grounding {_p(ng['rate'])} ({ng['hits']}/{ng['n']}; {ng['answers_with_ungrounded']} answers with an unfound figure)")
 
 
 # --- main -------------------------------------------------------------------
