@@ -8,7 +8,8 @@ loaded in FK-dependency order; identity sequences are bumped past MAX(id) afterw
 so later ORM inserts don't collide.
 
 Only the 24 CSV-backed tables are touched. The AI-layer tables (conversations,
-messages, documents, doc_chunks, audit_log) have no CSV and are left empty.
+messages, documents, doc_chunks, audit_log) have no CSV and are left empty —
+except email_outbox, which --reset also truncates (see RESET_ALSO).
 
 Note: uses chunked executemany. Fine for `sample`; `full` (~2M attendance rows)
 works but is slow — swap to psycopg COPY if that path is needed often.
@@ -57,6 +58,12 @@ LOAD_ORDER = [
     "announcements",
     "academic_calendar",
 ]
+
+# Not CSV-backed, but truncated alongside LOAD_ORDER on --reset: email_outbox
+# idempotency keys embed leave_requests ids ("leave_applied:41"), and RESTART
+# IDENTITY reissues those ids, so a stale row would silently swallow the new
+# leave's notification as a "duplicate".
+RESET_ALSO = ["email_outbox"]
 
 CHUNK = 5000
 
@@ -115,7 +122,7 @@ def load(dataset: str, reset: bool) -> None:
 
     with engine.begin() as conn:
         if reset:
-            joined = ", ".join(f'"{n}"' for n in LOAD_ORDER)
+            joined = ", ".join(f'"{n}"' for n in LOAD_ORDER + RESET_ALSO)
             conn.execute(text(f"TRUNCATE {joined} RESTART IDENTITY CASCADE"))
             print(f"truncated {len(LOAD_ORDER)} tables")
 
