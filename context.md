@@ -1,6 +1,13 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated **2026-09-17, Phase 6
+Snapshot for picking the work back up. Last updated **2026-10-03 — an
+evaluation session: the retrieval experiments were re-run and reproduced, and
+the 80-case golden-set re-run was attempted and ABORTED on the Groq free-tier
+rate limit. See §15 for the resume command and the one-cell diff.** The single
+blocking item for the project is the golden-set re-run; everything else below
+is green (434 tests pass, DB and corpus intact).
+
+Previously updated **2026-09-17, Phase 6
 (agentic email notifications) committed (`2c52868`) and verified offline,
 against a local Mailpit sandbox, and through a real chat-UI click-through —
 see §14**. Phases 0–5c are committed (git log has
@@ -1753,3 +1760,161 @@ way.
 
 With this, **every §14 verification is done except the golden-set re-runs**
 (§12), which are the only remaining open item and cost Groq tokens.
+
+---
+
+## 15. Evaluation session — retrieval experiments re-run, golden set BLOCKED on Groq (2026-10-03)
+
+Goal of the session: produce defensible, quotable numbers for the whole
+system (the user wants 3–4 resume lines backed by a real evaluation).
+**Step 3 (retrieval experiments) is done. The golden-set re-run is paused on
+the Groq free-tier limit and must be resumed when the quota refreshes.**
+
+### Machine note — the repo is back on the E: machine
+
+The 2026-09-15 machine-move note at the top of this file is **stale again**.
+This session ran from `E:\ALL PROJECTS\University Assistant`, user `ASUS`,
+with `backend/.venv` intact and working. `.python311/` is present. Nothing
+needed rebuilding.
+
+### Port 5433 was taken — DB started on 5434 without editing `.env`
+
+`.env` says `POSTGRES_PORT=5433` / `DATABASE_URL=...localhost:5433/...`, but
+**another project's container (`tax_project-db-1`) owns 5433** on this
+machine. `uniassist-db` was stopped. Rather than stop the other project or
+edit tracked config, this session did:
+
+```bash
+POSTGRES_PORT=5434 docker compose up -d db mailpit
+# then prefix every command:
+DATABASE_URL="postgresql+psycopg://uniassist:uniassist@localhost:5434/uniassist" ./.venv/Scripts/python.exe ...
+```
+
+An env var beats the `.env` file in pydantic-settings, so this needs no file
+change. **`.env` was NOT modified.** If 5433 is free next time, drop both.
+
+### Environment verified green
+
+- Docker volume **survived** — no re-seed, no re-ingest needed. Row counts:
+  `attendance_records` 39,267 · `marks` 6,754 · `doc_chunks` 2,723
+  (**2,723 embedded, zero nulls**) · `enrollments` 1,830 · 147 users · 35 tables.
+- Corpus: **18 documents / 2,723 chunks** — curriculum 6 docs / 2,487 chunks
+  (2,021 child chunks, parent–child intact), policy 7 / 226, tabular 1 / 6,
+  notice 4 / 4. One doc is faculty-only (`Circular DA/C/2026/19`), which is
+  what the document-level RBAC pre-filter is tested against.
+- **`pytest` — 434 passed in 86s**, fully offline (the suite has grown from
+  the 389/393 recorded in §12). Note `pytest.ini` sets `addopts = -q`; the
+  pass-count line only appears with `-p no:warnings`.
+- Registry: **42 tools**, 8 of them action tools; visible 18 (student) /
+  19 (faculty) / 22 (admin); scopes SELF 14 · OWN_COURSES 11 ·
+  OWN_DEPARTMENT 2 · UNIVERSITY 15.
+- **`pytest` writes to `audit_log`** against the same DB (~250 rows in a run),
+  so `audit_log` is NOT a clean progress signal for an eval started right
+  after a test run. Filter by `created_at` past the eval's start instead.
+
+### Step 3 — retrieval experiments re-run and REPRODUCED (done)
+
+```bash
+cd backend && DATABASE_URL="...5434..." ./.venv/Scripts/python.exe -u ../eval/retrieval_experiments.py
+```
+
+**199s, 74 Jina calls, 68,298 tokens. Needs Jina only — no Groq, so the rate
+limit cannot touch it.** This is why it was chosen as the step to finish.
+
+Result: **every retrieval-quality cell reproduced the committed run except
+one.** `eval/retrieval_results.{json,md}` are updated and **uncommitted**:
+
+- policy @128 dims: R@1 90.6 → **87.5**, MRR 0.940 → **0.924** (one query of
+  32 flipped at the most aggressively truncated dimension — expected near a
+  tie-break after truncate + re-normalise). Every other R@1/R@3/R@5/MRR in
+  all three experiments is **identical**.
+- The v5-omni-small late-chunking no-op delta moved 2.2e-03 → 2.5e-03 (same
+  finding: the API still ignores the flag).
+- `ms/query` columns moved (0.858 → 0.094 etc.) — microsecond numpy timings,
+  pure noise, not a signal. Keep treating index size as the honest cost axis.
+
+Headline numbers that are now **confirmed reproducible** and safe to quote:
+policy dense **R@1 96.9 / R@3 100 / R@5 100, MRR 0.984** (226 chunks, 32
+queries); curriculum labelled parent–child dense **R@1 93.8 / R@5 100, MRR
+0.950, right-course@1 100** vs flat unit-body **R@1 68.8, MRR 0.794** (548
+chunks, 16 queries) — i.e. **the parent–child + course-label chunker is worth
++25 points of R@1 over naive flat chunking**, which is the ablation §8 was
+built to justify.
+
+### Golden-set re-run — ATTEMPTED, ABORTED, nothing lost
+
+**Why it was re-run at all:** `eval/results.json` on disk is from **2026-09-16
+and is STALE** — it predates `789f2b0` ("Score retrieval recall, fact recall
+and stage latency"), so it has **no `quality{}` block and no
+`stage_latency_ms{}`**. It carries only routing/refusal/citation/path. The
+reference-based RAG numbers (retrieval recall@k, MRR, citation precision,
+fact recall) **have never been produced end-to-end** — that is the gap.
+
+Run attempted: `./.venv/Scripts/python.exe ../eval/run_eval.py --out ../eval/results.json`
+(80 cases, default `--sleep 1.0`), started ~10:38:40 UTC.
+
+**Throttled to a standstill and killed at ~11:12 UTC (~34 min in, roughly
+case 50 of 80):**
+
+- 36 eval tool-calls logged vs 58 for a full previous run.
+- Gaps between tool calls blew out: seconds apart until 10:47, then
+  **10:47:49 → 10:59:02 (11 min)**, then **12 min of nothing**.
+- stderr: **`rate limited, out of retries after 5 attempts` ×10** — these are
+  turns that *failed outright* after 5 backoff attempts, not just slow ones.
+  (The last complete run logged 14 of these across its whole 30 min; this one
+  hit 10 by two-thirds of the way through.)
+- A throttled run **understates the system** — failed turns drop `completed`
+  below 80 and cost pass-count for reasons unrelated to answer quality. Bad
+  input for a resume claim, so it was stopped deliberately.
+
+**Nothing was lost:** `run_eval.py` only writes `--out` *after* the loop
+finishes, so **`eval/results.json` was never overwritten** — the complete
+2026-09-16 run (80/80 completed, 77 passed) is still on disk and in git.
+Confirmed by mtime (`Sep 16 17:23`) after the kill.
+
+This is the **third** time Groq's free tier has blocked this exact step
+(see `8b86ccc`, `3552ce9`). It is the binding constraint on the project, not
+a one-off.
+
+### RESUME HERE when the Groq quota refreshes
+
+Docker + DB first (see the 5434 note above), then:
+
+```bash
+cd backend
+# full set — ~30 min when the quota is healthy, ~2300 tokens/turn, ~185k total
+DATABASE_URL="postgresql+psycopg://uniassist:uniassist@localhost:5434/uniassist" \
+  ./.venv/Scripts/python.exe -u ../eval/run_eval.py --out ../eval/results.json --sleep 3
+```
+
+- Use **`-u`** — without it stdout is block-buffered and the progress lines
+  never appear while it runs (this session flew blind for 30 min).
+- Consider **`--sleep 3`** (up from 1) to stay under the TPM ceiling rather
+  than bouncing off it; a slower run that completes beats a fast one that
+  dies.
+- **Cheaper fallback if the quota is still tight** — run only the cases that
+  carry the missing quality expectations, which is the whole point of the
+  re-run and about a quarter of the tokens:
+
+```bash
+  ./.venv/Scripts/python.exe -u ../eval/run_eval.py --filter policy --filter curriculum \
+    --out ../eval/results_quality.json --sleep 3
+```
+
+  (20 cases carry `expect_sources`, 19 carry `expect_facts` / 29 facts.)
+- Set composition, for reading the output: 80 cases — 40 student / 22 faculty
+  / 18 admin; 14 refusal; 52 with `expected_tools`; 20 `expect_citation`;
+  7 `expect_path: confirm`, 3 `smalltalk`.
+- Gate: exit 0 only when refusal = 100%, routing ≥ 85%, and all 80 completed.
+
+### Still open after this session
+
+1. **The golden-set re-run** — the one blocking item, Groq-bound (above).
+2. `eval/retrieval_results.{json,md}` are **uncommitted** (the one-cell
+   @128 change). Commit or revert.
+3. `README.md` **Status section is badly out of date** — it says
+   "Phase 1b — auth & RBAC done" and "393 tests", then describes Phase 2 and
+   ends with "Next: Phase 3 — RAG". The project is at **Phase 6** with
+   **434 tests**, RAG/eval/frontend/email all shipped. Anyone reading the
+   repo cold (a recruiter following a GitHub link) hits this first. Fix it
+   before sharing the repo.
