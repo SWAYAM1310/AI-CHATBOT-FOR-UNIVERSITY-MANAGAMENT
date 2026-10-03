@@ -4,7 +4,7 @@ Embedding model: `jina-embeddings-v5-omni-small`; k in {1,3,5}; recall = share o
 
 ## 1. Late vs naive chunking (policy corpus: 226 chunks, 32 queries)
 
-The Jina API ignores `late_chunking` for `jina-embeddings-v5-omni-small`: the stored vectors and an independent re-embedding differ by at most 2.2e-03. The late-vs-naive comparison is therefore made on `jina-embeddings-v3`, which applies it.
+The Jina API ignores `late_chunking` for `jina-embeddings-v5-omni-small`: the stored vectors and an independent re-embedding differ by at most 2.5e-03. The late-vs-naive comparison is therefore made on `jina-embeddings-v3`, which applies it.
 
 | variant | branch | R@1 | R@3 | R@5 | MRR |
 |---|---|---|---|---|---|
@@ -40,18 +40,18 @@ The Jina API ignores `late_chunking` for `jina-embeddings-v5-omni-small`: the st
 
 | dims | R@1 | R@3 | R@5 | MRR | index size | brute-force ms/query |
 |---|---|---|---|---|---|---|
-| 1024 | 96.9 | 100.0 | 100.0 | 0.984 | 904 KiB | 0.032 |
-| 512 | 96.9 | 100.0 | 100.0 | 0.979 | 452 KiB | 0.037 |
+| 1024 | 96.9 | 100.0 | 100.0 | 0.984 | 904 KiB | 0.035 |
+| 512 | 96.9 | 100.0 | 100.0 | 0.979 | 452 KiB | 0.041 |
 | 256 | 90.6 | 100.0 | 100.0 | 0.948 | 226 KiB | 0.027 |
-| 128 | 90.6 | 96.9 | 100.0 | 0.940 | 113 KiB | 0.023 |
+| 128 | 87.5 | 96.9 | 100.0 | 0.924 | 113 KiB | 0.024 |
 
 **curriculum (CP)** (548 chunks, 16 queries)
 
 | dims | R@1 | R@3 | R@5 | MRR | index size | brute-force ms/query |
 |---|---|---|---|---|---|---|
-| 1024 | 93.8 | 93.8 | 100.0 | 0.950 | 2192 KiB | 0.858 |
-| 512 | 93.8 | 93.8 | 100.0 | 0.950 | 1096 KiB | 0.061 |
-| 256 | 93.8 | 93.8 | 100.0 | 0.950 | 548 KiB | 0.051 |
+| 1024 | 93.8 | 93.8 | 100.0 | 0.950 | 2192 KiB | 0.094 |
+| 512 | 93.8 | 93.8 | 100.0 | 0.950 | 1096 KiB | 0.109 |
+| 256 | 93.8 | 93.8 | 100.0 | 0.950 | 548 KiB | 0.055 |
 | 128 | 87.5 | 93.8 | 100.0 | 0.922 | 274 KiB | 0.048 |
 
 ## Reading the numbers
