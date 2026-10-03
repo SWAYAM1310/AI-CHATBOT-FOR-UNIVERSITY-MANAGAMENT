@@ -167,7 +167,7 @@ shows them live.
 ```bash
 cp .env.example .env                     # adjust if needed
 
-docker compose up -d                     # Postgres 16 + pgvector on :5433, Mailpit on :8025
+docker compose up -d                     # Postgres 16 + pgvector on :5434, Mailpit on :8025
 
 cd backend
 python -m venv .venv

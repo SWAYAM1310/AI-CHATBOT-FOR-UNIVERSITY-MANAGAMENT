@@ -1777,21 +1777,33 @@ This session ran from `E:\ALL PROJECTS\University Assistant`, user `ASUS`,
 with `backend/.venv` intact and working. `.python311/` is present. Nothing
 needed rebuilding.
 
-### Port 5433 was taken — DB started on 5434 without editing `.env`
+### Port conflict RESOLVED — UniAssist now owns 5434, permanently
 
-`.env` says `POSTGRES_PORT=5433` / `DATABASE_URL=...localhost:5433/...`, but
-**another project's container (`tax_project-db-1`) owns 5433** on this
-machine. `uniassist-db` was stopped. Rather than stop the other project or
-edit tracked config, this session did:
+**This project's Postgres is on host port 5434, not 5433. No override is
+needed any more — plain `docker compose up -d` is correct again.**
 
-```bash
-POSTGRES_PORT=5434 docker compose up -d db mailpit
-# then prefix every command:
-DATABASE_URL="postgresql+psycopg://uniassist:uniassist@localhost:5434/uniassist" ./.venv/Scripts/python.exe ...
-```
+The clash: `E:\tax_project` (another pgvector project on this machine) and
+UniAssist had both picked **5433**, independently, with the *same* comment
+in their compose files — "to avoid clashing with any local Postgres
+install". Two containers cannot bind one host port, so whichever started
+second failed. `tax_project-db-1` was up, `uniassist-db` was stopped.
 
-An env var beats the `.env` file in pydantic-settings, so this needs no file
-change. **`.env` was NOT modified.** If 5433 is free next time, drop both.
+Fixed by moving **UniAssist** to 5434 and leaving the tax project alone:
+
+- `.env` (gitignored) and `.env.example` (tracked): `POSTGRES_PORT=5434` and
+  `DATABASE_URL=...localhost:5434/uniassist`, with a comment saying why it is
+  neither 5432 nor 5433 and that the two lines must agree.
+- `README.md` quickstart comment updated to `:5434`.
+- **The tax project was NOT touched** — it keeps 5433 and never restarted.
+- Fallbacks left at 5432 on purpose (`docker-compose.yml`
+  `${POSTGRES_PORT:-5432}`, `config.py` `database_url`): those are the
+  no-`.env` path, where 5432 is the conventional choice. CI is unaffected —
+  `backend-tests.yml` uses a GitHub service container on 5432.
+
+Verified after the change, with **no env override anywhere**:
+`settings.database_url` resolves to 5434, the app connects (147 users, 2,723
+chunks), **434 tests pass**, and both DBs run side by side
+(`uniassist-db` :5434 healthy, `tax_project-db-1` :5433 healthy).
 
 ### Environment verified green
 
@@ -1815,7 +1827,7 @@ change. **`.env` was NOT modified.** If 5433 is free next time, drop both.
 ### Step 3 — retrieval experiments re-run and REPRODUCED (done)
 
 ```bash
-cd backend && DATABASE_URL="...5434..." ./.venv/Scripts/python.exe -u ../eval/retrieval_experiments.py
+cd backend && ./.venv/Scripts/python.exe -u ../eval/retrieval_experiments.py
 ```
 
 **199s, 74 Jina calls, 68,298 tokens. Needs Jina only — no Groq, so the rate
@@ -1878,13 +1890,13 @@ a one-off.
 
 ### RESUME HERE when the Groq quota refreshes
 
-Docker + DB first (see the 5434 note above), then:
+`docker compose up -d` first (the port is fixed in `.env` now — no override),
+then:
 
 ```bash
 cd backend
 # full set — ~30 min when the quota is healthy, ~2300 tokens/turn, ~185k total
-DATABASE_URL="postgresql+psycopg://uniassist:uniassist@localhost:5434/uniassist" \
-  ./.venv/Scripts/python.exe -u ../eval/run_eval.py --out ../eval/results.json --sleep 3
+./.venv/Scripts/python.exe -u ../eval/run_eval.py --out ../eval/results.json --sleep 3
 ```
 
 - Use **`-u`** — without it stdout is block-buffered and the progress lines
