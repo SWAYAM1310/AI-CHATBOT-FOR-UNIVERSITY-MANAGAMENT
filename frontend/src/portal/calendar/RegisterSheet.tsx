@@ -136,10 +136,17 @@ export function RegisterSheet({ offeringId, date, students, onSaved }: {
         </button>
       </div>
 
-      {target && (
+      {target?.auto_marked ? (
         <Notice tone="info">
-          This register is already recorded{target.slot_no ? ` for period ${target.slot_no}` : ''}. Saving corrects it.
+          Nobody took this register, so everyone was recorded present when the day ended. Mark anyone who was absent and
+          save the correction.
         </Notice>
+      ) : (
+        target && (
+          <Notice tone="info">
+            This register is already recorded{target.slot_no ? ` for period ${target.slot_no}` : ''}. Saving corrects it.
+          </Notice>
+        )
       )}
       {ambiguous && <Notice tone="info">This class met more than once today. Pick the period to see or correct it.</Notice>}
 

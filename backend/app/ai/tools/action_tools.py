@@ -530,6 +530,8 @@ def correct_attendance(
         else:
             db.add(AttendanceRecord(session_id=session.id, student_id=s.id, status=new))
     session.marked_at = _now()
+    if session.auto_marked:  # the upkeep job's all-present register, now taken by a person
+        session.auto_marked, session.marked_by = False, ctx.faculty_id
     db.flush()
     return {
         "done": True,
@@ -617,6 +619,8 @@ def enter_marks(
             return _error(f"{roll} is not enrolled in {offering.subject_code}")
         if score < 0 or (max_marks is not None and score > max_marks):
             return _error(f"score {score} for {roll} is outside 0..{max_marks}")
+        if (score * 2) % 1:
+            return _error(f"marks go in steps of 0.5: {score} for {roll} is not allowed")
 
     clean = {roll: float(score) for roll, score in entries}
     args = {
@@ -662,6 +666,7 @@ def enter_marks(
         else:
             row.score, row.is_absent, row.graded_on = None, True, _today()
             updated += 1
+    target.auto_graded = False  # a faculty member has now entered marks for it
     db.flush()
     return {
         "done": True,

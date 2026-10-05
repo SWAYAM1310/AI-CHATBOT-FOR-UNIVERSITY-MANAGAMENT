@@ -15,7 +15,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.ai.tools.builtin import PRESENT
@@ -23,8 +23,8 @@ from app.api.profile import identity_row
 from app.api.toolcall import read_tool, run_action
 from app.auth.context import AuthContext, Role
 from app.auth.deps import get_db, require_roles
+from app.schedule import covers, events_between, is_teaching_day, term_window
 from app.models import (
-    AcademicCalendarEvent,
     Assessment,
     AttendanceRecord,
     AttendanceSession,
@@ -42,7 +42,6 @@ faculty_only = require_roles(Role.FACULTY)
 
 RECENT_SESSIONS = 10
 MAX_ROLLS = 500
-NO_TEACHING = ("holiday", "break", "exam")  # calendar events on which the timetable does not run
 
 
 class AttendanceIn(BaseModel):
@@ -191,6 +190,7 @@ def attendance(
             "date": session.session_date.isoformat(),
             "slot_no": session.slot_no,
             "marked_at": session.marked_at.isoformat() if session.marked_at else None,
+            "auto_marked": bool(session.auto_marked),
             "present": total - len(absent),
             "absent": len(absent),
             "absent_roll_nos": absent,
@@ -277,25 +277,8 @@ def calendar(
         )
     by_id = {o.id: o for o in offerings}
 
-    in_term = or_(AcademicCalendarEvent.term == ctx.term, AcademicCalendarEvent.term.is_(None))
-    term_days = list(
-        db.scalars(select(AcademicCalendarEvent.start_date).where(in_term, AcademicCalendarEvent.event_type == "term"))
-    )
-    term_start, term_end = (min(term_days), max(term_days)) if term_days else (None, None)
-    events = list(
-        db.scalars(
-            select(AcademicCalendarEvent)
-            .where(
-                in_term,
-                AcademicCalendarEvent.start_date <= last,
-                func.coalesce(AcademicCalendarEvent.end_date, AcademicCalendarEvent.start_date) >= first,
-            )
-            .order_by(AcademicCalendarEvent.start_date, AcademicCalendarEvent.id)
-        )
-    )
-
-    def _covers(e: AcademicCalendarEvent, d: Date) -> bool:
-        return e.start_date <= d <= (e.end_date or e.start_date)
+    term_start, term_end = term_window(db, ctx.term)
+    events = events_between(db, ctx.term, first, last)
 
     weekly: dict[int, list[tuple[TimetableSlot, str | None]]] = {}
     for slot, room in db.execute(
@@ -319,18 +302,20 @@ def calendar(
         .order_by(AttendanceSession.slot_no)
     ):
         held.setdefault((session.session_date, session.offering_id), []).append(
-            {"id": session.id, "slot_no": session.slot_no, "present": total - absent, "absent": absent}
+            {
+                "id": session.id,
+                "slot_no": session.slot_no,
+                "present": total - absent,
+                "absent": absent,
+                "auto": bool(session.auto_marked),
+            }
         )
 
     days = []
     d = first
     while d <= last:
-        todays = [e for e in events if _covers(e, d)]
-        teaching = (
-            term_start is not None
-            and term_start <= d <= term_end
-            and not any(e.event_type in NO_TEACHING for e in todays)
-        )
+        todays = [e for e in events if covers(e, d)]
+        teaching = is_teaching_day(d, todays, term_start, term_end)
         classes: dict[int, dict[str, Any]] = {}
         for slot, room in weekly.get(d.weekday(), []) if teaching else []:
             row = classes.setdefault(
@@ -407,6 +392,7 @@ def assessments(offering_id: int, ctx: AuthContext = Depends(faculty_only), db: 
                 "due_date": a.due_date.isoformat() if a.due_date else None,
                 "status": a.status,
                 "graded": graded.get(a.id, 0),
+                "auto_graded": bool(a.auto_graded),
             }
             for a in rows
         ],
@@ -424,6 +410,7 @@ def marks(assessment_id: int, ctx: AuthContext = Depends(faculty_only), db: Sess
             "type": assessment.type,
             "title": assessment.title,
             "max_marks": float(assessment.max_marks) if assessment.max_marks is not None else None,
+            "auto_graded": bool(assessment.auto_graded),
         },
         "students": [
             {

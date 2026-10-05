@@ -14,6 +14,7 @@ function problem(score: string, absent: boolean, max: number | null, hadEntry: b
   if (!Number.isFinite(n)) return 'Not a number'
   if (n < 0) return 'Cannot be below 0'
   if (max !== null && n > max) return `Cannot be above ${max}`
+  if (!Number.isInteger(n * 2)) return 'Use whole or half marks, like 7 or 7.5'
   return null
 }
 
@@ -141,6 +142,12 @@ export function Marks() {
 
           {sheet.data && (
             <>
+              {sheet.data.assessment.auto_graded && (
+                <Notice tone="info">
+                  Nobody entered these marks by the due date, so they were filled in automatically: each student got a
+                  score within their own range of marks this semester. Change any score and save to replace it.
+                </Notice>
+              )}
               <div className="table-wrap">
                 <table className="data marks">
                   <thead>

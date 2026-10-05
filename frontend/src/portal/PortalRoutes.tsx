@@ -1,7 +1,7 @@
 import { Navigate, useRoutes, type RouteObject } from 'react-router-dom'
 import type { Role } from '../types'
 import { AdminHome } from './admin/AdminHome'
-import { CalendarPage, CalendarRegisterDay, CourseCalendar, CourseRegisterDay } from './calendar/RegisterDay'
+import { CalendarPage, CalendarRegisterDay } from './calendar/RegisterDay'
 import { Announcements } from './admin/Announcements'
 import { Fees } from './admin/Fees'
 import { CourseLayout } from './faculty/CourseLayout'
@@ -28,8 +28,6 @@ const BY_ROLE: Record<Role, RouteObject[]> = {
       element: <CourseLayout />,
       children: [
         { index: true, element: <Roster /> },
-        { path: 'attendance', element: <CourseCalendar /> },
-        { path: 'attendance/:date', element: <CourseRegisterDay /> },
         { path: 'marks', element: <Marks /> },
       ],
     },

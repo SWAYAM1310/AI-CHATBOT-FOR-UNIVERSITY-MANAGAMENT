@@ -124,3 +124,35 @@ def test_planted_pending_leaves(conn):
         )
     ).scalar_one()
     assert n == 3
+
+
+# --- realism rules the dataset keeps (scripts/fix_dataset.py) -------------------------
+
+def test_every_score_is_whole_or_half(conn):
+    odd = conn.execute(text("SELECT count(*) FROM marks WHERE score * 2 <> trunc(score * 2)")).scalar_one()
+    assert odd == 0
+
+
+def test_the_database_refuses_a_score_like_8_9():
+    from sqlalchemy.exc import IntegrityError
+
+    from app.db.session import engine
+
+    with pytest.raises(IntegrityError, match="ck_marks_score_half_step"), engine.begin() as c:
+        mark_id = c.execute(text("SELECT id FROM marks WHERE score IS NOT NULL LIMIT 1")).scalar_one()
+        c.execute(text("UPDATE marks SET score = 8.9 WHERE id = :id"), {"id": mark_id})
+
+
+def test_exams_are_due_the_day_the_schedule_sits_them(conn):
+    mismatched = conn.execute(
+        text(
+            """
+            SELECT count(*) FROM assessments a
+            JOIN course_offerings o ON o.id = a.offering_id
+            JOIN exam_schedule x ON x.term = a.term AND x.exam_type = a.type
+                 AND x.subject_code = a.subject_code AND x.dept_code = o.dept_code AND x.semester = o.semester
+            WHERE a.due_date <> x.exam_date
+            """
+        )
+    ).scalar_one()
+    assert mismatched == 0

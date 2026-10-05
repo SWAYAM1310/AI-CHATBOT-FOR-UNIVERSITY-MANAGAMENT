@@ -52,7 +52,7 @@ class LeaveRequest(Base):
     from_date = Column(Date, nullable=False)
     to_date = Column(Date, nullable=False)
     reason = Column(Text, nullable=True)
-    status = Column(String, nullable=False)  # pending | approved | rejected
+    status = Column(String, nullable=False)  # pending | approved | rejected | expired (undecided when it began)
     applied_on = Column(Date, nullable=True)
     decided_by = Column(Integer, ForeignKey("faculty.id"), nullable=True)
     decided_on = Column(Date, nullable=True)

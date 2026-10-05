@@ -10,8 +10,14 @@ from sqlalchemy import select, text
 from app.auth.context import AuthContext, Role, build_auth_context
 from app.config import REPO_ROOT, settings
 from app.db.session import SessionLocal, engine
+from app.jobs.upkeep import LOCK_KEY, run_now
 from app.models import User
 from app.seed.load_csv import LOAD_ORDER, load
+
+# Tests expect the CSV's raw state (classes still "due", marks still missing), so the
+# upkeep job stays off: in this process, and in any dev server sharing the database,
+# which finds its lock taken (see _upkeep_locked_out).
+settings.upkeep_enabled = False
 
 SAMPLE_DIR = REPO_ROOT / "data" / "synthetic" / "sample"
 DOC_STORE_EXTRACT_TABLES = ("syllabus_courses", "syllabus_units", "course_outcomes", "textbooks")
@@ -32,7 +38,22 @@ def _no_real_email(monkeypatch) -> None:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _loaded_db(_preserve_doc_store) -> None:
+def _upkeep_locked_out():
+    """Hold the upkeep job's lock for the whole session, so a running dev server cannot
+    fill in attendance or marks while the tests count rows. The session reloads the dev
+    database from CSV, so afterwards the job settles it again rather than leaving it
+    raw until the server's next run."""
+    with engine.connect() as c:
+        c.execute(text("SELECT pg_advisory_lock(:k)"), {"k": LOCK_KEY})
+        c.commit()
+        yield
+        c.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": LOCK_KEY})
+        c.commit()
+    run_now()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _loaded_db(_preserve_doc_store, _upkeep_locked_out) -> None:
     """Ensure a freshly loaded sample DB before any test runs."""
     load("sample", reset=True)
     with engine.begin() as c:

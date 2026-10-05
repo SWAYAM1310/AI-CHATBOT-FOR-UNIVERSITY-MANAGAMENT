@@ -54,6 +54,10 @@ class Settings(BaseSettings):
 
     # Academic context (matches scripts/academic_data.py)
     current_term: str = "2026-27-ODD"
+    # The upkeep job (app/jobs/upkeep.py) settles each day once it is over: unmarked
+    # classes recorded present, ungraded past assessments given marks, stale statuses moved on.
+    upkeep_enabled: bool = True
+    upkeep_interval_seconds: int = 15 * 60
 
     # Email notifications (leave apply/decide, phase 1). "off" drafts and sends
     # nothing (eval runs); "console" logs the message and never touches the

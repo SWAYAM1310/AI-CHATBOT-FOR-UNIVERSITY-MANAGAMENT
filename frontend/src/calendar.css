@@ -1,9 +1,11 @@
 /* The teaching calendar and the register it opens. The calendar reads like a ruled
    register sheet: hairline cell rules, big Fraunces dates, classes as small stamps.
    Holidays are the one cool hue on the page (slate, hatched), so "no class" shows at
-   a glance; exam days carry an amber rule. Motion: a hovered or focused day lifts and
-   its attendance bars sweep in; opening a day morphs its date into the register
-   heading (View Transitions; see calendar/transition.ts). */
+   a glance; exam days carry an amber rule. A day that opens somewhere is a raised tile,
+   a key on the sheet: hovered or focused it lifts, says what opening it does, and its
+   attendance bars sweep in; pressed it sinks and ripples from the pointer. Opening a day
+   morphs its date into the register heading (View Transitions; see calendar/transition.ts).
+   Paging the month slides the days in from that side. */
 
 /* --- month header ---------------------------------------------------------------------- */
 
@@ -101,9 +103,14 @@
   color: inherit;
   text-decoration: none;
   background: var(--page);
+  /* a top rule (today, exams) and a tile's raised edge share one box-shadow */
+  --accent: 0 0 0 transparent;
+  --lift: 0 0 0 transparent;
+  box-shadow: var(--accent), var(--lift);
   transition:
     transform 200ms cubic-bezier(0.2, 0.7, 0.3, 1),
     box-shadow 200ms ease,
+    border-color 200ms ease,
     background-color 200ms ease;
 }
 
@@ -115,29 +122,176 @@
   background: color-mix(in srgb, var(--card) 35%, var(--page));
 }
 
+/* the days that open: raised tiles, set into the ruled sheet */
 a.cal-cell {
+  flex: 1;
+  width: auto;
+  min-height: 108px;
+  margin: 5px;
+  padding: 7px 8px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--surface);
+  --lift: 0 2px 0 var(--rule), 0 4px 10px -8px rgba(42, 29, 18, 0.45);
+  overflow: hidden;
+  isolation: isolate; /* keeps the ripple behind the text */
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* term days with nothing on them: a pencilled outline until pointed at */
+a.cal-cell.is-quiet {
+  border-style: dashed;
+  background: transparent;
+  --lift: 0 0 0 transparent;
 }
 
 a.cal-cell:hover,
 a.cal-cell:focus-visible {
   z-index: 2;
   transform: translateY(-3px);
-  background: var(--surface);
-  box-shadow:
-    0 0 0 1px var(--rule),
-    0 10px 22px -12px rgba(42, 29, 18, 0.5);
-  border-radius: 8px;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--crest) 55%, var(--rule));
+  background-color: color-mix(in srgb, var(--surface) 55%, #fff);
+  --lift: 0 4px 0 color-mix(in srgb, var(--crest) 30%, var(--rule)), 0 16px 26px -16px rgba(42, 29, 18, 0.6);
 }
 
 a.cal-cell:focus-visible {
   outline: 2px solid var(--crest);
-  outline-offset: 0;
+  outline-offset: 2px;
 }
 
+/* pressed: the key sinks into the sheet */
 a.cal-cell:active {
-  transform: translateY(-1px);
-  transition-duration: 80ms;
+  transform: translateY(1px);
+  --lift: 0 1px 0 var(--rule), 0 2px 4px -3px rgba(42, 29, 18, 0.4);
+  transition-duration: 70ms;
+}
+
+a.cal-cell::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: var(--rx, 50%);
+  top: var(--ry, 50%);
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: var(--crest);
+  opacity: 0;
+  pointer-events: none;
+}
+
+a.cal-cell.is-pressed::after {
+  animation: cal-ripple 620ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@keyframes cal-ripple {
+  from {
+    opacity: 0.26;
+    transform: scale(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(30);
+  }
+}
+
+/* what opening the day does; shown at rest only where a register is waiting */
+.cal-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 4px;
+  color: var(--crest-hover);
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 180ms ease,
+    transform 240ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.cal-cta svg {
+  flex: none;
+  transition: transform 240ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+a.cal-cell.has-due .cal-cta,
+a.cal-cell:hover .cal-cta,
+a.cal-cell:focus-visible .cal-cta {
+  opacity: 1;
+  transform: none;
+}
+
+a.cal-cell:hover .cal-cta svg,
+a.cal-cell:focus-visible .cal-cta svg {
+  transform: translateX(3px);
+}
+
+@media (hover: none) {
+  .cal-cta {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* registers still to take: a count with a slow pulse */
+.cal-due {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  padding: 1px 8px 1px 6px;
+  border-radius: 999px;
+  background: var(--crest-soft);
+  color: var(--ink);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.cal-due::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--crest);
+  animation: cal-pulse 1.8s ease-out infinite;
+}
+
+@keyframes cal-pulse {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--crest) 55%, transparent);
+  }
+  70%,
+  to {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+/* paging the month: the days slide in from that side, one after another */
+.cal-grid.is-paged-next .cal-slot {
+  --from: 16px;
+}
+
+.cal-grid.is-paged-prev .cal-slot {
+  --from: -16px;
+}
+
+.cal-grid.is-paged-next .cal-slot,
+.cal-grid.is-paged-prev .cal-slot {
+  animation: cal-page-in 380ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+  animation-delay: calc(var(--n) * 9ms);
+}
+
+@keyframes cal-page-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--from));
+  }
 }
 
 .cal-date {
@@ -182,7 +336,7 @@ a.cal-cell:focus-visible .cal-num {
 }
 
 .cal-cell.is-today {
-  box-shadow: inset 0 3px 0 var(--crest);
+  --accent: inset 0 3px 0 var(--crest);
 }
 
 .cal-cell.is-today .cal-num {
@@ -198,6 +352,10 @@ a.cal-cell:focus-visible .cal-num {
     transparent 0 7px,
     color-mix(in srgb, var(--holiday) 13%, transparent) 7px 8px
   );
+}
+
+a.cal-cell.is-holiday {
+  border-color: color-mix(in srgb, var(--holiday) 30%, var(--rule));
 }
 
 a.cal-cell.is-holiday:hover,
@@ -219,7 +377,7 @@ a.cal-cell.is-holiday:focus-visible {
 
 /* exam windows: an amber rule along the top */
 .cal-cell.is-exam {
-  box-shadow: inset 0 3px 0 var(--amber);
+  --accent: inset 0 3px 0 var(--amber);
 }
 
 .cal-exam,
@@ -311,22 +469,32 @@ a.cal-cell:focus-visible .cal-chip-bar {
   }
 }
 
+/* auto: nobody took the register, so everyone was recorded present: a held stamp, drawn
+   with a dotted rule so it reads as filled in rather than taken */
+.cal-chip.is-auto {
+  border: 1px dotted var(--present);
+  background: color-mix(in srgb, var(--present-soft) 60%, var(--surface));
+}
+
+.cal-chip-auto {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--present);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+
 /* due: timetabled and past, nobody has marked it */
 .cal-chip.is-due {
   border: 1px dashed var(--crest);
   background: var(--surface);
   color: var(--ink);
-}
-
-.cal-chip.is-due .cal-chip-code::after {
-  content: '';
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin: 0 0 1px 5px;
-  border-radius: 50%;
-  background: var(--crest);
-  vertical-align: middle;
 }
 
 /* upcoming: just a pencilled-in outline */
@@ -370,6 +538,11 @@ a.cal-cell:focus-visible .cal-chip-bar {
 
 .cal-key.is-held {
   background: linear-gradient(to top, var(--present) 0 3px, var(--present-soft) 3px);
+}
+
+.cal-key.is-auto {
+  border: 1px dotted var(--present);
+  background: linear-gradient(to top, var(--present) 0 3px, color-mix(in srgb, var(--present-soft) 60%, var(--surface)) 3px);
 }
 
 .cal-key.is-due {
@@ -509,6 +682,16 @@ a.cal-cell:focus-visible .cal-chip-bar {
 .reg-class[aria-current='true'] .reg-class-batch,
 .reg-class[aria-current='true'] .reg-class-meta {
   color: color-mix(in srgb, var(--page) 80%, var(--ink));
+}
+
+/* a class held off the timetable */
+.reg-extra {
+  align-items: flex-start;
+  margin: -6px 0 24px;
+}
+
+.reg-extra select {
+  max-width: 100%;
 }
 
 .reg-class-title {
@@ -692,6 +875,22 @@ kbd {
     padding: 10px 12px;
   }
 
+  a.cal-cell {
+    margin: 4px 0;
+  }
+
+  /* the action sits at the end of the row as a plain arrow */
+  .cal-cta {
+    order: 2;
+    margin: auto 0 auto auto;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .cal-due {
+    order: 1;
+  }
+
   .cal-date {
     flex: none;
     flex-direction: column;
@@ -740,8 +939,15 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   .cal-cell,
   .cal-num,
+  .cal-cta,
+  .cal-cta svg,
   .pa button {
     transition: none;
+  }
+
+  .cal-cta {
+    opacity: 1;
+    transform: none;
   }
 
   a.cal-cell:hover,
@@ -753,8 +959,16 @@ kbd {
 
   a.cal-cell:hover .cal-chip-bar,
   a.cal-cell:focus-visible .cal-chip-bar,
+  a.cal-cell.is-pressed::after,
+  .cal-due::before,
+  .cal-grid .cal-slot,
   .pa button[aria-pressed='true'] {
     animation: none;
+  }
+
+  a.cal-cell:active,
+  a.cal-cell:hover .cal-cta svg {
+    transform: none;
   }
 
   ::view-transition-group(*),

@@ -274,6 +274,10 @@ def test_enter_marks_validates_assessment_roster_and_range(db):
     assert "outside" in out["error"]
     out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Quiz-1", "marks": {"25BCP017": "lots"}})
     assert "not a number" in out["error"]
+    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Quiz-1", "marks": {"25BCP017": 6.3}})
+    assert "steps of 0.5" in out["error"]
+    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Quiz-1", "marks": {"25BCP017": 6.5}})
+    assert "error" not in out and out["preview"]["marks"] == {"25BCP017": 6.5}
 
 
 def test_enter_marks_upserts_and_the_summary_reflects_it(db, undo):

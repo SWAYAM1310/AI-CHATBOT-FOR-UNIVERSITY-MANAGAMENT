@@ -18,7 +18,10 @@ export function Courses() {
 
   return (
     <div className="page">
-      <PageHeader title="Courses" lede="The sections you teach this term. Open one to take attendance or enter marks." />
+      <PageHeader title="Courses" lede="The sections you teach this term. Open one for its roster or to enter marks." />
+      <p className="muted">
+        Attendance is taken from the <Link to="/calendar">Calendar</Link>: open the day a class met.
+      </p>
       {error && <Notice tone="error">{error}</Notice>}
       {!data && !error && <Loading what="your courses" />}
       {data && data.length === 0 && <Empty>You are not teaching any course this term.</Empty>}
@@ -41,9 +44,6 @@ export function Courses() {
                   <span className="section-actions">
                     <Link className="btn" to={`/courses/${s.offering_id}`}>
                       Roster
-                    </Link>
-                    <Link className="btn" to={`/courses/${s.offering_id}/attendance`}>
-                      Attendance
                     </Link>
                     <Link className="btn" to={`/courses/${s.offering_id}/marks`}>
                       Marks

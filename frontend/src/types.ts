@@ -194,6 +194,8 @@ export interface AttendanceSession {
   date: string
   slot_no: number | null
   marked_at: string | null
+  /** nobody took this register, so the upkeep job recorded everyone present */
+  auto_marked: boolean
   present: number
   absent: number
   absent_roll_nos: string[]
@@ -221,7 +223,8 @@ export interface CalendarClass extends FacultyCourse {
   end_time: string | null
   room: string | null
   status: ClassStatus
-  sessions: { id: number; slot_no: number | null; present: number; absent: number }[]
+  /** auto: the upkeep job recorded everyone present because nobody took the register */
+  sessions: { id: number; slot_no: number | null; present: number; absent: number; auto: boolean }[]
 }
 
 export interface CalendarDay {
@@ -247,6 +250,7 @@ export interface AssessmentRow {
   due_date: string | null
   status: string | null
   graded: number
+  auto_graded: boolean
 }
 
 export interface AssessmentList {
@@ -256,7 +260,7 @@ export interface AssessmentList {
 
 export interface MarksSheet {
   offering: FacultyCourse
-  assessment: { assessment_id: number; type: string; title: string | null; max_marks: number | null }
+  assessment: { assessment_id: number; type: string; title: string | null; max_marks: number | null; auto_graded: boolean }
   students: { roll_no: string; full_name: string; score: number | null; is_absent: boolean }[]
 }
 

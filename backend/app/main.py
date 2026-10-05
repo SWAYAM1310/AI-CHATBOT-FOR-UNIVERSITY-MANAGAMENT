@@ -4,7 +4,13 @@ Run:  uvicorn app.main:app --reload   (from backend/, with the venv active)
 """
 from __future__ import annotations
 
+import asyncio
+import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
@@ -17,8 +23,30 @@ from app.api import profile as profile_api
 from app.api import student as student_api
 from app.config import settings
 from app.db.session import engine
+from app.jobs import upkeep
 
-app = FastAPI(title="UniAssist API", version="0.0.1")
+log = logging.getLogger("uvicorn.error")
+
+
+async def _upkeep_loop() -> None:
+    """Settle the records now, then again every interval, so a day closes soon after midnight."""
+    while True:
+        try:
+            log.info("upkeep: %s", upkeep.describe(await run_in_threadpool(upkeep.run_now)))
+        except Exception:  # noqa: BLE001 - a bad run must not stop the next one
+            log.exception("upkeep failed")
+        await asyncio.sleep(settings.upkeep_interval_seconds)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    task = asyncio.create_task(_upkeep_loop()) if settings.upkeep_enabled else None
+    yield
+    if task:
+        task.cancel()
+
+
+app = FastAPI(title="UniAssist API", version="0.0.1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

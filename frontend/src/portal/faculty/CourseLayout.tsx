@@ -49,7 +49,6 @@ export function CourseLayout() {
         <NavLink to={base} end>
           Roster
         </NavLink>
-        <NavLink to={`${base}/attendance`}>Attendance</NavLink>
         <NavLink to={`${base}/marks`}>Marks</NavLink>
       </nav>
       {error && <Notice tone="error">{error}</Notice>}

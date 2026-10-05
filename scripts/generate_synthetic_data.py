@@ -661,6 +661,32 @@ def gen_attendance(rng, offerings, roster, students_by_id, out_dir, forced):
 # ---------------------------------------------------------------------------
 # assessments / marks / submissions
 # ---------------------------------------------------------------------------
+def half_step(x: float) -> float:
+    """Marks are whole or half (7, 7.5), never 7.3."""
+    return math.floor(x * 2 + 0.5) / 2
+
+
+# Exam windows: the academic calendar's exam rows. A theory subject sits each exam on one
+# day inside the window; exam_date() picks it, and the assessments share that date.
+EXAM_WINDOWS = {
+    (AD.PAST_TERM, "End-Sem"): (AD.TERM_WINDOWS[AD.PAST_TERM]["exam_start"], AD.TERM_WINDOWS[AD.PAST_TERM]["exam_end"]),
+    (AD.CURRENT_TERM, "Internal-1"): (dt.date(2026, 8, 20), dt.date(2026, 8, 25)),
+    (AD.CURRENT_TERM, "Internal-2"): (dt.date(2026, 9, 21), dt.date(2026, 9, 26)),
+    (AD.CURRENT_TERM, "End-Sem"): (AD.TERM_WINDOWS[AD.CURRENT_TERM]["exam_start"], AD.TERM_WINDOWS[AD.CURRENT_TERM]["exam_end"]),
+}
+
+
+def exam_date(term: str, xtype: str, semester: int, subject_code: str) -> dt.date | None:
+    """The day a theory subject sits an exam, or None when the exam has no window that term.
+    Stable across runs: a digest of the code, not hash(), which Python salts per process."""
+    window = EXAM_WINDOWS.get((term, xtype))
+    if window is None:
+        return None
+    w_start, w_end = window
+    spread = int(hashlib.md5(subject_code.encode()).hexdigest()[:8], 16)
+    return w_start + dt.timedelta(days=(semester + spread) % max(1, (w_end - w_start).days))
+
+
 def gen_assessments(rng, offerings, roster, students_by_id, forced):
     a_rows, m_rows, s_rows = [], [], []
     aid = mid = subid = 1
@@ -682,6 +708,8 @@ def gen_assessments(rng, offerings, roster, students_by_id, forced):
 
         for (atype, title, maxm, wt, week, kind) in templates:
             due = w["teaching_start"] + dt.timedelta(days=(week - 1) * 7 + rng.randint(0, 4))
+            if comp == "Theory":  # an exam is due the day the schedule sits it
+                due = exam_date(term, atype, o["semester"], o["subject_code"]) or due
             conducted = term == AD.PAST_TERM or due <= AD.AS_OF
             status = "graded" if conducted else "scheduled"
             a_rows.append({"id": aid, "offering_id": o["id"], "subject_code": o["subject_code"],
@@ -701,7 +729,7 @@ def gen_assessments(rng, offerings, roster, students_by_id, forced):
                         frac = clamp(rng.gauss(ab + 0.08, 0.11), 0.0, 1.0)
                     absent = rng.random() < 0.015
                     m_rows.append({"id": mid, "assessment_id": aid, "student_id": stu,
-                                   "score": 0.0 if absent else round(maxm * frac, 1),
+                                   "score": 0.0 if absent else half_step(maxm * frac),
                                    "is_absent": absent,
                                    "graded_on": (due + dt.timedelta(days=rng.randint(4, 12))).isoformat()})
                     mid += 1
@@ -790,15 +818,7 @@ def gen_exam_schedule(rng, offerings, classrooms_df, dept_id_by_code):
     halls = list(classrooms_df[classrooms_df["room_type"] == "Examination Hall"]["id"])
     seen = set()
     rows, xid = [], 1
-    specs = [
-        (AD.PAST_TERM, "End-Sem", AD.TERM_WINDOWS[AD.PAST_TERM]["exam_start"],
-         AD.TERM_WINDOWS[AD.PAST_TERM]["exam_end"], "completed"),
-        (AD.CURRENT_TERM, "Internal-1", dt.date(2026, 8, 20), dt.date(2026, 8, 25), "completed"),
-        (AD.CURRENT_TERM, "Internal-2", dt.date(2026, 9, 21), dt.date(2026, 9, 26), "scheduled"),
-        (AD.CURRENT_TERM, "End-Sem", AD.TERM_WINDOWS[AD.CURRENT_TERM]["exam_start"],
-         AD.TERM_WINDOWS[AD.CURRENT_TERM]["exam_end"], "scheduled"),
-    ]
-    for term, xtype, w_start, w_end, status in specs:
+    for term, xtype in EXAM_WINDOWS:
         for o in offerings:
             if o["term"] != term or o["session_type"] != "Theory":
                 continue
@@ -806,8 +826,8 @@ def gen_exam_schedule(rng, offerings, classrooms_df, dept_id_by_code):
             if key in seen:
                 continue
             seen.add(key)
-            span = (w_end - w_start).days
-            d = w_start + dt.timedelta(days=(o["semester"] + hash(o["subject_code"])) % max(1, span))
+            d = exam_date(term, xtype, o["semester"], o["subject_code"])
+            status = "completed" if d <= AD.AS_OF else "scheduled"
             start = rng.choice(["10:00", "10:00", "14:00"])
             end = "12:00" if start == "10:00" else "16:00"
             if xtype != "End-Sem":

@@ -1,7 +1,7 @@
 // A Monday-first month grid that knows nothing about what a day holds: the caller
 // renders each cell's contents and decides which days open somewhere. Below 800px the
 // same cells reflow into an agenda list (see calendar.css), so there is one DOM for both.
-import { useRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
+import { useRef, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { DAYS, monthTitle, shiftMonth, weekdayOf } from '../format'
 import { dayTransitionName, navigateWithTransition } from './transition'
@@ -27,6 +27,11 @@ export function MonthCalendar<T extends { date: string }>(props: MonthCalendarPr
   const navigate = useNavigate()
   const gridRef = useRef<HTMLOListElement>(null)
 
+  // the days slide in from the side the month was paged from; the first month just appears
+  const shown = useRef({ month, dir: '' })
+  if (shown.current.month !== month) shown.current = { month, dir: month > shown.current.month ? 'next' : 'prev' }
+  const { dir } = shown.current
+
   const [y, m] = month.split('-').map(Number)
   const length = new Date(y, m, 0).getDate()
   const lead = weekdayOf(`${month}-01`)
@@ -51,6 +56,17 @@ export function MonthCalendar<T extends { date: string }>(props: MonthCalendarPr
     }
   }
 
+  // a press ripples out from where the pointer went down
+  function press(e: PointerEvent<HTMLAnchorElement>) {
+    const el = e.currentTarget
+    const box = el.getBoundingClientRect()
+    el.style.setProperty('--rx', `${e.clientX - box.left}px`)
+    el.style.setProperty('--ry', `${e.clientY - box.top}px`)
+    el.classList.remove('is-pressed')
+    void el.offsetWidth // restart the animation on a second press
+    el.classList.add('is-pressed')
+  }
+
   function open(e: MouseEvent<HTMLAnchorElement>, date: string, href: string) {
     if (!morphInto || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
     if (navigateWithTransition(navigate, href, morphInto(date))) e.preventDefault()
@@ -63,11 +79,11 @@ export function MonthCalendar<T extends { date: string }>(props: MonthCalendarPr
           <span key={d}>{d}</span>
         ))}
       </div>
-      <ol className="cal-grid" ref={gridRef} onKeyDown={onKeyDown}>
+      <ol key={month} className={`cal-grid${dir ? ` is-paged-${dir}` : ''}`} ref={gridRef} onKeyDown={onKeyDown}>
         {Array.from({ length: lead }, (_, i) => (
           <li key={`lead-${i}`} className="cal-pad" aria-hidden="true" />
         ))}
-        {dates.map((date) => {
+        {dates.map((date, n) => {
           const day = byDate.get(date)
           const href = hrefFor?.(date, day) ?? null
           const wd = weekdayOf(date)
@@ -93,9 +109,17 @@ export function MonthCalendar<T extends { date: string }>(props: MonthCalendarPr
             </>
           )
           return (
-            <li key={date} className="cal-slot">
+            <li key={date} className="cal-slot" style={{ '--n': lead + n } as CSSProperties}>
               {href ? (
-                <Link to={href} className={cls} data-date={date} aria-label={cellLabel?.(date, day)} onClick={(e) => open(e, date, href)}>
+                <Link
+                  to={href}
+                  className={cls}
+                  data-date={date}
+                  aria-label={cellLabel?.(date, day)}
+                  onPointerDown={press}
+                  onAnimationEnd={(e) => e.animationName === 'cal-ripple' && e.currentTarget.classList.remove('is-pressed')}
+                  onClick={(e) => open(e, date, href)}
+                >
                   {body}
                 </Link>
               ) : (

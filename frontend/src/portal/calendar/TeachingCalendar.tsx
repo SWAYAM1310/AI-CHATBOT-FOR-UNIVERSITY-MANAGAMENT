@@ -1,6 +1,6 @@
 // A faculty member's month of teaching: what was held, what still needs marking, what
-// is coming, and the holidays, breaks and exams that suspend the timetable. Used for all
-// of a faculty member's sections (the Calendar page) and for one (a course's Attendance tab).
+// is coming, and the holidays, breaks and exams that suspend the timetable. Every day that
+// opens somewhere is a tile that says what opening it does; attendance is taken only here.
 import type { CSSProperties } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../../api'
@@ -21,16 +21,17 @@ export function presentShare(c: CalendarClass): number | null {
 
 const STATUS_WORD = { held: 'held', due: 'not marked yet', upcoming: 'coming up' } as const
 
-export function TeachingCalendar({ offeringId, dayHref, morphInto }: {
-  offeringId?: number
+/** Every register of the class that day was filled in by the upkeep job, not a person. */
+const autoMarked = (c: CalendarClass) => c.status === 'held' && c.sessions.length > 0 && c.sessions.every((s) => s.auto)
+
+export function TeachingCalendar({ dayHref, morphInto }: {
   dayHref: (date: string) => string
   morphInto: (date: string) => string
 }) {
   const [params, setParams] = useSearchParams()
   const today = todayISO()
   const month = /^\d{4}-\d{2}$/.test(params.get('month') ?? '') ? params.get('month')! : today.slice(0, 7)
-  const cal = useLoad(() => api.facultyCalendar(month, offeringId), `calendar-${offeringId ?? 'all'}-${month}`, true)
-  const single = offeringId !== undefined
+  const cal = useLoad(() => api.facultyCalendar(month), `calendar-${month}`, true)
 
   const data = cal.data?.month === month ? cal.data : null
   const term = data?.term
@@ -39,6 +40,16 @@ export function TeachingCalendar({ offeringId, dayHref, morphInto }: {
   const due = classes.filter((c) => c.status === 'due').length
 
   const inTerm = (date: string) => !!term?.start && !!term.end && date >= term.start && date <= term.end
+
+  /** What opening a day does, or null when it opens nowhere: future days show their
+   * classes, and any term day up to today can take a register, timetabled or not. */
+  function actionFor(date: string, day: CalendarDay | undefined): string | null {
+    if (!data) return null
+    const classes = day?.classes ?? []
+    if (date > data.today) return classes.length ? 'View classes' : null
+    if (!classes.length) return inTerm(date) && weekdayOf(date) !== 6 ? 'Add a class' : null
+    return classes.every((c) => c.status === 'held') ? 'Review register' : 'Take register'
+  }
 
   return (
     <section className="teaching-cal">
@@ -64,13 +75,9 @@ export function TeachingCalendar({ offeringId, dayHref, morphInto }: {
           month={month}
           today={data?.today ?? today}
           days={data?.days ?? []}
-          label={single ? 'Attendance calendar for this section' : 'Your teaching calendar'}
+          label="Your teaching calendar"
           morphInto={morphInto}
-          hrefFor={(date, day) => {
-            if (!data || date > data.today) return null
-            if (day?.classes.length) return dayHref(date)
-            return single && inTerm(date) ? dayHref(date) : null
-          }}
+          hrefFor={(date, day) => (actionFor(date, day) ? dayHref(date) : null)}
           cellClass={(date, day) => {
             const types = new Set(day?.events.map((e) => e.event_type))
             return [
@@ -84,12 +91,14 @@ export function TeachingCalendar({ offeringId, dayHref, morphInto }: {
               .join(' ')
           }}
           cellLabel={(date, day) => {
-            const parts = [formatDay(date)]
+            const parts = [formatDay(date), actionFor(date, day) ?? '']
             day?.events.forEach((e) => parts.push(e.event))
-            day?.classes.forEach((c) => parts.push(`${c.course} ${batchLabel(c)} ${STATUS_WORD[c.status]}`))
-            return parts.join(', ')
+            day?.classes.forEach((c) =>
+              parts.push(`${c.course} ${batchLabel(c)} ${autoMarked(c) ? 'recorded present automatically' : STATUS_WORD[c.status]}`),
+            )
+            return parts.filter(Boolean).join(', ')
           }}
-          renderCell={(_, day) => <DayContents day={day} single={single} />}
+          renderCell={(date, day) => <DayContents day={day} action={actionFor(date, day)} />}
         />
       </div>
 
@@ -104,11 +113,17 @@ function labelled(e: CalendarDay['events'][number], date: string): boolean {
   return e.start_date === date || weekdayOf(date) === 0 || date.endsWith('-01')
 }
 
-function DayContents({ day, single }: { day: CalendarDay | undefined; single: boolean }) {
+function DayContents({ day, action }: { day: CalendarDay | undefined; action: string | null }) {
   if (!day) return null
   const shown = day.classes.slice(0, SHOWN)
+  const due = day.classes.filter((c) => c.status === 'due').length
   return (
     <>
+      {due > 0 && (
+        <span className="cal-due" aria-hidden="true">
+          {due} to mark
+        </span>
+      )}
       {day.events.filter((e) => labelled(e, day.date)).map((e) => (
         <span
           key={e.event}
@@ -120,32 +135,37 @@ function DayContents({ day, single }: { day: CalendarDay | undefined; single: bo
       {shown.length > 0 && (
         <span className="cal-chips">
           {shown.map((c, i) => (
-            <Chip key={c.offering_id} c={c} single={single} index={i} />
+            <Chip key={c.offering_id} c={c} index={i} />
           ))}
           {day.classes.length > SHOWN && <span className="cal-more">+{day.classes.length - SHOWN} more</span>}
+        </span>
+      )}
+      {action && (
+        <span className="cal-cta" aria-hidden="true">
+          {action}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
         </span>
       )}
     </>
   )
 }
 
-function Chip({ c, single, index }: { c: CalendarClass; single: boolean; index: number }) {
+function Chip({ c, index }: { c: CalendarClass; index: number }) {
   const share = presentShare(c)
   const style = { '--share': share ?? 0, '--i': index } as CSSProperties
-  const detail = !single
-    ? c.name
-    : c.status === 'held'
-      ? share === null ? 'Recorded' : `${Math.round(share * 100)}% present`
-      : c.status === 'due'
-        ? 'Not marked'
-        : ''
+  const auto = autoMarked(c)
   return (
-    <span className={`cal-chip is-${c.status}`} style={style}>
+    <span className={`cal-chip is-${c.status}${auto ? ' is-auto' : ''}`} style={style}>
       <span className="cal-chip-head">
-        <span className="cal-chip-code">{single ? (c.start_time ?? 'Class') : c.course}</span>
+        <span className="cal-chip-code">{c.course}</span>
         <span className="cal-chip-batch">{batchLabel(c)}</span>
       </span>
-      {detail && <span className="cal-chip-detail">{detail}</span>}
+      <span className="cal-chip-detail">
+        {auto && <span className="cal-chip-auto">Auto</span>}
+        {c.name}
+      </span>
       {c.status === 'held' && <span className="cal-chip-bar" aria-hidden="true" />}
     </span>
   )
@@ -156,6 +176,9 @@ function Legend() {
     <ul className="cal-legend" aria-label="Key">
       <li>
         <span className="cal-key is-held" /> Held, with the share present
+      </li>
+      <li>
+        <span className="cal-key is-auto" /> Nobody marked it: recorded present automatically
       </li>
       <li>
         <span className="cal-key is-due" /> Not marked yet

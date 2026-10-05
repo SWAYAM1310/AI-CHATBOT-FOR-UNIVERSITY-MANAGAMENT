@@ -44,11 +44,11 @@ export function FacultyHome() {
                       </span>
                     </span>
                     {c.attendance_marked ? (
-                      <Link className="btn" to={`/courses/${c.offering_id}/attendance/${data.date}`}>
+                      <Link className="btn" to={`/calendar/${data.date}?offering=${c.offering_id}`}>
                         Attendance recorded
                       </Link>
                     ) : (
-                      <Link className="btn primary" to={`/courses/${c.offering_id}/attendance/${data.date}`}>
+                      <Link className="btn primary" to={`/calendar/${data.date}?offering=${c.offering_id}`}>
                         Take attendance
                       </Link>
                     )}

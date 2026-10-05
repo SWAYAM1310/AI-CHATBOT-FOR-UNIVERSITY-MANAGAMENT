@@ -2,11 +2,13 @@
 
 Snapshot for picking the work back up. Last updated **2026-10-05 — Phase 7
 (role portals, live data entry, profiles, agentic announcements) is in
-progress: 7a–7d are pushed, the faculty pages and the student Home + Profile
-page are built and browser-tested but NOT committed (the user asked to hold the
-commit), and the admin pages (Announcements, Fees, Home) are next. See §17 —
-it lists the exact uncommitted files, how to run both servers, and the design
-notes for the admin pages.** 526 backend tests pass. Before that, §16 (the
+progress: 7a–7e and 7g-A (the faculty attendance calendar) are committed and
+pushed (through `ca2d859`). Uncommitted: the 7g-A follow-up, which makes the
+Calendar the only place attendance is taken (the course Attendance tab is gone)
+and turns its days into animated buttons, and 7h (the upkeep job that marks missed
+classes present, fills past assessments' marks, rounds marks to 0.5 and settles stale
+statuses). Next: commit those, then 7g parts B–E one at a time, then 7f. See §17: how to run both servers, the design notes, and
+the 7g-A follow-up and 7h.** 541 backend tests pass. Before that, §16 (the
 role-mismatch fix) and §15 (an evaluation session whose golden-set re-run was
 ABORTED on the Groq free-tier rate limit — still the one blocking item for the
 eval, unchanged).
@@ -1997,24 +1999,22 @@ may really send (`EMAIL_DEMO_CAP`, below).
 | 7b | faculty portal API + student dashboard API | pushed `1c245c8` |
 | 7c | fee recording + announcements that email their audience | pushed `ac355d3` |
 | 7d | frontend shell: react-router portal, role navigation | pushed `985570d` |
-| 7e-1 | faculty pages: Home, Courses, Roster/Attendance/Marks tabs | **built + browser-tested, UNCOMMITTED** |
-| 7e-2 | student Home + Profile page (all roles) | **built + browser-tested, UNCOMMITTED** |
-| 7e-3 | admin pages: Home, Fees, Announcements | **built + browser-tested, UNCOMMITTED** |
-| 7f | **docs, README, golden-set cases (validator only)** | **NOT STARTED — next** |
+| — | repeated students in the all-courses faculty tools | pushed `9064df3` |
+| 7e-1 | faculty pages: Home, Courses, Roster/Marks tabs | pushed `ca2d859` |
+| 7e-2 | student Home + Profile page (all roles) | pushed `ca2d859` |
+| 7e-3 | admin pages: Home, Fees, Announcements | pushed `ca2d859` |
+| 7g-A | faculty attendance calendar + P/A register | pushed `ca2d859` |
+| 7g-A+ | attendance only from the Calendar, days as animated buttons | **built + browser-tested, UNCOMMITTED** |
+| 7h | upkeep job: auto attendance/marks, 0.5-step marks, stale statuses | **built + tested, UNCOMMITTED** |
+| 7g B–E | academic calendar, student attendance calendar, "now" line, marks strip | approved, not started |
+| 7f | **docs, README, golden-set cases (validator only)** | **NOT STARTED** |
 
-**The user asked not to commit 7e-1/7e-2 yet; 7e-3 is also uncommitted — ask first.** Uncommitted files:
-backend `app/ai/tools/builtin.py`, `app/ai/tools/faculty_tools.py`,
-`tests/test_faculty_tools.py` (the duplicate-students fix, below); frontend
-`src/{App,api,main,types}.ts(x)`, `src/pages.css`, `src/portal/{Profile,format,ui,useLoad}.ts(x)`,
-`src/portal/{PortalLayout,PortalRoutes,context,pages}.tsx`, `src/portal/faculty/`,
-`src/portal/student/`, plus from 7e-3 `src/portal/admin/` (new), `src/portal.css`
-(stub styles removed) and more in `api.ts`, `types.ts`, `pages.css`, `pages.tsx`,
-`PortalRoutes.tsx`. Suggested commits: one for the backend duplicate fix, one for
-the faculty pages, one for student Home + Profile, one for the admin pages
-(`pages.css`/`api.ts`/`types.ts` are shared, so either split them by hunk or merge
-the frontend commits).
+**Ask before every commit.** Uncommitted now (the 7g-A follow-up): `context.md`,
+`frontend/src/calendar.css`, `src/portal/PortalRoutes.tsx`,
+`src/portal/calendar/{MonthCalendar,RegisterDay,TeachingCalendar}.tsx` and
+`src/portal/faculty/{CourseLayout,Courses,FacultyHome}.tsx`.
 
-Tests: **526 backend tests pass** (449 at the start of this session). The
+Tests: **532 backend tests pass** (449 at the start of Phase 7). The
 frontend has no test runner: it is checked with `npm run build` (tsc + vite),
 `npm run lint` (oxlint; the only warnings are two older ones in `App.tsx` and
 `Rail.tsx`) and headless-Chromium Playwright runs (`backend/.venv` has
@@ -2113,7 +2113,7 @@ scratch directory and are not in the repo.
   purpose (the user's brief was structure, not branding). Styles live in
   `src/portal.css` (shell) and `src/pages.css` (page blocks).
 
-### 7e-1 / 7e-2 — pages built so far (uncommitted)
+### 7e-1 / 7e-2 — faculty, student and profile pages (committed `ca2d859`)
 - Shared: `portal/useLoad.ts` (load by key, `reload()`, optional refresh on tab
   focus and on an interval, `version` for re-seeding forms), `portal/format.ts`
   (dates, `sectionLabel`, rupees via `Intl en-IN`, `firstName` keeps "Dr."),
@@ -2121,8 +2121,8 @@ scratch directory and are not in the repo.
 - Faculty (`portal/faculty/`): `FacultyHome` (greeting, today's classes with a
   Take-attendance button, students who need attention, HOD leave list,
   announcements), `Courses` (sections grouped by course), `CourseLayout` +
-  tabs, `Roster`, `Attendance` (date/slot, a checkbox per student, record or
-  save correction, recent sessions), `Marks` (assessment picker, per-row score
+  tabs, `Roster`, `Attendance` (later replaced by the calendar, see 7g-A, and
+  then removed from courses altogether), `Marks` (assessment picker, per-row score
   with 0..max validation and an Absent box, Enter moves down, saves only the
   changed rows).
 - Student (`portal/student/StudentHome.tsx`): attendance bars with the 75% rule
@@ -2155,7 +2155,7 @@ scratch directory and are not in the repo.
    (`identify_at_risk_students`: 12 rows for 7 students; `list_course_students`:
    68 rows for 35). Fixed with `.distinct()` + a regression test. **Uncommitted.**
 
-### 7e-3 — admin pages (uncommitted, 2026-10-05)
+### 7e-3 — admin pages (committed `ca2d859`, 2026-10-05)
 Frontend only; the backend is unchanged. `src/portal/admin/`:
 - `AdminHome.tsx` (`/`): KPI strip (students, average attendance, fees collected
   %, outstanding), a full-width collected-vs-outstanding strip, a per-department
@@ -2196,7 +2196,7 @@ Frontend only; the backend is unchanged. `src/portal/admin/`:
   ₹0/overdue, audit rows 357–361, which included the previews: every
   `REGISTRY.invoke` is audited, previews too). Temp config and servers removed.
 
-### 7g-A — attendance calendar + P/A register (uncommitted, 2026-10-05)
+### 7g-A — attendance calendar + P/A register (committed `ca2d859`; follow-up uncommitted, 2026-10-05)
 The plain date input on a course's Attendance tab was replaced by a month calendar.
 Plan: `C:\Users\ASUS\.claude\plans\this-looks-good-but-serialized-elephant.md`.
 
@@ -2213,10 +2213,15 @@ Plan: `C:\Users\ASUS\.claude\plans\this-looks-good-but-serialized-elephant.md`.
 - `RegisterSheet` shows P/A buttons per student, keyboard P/A/↑/↓, and the save bar.
 - `RegisterDay` holds the pages:
   - `/calendar`, `/calendar/:date?offering=`
-  - `/courses/:id/attendance`, `/courses/:id/attendance/:date`
 - `transition.ts` handles the date-to-heading morph via `document.startViewTransition`. BrowserRouter wraps navigation in `startTransition`, so neither `<Link viewTransition>` nor flushSync works. The callback polls with **setTimeout, not rAF**, because rAF does not fire while the transition is pending.
 - Styles are in `src/calendar.css`. New tokens: `--present*` (olive), `--holiday*` (slate, hatched).
 - The old `faculty/Attendance.tsx` and the `.att-*` CSS are gone. Home's "Take attendance" opens today's register.
+
+**Follow-up (2026-10-05, uncommitted): attendance is taken only from the Calendar.**
+- The course **Attendance tab and its routes are gone**. Courses now have Roster and Marks only, and the Courses page points to the Calendar. Home's buttons open `/calendar/<today>?offering=<id>`. `TeachingCalendar` has no single-course mode any more, though the backend `offering_id` filter is kept and still tested.
+- **Every day that opens somewhere is a raised tile.** Hover lifts it, and pressing sinks it with a ripple from the pointer, done with `--rx/--ry` and an `is-pressed` class. Each tile shows its action, "Take register", "Review register", "View classes" or "Add a class", and a pulsing "N to mark" pill. Paging the month staggers the days in from that side; `ol` is keyed by month and the animation uses `backwards` fill so it leaves no stacking context. All of it is off under reduced motion.
+  - Days that open: future days that have classes, and any term day up to today **except Sundays**. A quiet day is a dashed "pencilled" tile.
+- **The day page** has an "extra class" select listing your sections that are not timetabled that day. Off-timetable registers are recorded there, which the course tab used to do. After saving, the calendar reloads.
 
 **Gotcha:** `uvicorn --reload` left an orphaned `multiprocessing.spawn` worker holding :8000 and serving stale code, so new routes returned 404. Kill the spawn child too, not only the reloader.
 
@@ -2225,6 +2230,40 @@ Plan: `C:\Users\ASUS\.claude\plans\this-looks-good-but-serialized-elephant.md`.
 - C. Student attendance calendar
 - D. Live "now" line on Today
 - E. Marks distribution strip
+
+### 7h — the upkeep job and realistic data (uncommitted, 2026-10-05)
+The user's rule: whatever a developer would otherwise fix by hand as the date moves on is
+automated, and the data stays realistic. Plan: `C:\Users\ASUS\.claude\plans\there-s-a-big-bug-graceful-sonnet.md`.
+
+**Data (`scripts/fix_dataset.py`, idempotent; run on full + sample):**
+- Every mark is rounded to whole or .5. That was 4,364 in the sample set and 190,769 in the full set.
+- The DB enforces it: CHECK `ck_marks_score_half_step`, migration `d4e5f6a7b8c9`.
+- `enter_marks` rejects other steps, and so does `Marks.tsx`.
+- Exam-type assessments (Internal-1/2, End-Sem) now fall due on their `exam_schedule` day. They were up to a month off: End-Sem said 13 Oct, but the exams run 17–27 Nov. A mark graded before its exam moves to 2–8 days after it.
+- Generator: exam dates used to spread by `hash(subject_code)`, which is salted per process. That is why `exam_schedule` was never deterministic. They now come from `exam_date()`, an md5 digest that the assessments share, and `half_step()` rounds scores.
+- Only the sample CSVs are in git. `data/synthetic.zip` still holds the old full set.
+
+**`app/jobs/upkeep.py` `run_upkeep(db, today, through=None)`.** It settles everything dated on or before the cutoff (default: yesterday), never commits, and changes nothing when run twice.
+- **Attendance:** a timetabled class with no session gets one with `auto_marked = true` and `marked_by NULL`, and every enrolled student present. Which days have classes comes from `app/schedule.py`, shared with the faculty calendar. A correction (`correct_attendance`) clears `auto_marked` and sets `marked_by`.
+- **Marks:** a current-term assessment past due with no marks gets them, with `auto_graded = true` and `status = graded`. Each score is `uniform(lo, hi) * max`, rounded to a half mark. `lo`/`hi` are the student's own min/max share this term, falling back to the class range, then 40–90%. The RNG is seeded by `"assessment:student"`. Saving marks clears `auto_graded`.
+- **Statuses:**
+  - exam_schedule → completed
+  - unpaid/partial fees past due → overdue
+  - enrollments of a term whose `result` event has passed → completed
+  - pending leave whose `from_date` has passed → expired
+- **When it runs:**
+  - `app/main.py` lifespan: at startup, then every `upkeep_interval_seconds` (15 min). It logs `upkeep: ...` on `uvicorn.error`.
+  - CLI: `python -m app.jobs.upkeep [--through YYYY-MM-DD]`.
+  - `run_now()` takes `pg_try_advisory_xact_lock(LOCK_KEY)`.
+- **pytest:** `upkeep_enabled = False`, and `conftest._upkeep_locked_out` holds the same lock for the whole session, so a dev server on the shared DB cannot insert while tests count rows. At session end it calls `run_now()`, so the reloaded dev DB is settled again straight away.
+- On 2026-10-05 it was also run with `--through 2026-10-05`, as the user asked. After any pytest run, 5 Oct stays open until the midnight run.
+- **UI:**
+  - The calendar API sessions carry `auto`. A fully auto held chip is dotted with an "AUTO" tag, and the legend explains it.
+  - The register shows "Nobody took this register...".
+  - The Marks page shows an auto-filled notice.
+- **Tests:** `tests/test_upkeep.py` (6 tests). `test_load.py` gained the half-step, constraint and exam-date checks. **541 pass.**
+
+**Gotcha (again):** `uvicorn --reload` hangs when files change while a browser tab is open. It keeps serving the old code. Kill every `uvicorn`/`multiprocessing` python process and start it again.
 
 ### Next: 7f
 README feature list/screenshots, golden-set cases for `record_fee_payment` and a
