@@ -1,13 +1,27 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { BrowserRouter } from 'react-router-dom'
 import { api } from './api'
-import { Chat } from './Chat'
 import { Login } from './Login'
+import { PortalContext } from './portal/context'
+import { PortalRoutes } from './portal/PortalRoutes'
 import { loadSession, saveSession } from './session'
 import type { Me, Session } from './types'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(() => loadSession())
   const [me, setMe] = useState<Me | null>(null)
+
+  const signOut = useCallback(() => {
+    saveSession(null)
+    setSession(null)
+  }, [])
+
+  const refreshMe = useCallback(() => {
+    api
+      .me()
+      .then(setMe)
+      .catch(() => undefined) // the next full load will sort out an expired token
+  }, [])
 
   useEffect(() => {
     if (!session) {
@@ -27,18 +41,25 @@ export default function App() {
     return () => {
       cancelled = true
     }
-  }, [session])
+  }, [session, signOut])
+
+  const portal = useMemo(
+    () => (session ? { session, me, refreshMe, signOut } : null),
+    [session, me, refreshMe, signOut],
+  )
 
   function signIn(s: Session) {
     saveSession(s)
+    window.history.replaceState(null, '', '/') // signing in always lands on Home, whatever URL was open
     setSession(s)
   }
 
-  function signOut() {
-    saveSession(null)
-    setSession(null)
-  }
-
-  if (!session) return <Login onSignedIn={signIn} />
-  return <Chat session={session} me={me} onSignOut={signOut} />
+  if (!portal) return <Login onSignedIn={signIn} />
+  return (
+    <BrowserRouter>
+      <PortalContext.Provider value={portal}>
+        <PortalRoutes role={portal.session.role} />
+      </PortalContext.Provider>
+    </BrowserRouter>
+  )
 }

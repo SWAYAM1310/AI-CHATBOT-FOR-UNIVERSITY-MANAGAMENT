@@ -1,0 +1,320 @@
+/* The portal shell: a fixed navigation beside a scrolling content area. The
+   palette and type come from index.css; nothing here introduces a new colour.
+   The chat keeps its own conversation rail inside the content area. */
+
+:root {
+  --nav-w: 236px;
+}
+
+.portal {
+  display: flex;
+  height: 100%;
+}
+
+.portal-topbar {
+  display: none;
+}
+
+/* --- navigation --------------------------------------------------------- */
+
+.portal-nav {
+  flex: 0 0 var(--nav-w);
+  width: var(--nav-w);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 18px 12px 12px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--rule);
+  overflow-y: auto;
+}
+
+.portal-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 10px 0;
+}
+
+.portal-brand img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.portal-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.portal-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 150ms ease;
+}
+
+.portal-link svg {
+  flex: none;
+  color: var(--muted);
+}
+
+.portal-link:hover {
+  background: var(--card);
+}
+
+.portal-link.active {
+  background: var(--crest-soft);
+  font-weight: 600;
+}
+
+.portal-link.active svg {
+  color: var(--crest-hover);
+}
+
+/* the current page is a tab on the navigation's edge */
+.portal-link.active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 7px;
+  bottom: 7px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--crest);
+}
+
+.portal-user {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.portal-user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.portal-user-card:hover {
+  background: var(--card);
+}
+
+.portal-user-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.portal-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-user-role {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.portal-signout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: flex-start;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.portal-signout:hover:not(:disabled) {
+  background: var(--card);
+  color: var(--ink);
+}
+
+.avatar {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--crest-soft);
+  color: var(--crest-hover);
+  font-family: var(--display);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- content ------------------------------------------------------------ */
+
+.portal-main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 36px 36px 72px;
+}
+
+.page a {
+  color: var(--crest-hover);
+  text-underline-offset: 3px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+.page-lede {
+  margin: 6px 0 0;
+  max-width: 60ch;
+  color: var(--muted);
+}
+
+.page-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.stub {
+  max-width: 60ch;
+  padding: 18px 22px;
+  border: 1px dashed var(--rule);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.stub p {
+  margin: 0;
+}
+
+/* the conversation rail's title: the brand is the portal navigation's job now */
+.rail-title {
+  margin: 0;
+  padding-left: 8px;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 17px;
+}
+
+/* --- phones: the navigation becomes a drawer behind a menu button ------- */
+
+@media (max-width: 800px) {
+  .portal {
+    flex-direction: column;
+  }
+
+  .portal-topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+    height: 52px;
+    padding: 0 8px;
+    background: var(--sidebar);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .portal-nav {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 20;
+    width: min(84vw, 300px);
+    flex-basis: auto;
+    transform: translateX(-100%);
+    visibility: hidden;
+    border-right: 0;
+    transition: transform 200ms ease, visibility 0s linear 200ms;
+  }
+
+  .portal-nav.open {
+    transform: none;
+    visibility: visible;
+    box-shadow: 0 0 28px rgba(42, 29, 18, 0.25);
+    transition: transform 200ms ease;
+  }
+
+  .portal-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 19;
+    background: rgba(42, 29, 18, 0.35);
+  }
+
+  .portal-main {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+  }
+
+  .page {
+    padding: 24px 16px 56px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .page-title {
+    font-size: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-nav,
+  .portal-nav.open,
+  .portal-link {
+    transition: none;
+  }
+}

@@ -129,7 +129,15 @@ function handleFrame(frame: string, handlers: StreamHandlers): ChatOut | null {
   }
 }
 
+// A protected file (a profile photo): <img src> cannot send the token, so it is fetched as a blob.
+async function photo(userId: number): Promise<Blob> {
+  const res = await fetch(`/api/profile/photo/${userId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+  if (!res.ok) throw new ApiError(res.status, 'no photo', null)
+  return res.blob()
+}
+
 export const api = {
+  photo,
   login(email: string, password: string) {
     return request<{ access_token: string; role: Role; subject_ref: string }>('/api/auth/login', {
       method: 'POST',

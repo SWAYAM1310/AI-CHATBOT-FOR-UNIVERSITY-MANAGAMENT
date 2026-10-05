@@ -130,13 +130,7 @@ export function Rail({
       aria-hidden={!open}
     >
       <div className="rail-head">
-        <div className="rail-brand">
-          <img src="/Pandit_Deendayal_Energy_University_logo.png" alt="" className="rail-logo" />
-          <div>
-            <p className="wordmark">UniAssist</p>
-            <p className="rail-caption">PDEU</p>
-          </div>
-        </div>
+        <p className="rail-title">Conversations</p>
         <div className="rail-head-actions">
           <button type="button" className="icon-btn" onClick={onNew} aria-label="New conversation" title="New conversation">
             <PlusIcon />

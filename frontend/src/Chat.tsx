@@ -3,7 +3,7 @@ import { ApiError, api } from './api'
 import type { StreamHandlers } from './api'
 import { Message } from './Message'
 import { Rail, SUGGESTIONS } from './Rail'
-import type { ChatOut, ConfirmCard, ConversationOut, Me, MessageOut, Session, Turn } from './types'
+import type { ChatOut, ConfirmCard, ConversationOut, MessageOut, Session, Turn } from './types'
 
 let nextId = 1
 const uid = () => `t${nextId++}`
@@ -17,7 +17,7 @@ function fromStored(m: MessageOut): Turn | null {
   return { id: `m${m.id}`, role: m.role, text: m.content ?? '', citations: m.citations ?? [], cards: m.cards ?? [], trace }
 }
 
-export function Chat({ session, me, onSignOut }: { session: Session; me: Me | null; onSignOut: () => void }) {
+export function Chat({ session }: { session: Session }) {
   const [turns, setTurns] = useState<Turn[]>([])
   const [conversationId, setConversationId] = useState<number | null>(null)
   const [draft, setDraft] = useState('')
@@ -257,9 +257,6 @@ export function Chat({ session, me, onSignOut }: { session: Session; me: Me | nu
             <button type="button" className="linklike" onClick={toggleTrace}>
               {showTrace ? 'Hide trace' : 'Show trace'}
             </button>
-            <button type="button" className="linklike" onClick={onSignOut}>
-              Sign out
-            </button>
           </div>
         </header>
 
@@ -327,7 +324,7 @@ function PanelIcon() {
 
 function initialRailOpen(): boolean {
   try {
-    if (window.innerWidth <= 800) return false
+    if (window.innerWidth <= 1100) return false
     const raw = localStorage.getItem(RAIL_KEY)
     return raw === null ? true : raw === '1'
   } catch {

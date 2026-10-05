@@ -11,6 +11,8 @@ export interface Session {
 
 export interface Me {
   user_id: number
+  full_name: string
+  has_photo: boolean
   role: Role
   subject_ref: string
   dept_id: number | null
