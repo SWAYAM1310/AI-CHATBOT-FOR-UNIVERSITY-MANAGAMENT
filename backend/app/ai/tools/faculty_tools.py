@@ -309,6 +309,7 @@ def identify_at_risk_students(
             marks.c.pct.label("marks"),
             func.coalesce(missing.c.n, 0).label("missing"),
         )
+        .distinct()  # the figures are per student across all the offerings, so a student in two sections is one row
         .join(Enrollment, Enrollment.student_id == Student.id)
         .outerjoin(att, att.c.student_id == Student.id)
         .outerjoin(marks, marks.c.student_id == Student.id)

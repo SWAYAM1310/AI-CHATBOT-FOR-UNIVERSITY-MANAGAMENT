@@ -163,9 +163,11 @@ def list_course_students(*, ctx: AuthContext, db: Session, course_code: str | No
     if not offerings:
         return []
     rows = db.execute(
+        # distinct: with no course named, a student in both a theory course and its lab is one person, not two rows
         select(Student.roll_no, Student.full_name, Student.division)
         .join(Enrollment, Enrollment.student_id == Student.id)
         .where(Enrollment.offering_id.in_(offerings))
+        .distinct()
         .order_by(Student.roll_no)
     )
     return [{"roll_no": r.roll_no, "full_name": r.full_name, "division": r.division} for r in rows]

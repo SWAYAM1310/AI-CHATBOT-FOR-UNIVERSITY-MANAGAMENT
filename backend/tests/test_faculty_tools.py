@@ -150,3 +150,16 @@ def test_at_risk_students_carry_reasons_and_agree_with_the_other_tools(db, teach
     # worst first
     counts = [r["reasons"].count(";") for r in risk]
     assert counts == sorted(counts, reverse=True)
+
+
+# --- a student in several of a faculty member's sections is one person ---------------------------
+
+def test_all_courses_lists_each_student_once_even_in_a_theory_and_lab_pair(db, teacher):
+    """Faculty 2 teaches DBMS theory and its lab to the same students: the list used to repeat each of them."""
+    roster = REGISTRY.invoke("list_course_students", teacher, db)
+    assert len({r["roll_no"] for r in roster}) == len(roster)
+    per_course = {r["roll_no"] for code in (DBMS, "24CS201P") for r in REGISTRY.invoke("list_course_students", teacher, db, {"course_code": code})}
+    assert {r["roll_no"] for r in roster} >= per_course  # nobody was lost to the de-duplication
+
+    risk = REGISTRY.invoke("identify_at_risk_students", teacher, db)
+    assert len({r["roll_no"] for r in risk}) == len(risk)
