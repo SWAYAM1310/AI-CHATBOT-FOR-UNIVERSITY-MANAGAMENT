@@ -7,8 +7,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.ai.tools.registry import REGISTRY
+from app.api.profile import identity_row
 from app.auth.context import AuthContext, Role
 from app.auth.deps import get_auth_context, get_db
+from app.models import User
 
 router = APIRouter(prefix="/api", tags=["me"])
 
@@ -18,8 +20,11 @@ def me(ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_d
     profile = None
     if ctx.role in (Role.STUDENT, Role.FACULTY):
         profile = REGISTRY.invoke("get_my_profile", ctx, db)
+    user = db.get(User, ctx.user_id)
     return {
         "user_id": ctx.user_id,
+        "full_name": identity_row(db, ctx).full_name,
+        "has_photo": bool(user and user.photo_path),
         "role": ctx.role.value,
         "subject_ref": ctx.subject_ref,
         "dept_id": ctx.dept_id,

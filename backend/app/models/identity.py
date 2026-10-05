@@ -29,6 +29,7 @@ class User(Base):
     subject_ref = Column(String, nullable=False)  # e.g. "student:1", "faculty:5"
     is_active = Column(Boolean, nullable=False, default=True)
     last_login_at = Column(DateTime, nullable=True)
+    photo_path = Column(String, nullable=True)  # file name under settings.media_dir/avatars, None = no photo
 
 
 class Department(Base):

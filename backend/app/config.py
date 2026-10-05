@@ -43,6 +43,9 @@ class Settings(BaseSettings):
 
     frontend_origin: str = "http://localhost:5173"
 
+    # Uploaded files (profile photos). Gitignored; served only through the authenticated API.
+    media_dir: Path = REPO_ROOT / "backend" / "media"
+
     # Auth
     jwt_secret: str = "dev-insecure-change-me-please-0000000000"
     jwt_algorithm: str = "HS256"
