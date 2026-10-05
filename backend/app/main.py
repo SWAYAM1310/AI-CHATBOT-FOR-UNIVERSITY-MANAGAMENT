@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
+from app.api import admin as admin_api
 from app.api import auth as auth_api
 from app.api import chat as chat_api
 from app.api import faculty as faculty_api
@@ -32,6 +33,7 @@ app.include_router(me_api.router)
 app.include_router(profile_api.router)
 app.include_router(faculty_api.router)
 app.include_router(student_api.router)
+app.include_router(admin_api.router)
 app.include_router(chat_api.router)
 
 

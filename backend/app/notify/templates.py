@@ -50,3 +50,17 @@ def leave_decided_body(
         f"Your leave request for {from_date} to {to_date} has been {decision}{by}.\n\n"
         f"— UniAssist"
     )
+
+
+def announcement_subject(title: str) -> str:
+    return f"[UniAssist] {title}"
+
+
+def announcement_body(*, title: str, body: str, audience_label: str, issued_by: str | None) -> str:
+    sign = f"{issued_by}, UniAssist" if issued_by else "UniAssist"
+    return (
+        f"Dear {audience_label},\n\n"
+        f"{title}\n\n"
+        f"{body}\n\n"
+        f"— {sign}"
+    )

@@ -44,9 +44,9 @@ PENDING_CP_LEAVE = 4  # student 21, 25BCP021
 ACTIONS = {
     "student": {"apply_for_leave", "request_document"},
     "faculty": {"mark_attendance", "correct_attendance", "enter_marks", "post_announcement", "decide_leave_request"},
-    "admin": {"publish_notice", "manage_user"},
+    "admin": {"publish_notice", "manage_user", "record_fee_payment"},
 }
-APPEND_ONLY = (LeaveRequest, DocumentRequest, Announcement, AttendanceRecord, AttendanceSession, Mark)
+APPEND_ONLY = (LeaveRequest, DocumentRequest, Announcement, EmailOutbox, AttendanceRecord, AttendanceSession, Mark)
 
 
 @pytest.fixture()
@@ -81,7 +81,7 @@ def last_audit(db) -> AuditLog:
 
 # --- registry: what makes a tool an action --------------------------------------
 
-def test_exactly_the_nine_action_tools_are_flagged_and_role_scoped():
+def test_exactly_the_ten_action_tools_are_flagged_and_role_scoped():
     flagged = {t.name for t in REGISTRY.all() if t.action}
     assert flagged == ACTIONS["student"] | ACTIONS["faculty"] | ACTIONS["admin"]
     for role, names in ACTIONS.items():

@@ -131,6 +131,9 @@ def get_my_announcements(*, ctx: AuthContext, db: Session, **_: Any) -> list[dic
         if course_codes:
             scope_clauses.append(and_(Announcement.scope == "course", Announcement.scope_ref.in_(course_codes)))
         conditions = [role_match, or_(*scope_clauses)]
+        if ctx.role is Role.STUDENT:
+            # a notice aimed at one semester is for that semester's students only
+            conditions.append(or_(Announcement.semester.is_(None), Announcement.semester == db.get(Student, ctx.student_id).semester))
 
     rows = db.scalars(select(Announcement).where(*conditions).order_by(desc(Announcement.posted_at)).limit(20))
     return [

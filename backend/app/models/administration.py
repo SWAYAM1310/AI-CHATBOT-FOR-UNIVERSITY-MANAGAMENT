@@ -82,6 +82,7 @@ class Announcement(Base):
     body = Column(Text, nullable=True)
     audience_roles = Column(String, nullable=True)  # CSV mirror: "student,faculty,admin"
     posted_at = Column(DateTime, nullable=True)
+    semester = Column(Integer, nullable=True)  # narrows the student audience to one semester
 
 
 class AcademicCalendarEvent(Base):

@@ -8,13 +8,27 @@ import pytest
 from sqlalchemy import select, text
 
 from app.auth.context import AuthContext, Role, build_auth_context
-from app.config import REPO_ROOT
+from app.config import REPO_ROOT, settings
 from app.db.session import SessionLocal, engine
 from app.models import User
 from app.seed.load_csv import LOAD_ORDER, load
 
 SAMPLE_DIR = REPO_ROOT / "data" / "synthetic" / "sample"
 DOC_STORE_EXTRACT_TABLES = ("syllabus_courses", "syllabus_units", "course_outcomes", "textbooks")
+
+
+@pytest.fixture(autouse=True)
+def _no_real_email(monkeypatch) -> None:
+    """No test may reach a real mail server, whatever backend/.env says.
+
+    A developer's .env can point at Gmail with a redirect to their own inbox; the
+    confirm endpoints send after commit, so a test that confirms an action would
+    otherwise email a real person on every run. Tests that exercise the redirect,
+    the demo cap or a transport set what they need themselves, on top of this.
+    """
+    monkeypatch.setattr(settings, "email_mode", "console")
+    monkeypatch.setattr(settings, "email_redirect_to", "")
+    monkeypatch.setattr(settings, "smtp_host", "localhost")
 
 
 @pytest.fixture(scope="session", autouse=True)

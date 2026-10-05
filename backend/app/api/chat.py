@@ -35,7 +35,7 @@ from collections.abc import Iterator
 from dataclasses import asdict
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import delete, select
@@ -54,7 +54,7 @@ from app.ai.orchestrator import (
 from app.ai.tools import confirm
 from app.ai.tools.registry import REGISTRY, ToolDenied
 from app.notify.mailer import collecting as collecting_outbox
-from app.notify.mailer import flush_outbox
+from app.notify.mailer import flush_in_background
 from app.ai.providers import (
     LLMProvider,
     Msg,
@@ -317,6 +317,7 @@ def chat_stream(
 @router.post("/confirm", response_model=ConfirmOut)
 def confirm_action(
     body: ConfirmIn,
+    background: BackgroundTasks,
     ctx: AuthContext = Depends(get_auth_context),
     db: Session = Depends(get_db),
 ) -> ConfirmOut:
@@ -357,7 +358,9 @@ def confirm_action(
         )
         db.add(reply)
     db.commit()
-    flush_outbox(db, outbox_rows)  # only once the write is durable — see module docstring
+    # only once the write is durable, and after the response: a notice to a whole department
+    # is one email per recipient, which the request should not wait on (held rows are never sent)
+    background.add_task(flush_in_background, [r.id for r in outbox_rows if r.status == "queued"])
     confirm.consume(body.token)  # only once the write is durable
 
     return ConfirmOut(

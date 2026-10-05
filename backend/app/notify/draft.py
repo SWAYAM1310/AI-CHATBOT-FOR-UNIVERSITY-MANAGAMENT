@@ -17,7 +17,7 @@ from app.config import settings
 
 log = logging.getLogger(__name__)
 
-Kind = Literal["leave_applied", "leave_decided"]
+Kind = Literal["leave_applied", "leave_decided", "announcement"]
 
 _SYSTEM = (
     "You write short, professional email bodies for a university administration "
@@ -58,6 +58,12 @@ def _prompt(kind: Kind, ctx: dict[str, Any]) -> str:
             f"({ctx['roll_no']}) has applied for {ctx['days']} day(s) of leave, from "
             f"{ctx['from_date']} to {ctx['to_date']}, for the following reason: "
             f"\"{ctx['reason']}\". Ask them to review the request in UniAssist."
+        )
+    if kind == "announcement":
+        return (
+            f"Write an email to {ctx['audience_label']} passing on this university notice. "
+            f"Keep every fact, date and time exactly as written; do not add any.\n\n"
+            f"Title: {ctx['title']}\n\nNotice text: {ctx['body']}"
         )
     decided_by = ctx.get("decided_by")
     by_clause = f" by {decided_by}" if decided_by else ""

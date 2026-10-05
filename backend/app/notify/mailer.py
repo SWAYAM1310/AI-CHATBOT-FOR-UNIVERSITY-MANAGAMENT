@@ -29,6 +29,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import settings
+from app.db.session import SessionLocal
 from app.models import EmailOutbox
 from app.notify.transport import get_transport, is_local_host
 
@@ -85,9 +86,13 @@ def queue_email(
     body: str,
     related_type: str,
     related_id: int,
+    hold: str | None = None,
 ) -> EmailOutbox | None:
-    """Write a queued (or suppressed) outbox row, or None if email is off, or
+    """Write a queued (or suppressed, or held) outbox row, or None if email is off, or
     an earlier attempt already queued this same `idempotency_key`.
+
+    `hold` records a message that is deliberately not sent (the demo cap on a
+    bulk announcement): status `held`, the reason in `error`, never flushed.
 
     Does not send anything and does not commit — the caller's transaction
     owns that; call `flush_outbox()` after it commits.
@@ -100,6 +105,10 @@ def queue_email(
         return None  # a replayed confirm must not queue a duplicate
 
     actual_to, suppress_reason = _resolve_recipient(to_addr)
+    if hold:
+        status, reason = "held", hold
+    else:
+        status, reason = ("suppressed" if suppress_reason else "queued"), suppress_reason
     row = EmailOutbox(
         idempotency_key=idempotency_key,
         to_addr=actual_to,
@@ -108,9 +117,9 @@ def queue_email(
         body=_redirect_banner(to_addr) + body if actual_to != to_addr else body,
         related_type=related_type,
         related_id=related_id,
-        status="suppressed" if suppress_reason else "queued",
+        status=status,
         attempts=0,
-        error=suppress_reason,
+        error=reason,
     )
     db.add(row)
     db.flush()  # assigns row.id within the caller's still-open transaction
@@ -149,3 +158,18 @@ def flush_outbox(db: Session, rows: Sequence[EmailOutbox]) -> None:
             row.error = str(exc)[:500]
         row.attempts += 1
         db.commit()
+
+
+def flush_in_background(row_ids: Sequence[int]) -> None:
+    """`flush_outbox` for rows already committed, from a FastAPI background task.
+
+    A task runs after the request's own session is gone, so it opens its own and
+    reloads the rows by id; a row that is no longer `queued` is skipped, so a
+    task that runs twice cannot send twice. A bulk announcement is sent here
+    rather than inside the request, which would otherwise wait on every SMTP send.
+    """
+    if not row_ids:
+        return
+    with SessionLocal() as db:
+        rows = list(db.scalars(select(EmailOutbox).where(EmailOutbox.id.in_(list(row_ids))).order_by(EmailOutbox.id)))
+        flush_outbox(db, rows)

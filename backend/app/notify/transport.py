@@ -8,7 +8,9 @@ from __future__ import annotations
 import logging
 import smtplib
 from dataclasses import dataclass, field
+from email import policy
 from email.message import EmailMessage
+from email.utils import parseaddr
 from typing import Protocol
 
 log = logging.getLogger(__name__)
@@ -103,7 +105,9 @@ class SmtpTransport:
                 smtp.starttls()
             if self.user:
                 smtp.login(self.user, self.password)
-            smtp.send_message(msg)
+            # not send_message(): it flattens with mbox-style "From " escaping, which turns a body
+            # line that starts with the word "From" into ">From" on the wire
+            smtp.sendmail(parseaddr(from_addr)[1], [parseaddr(to_addr)[1]], msg.as_bytes(policy=policy.SMTP))
 
 
 _LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "mailpit", "uniassist-mailpit"}

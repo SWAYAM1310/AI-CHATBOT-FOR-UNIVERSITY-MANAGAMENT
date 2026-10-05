@@ -75,6 +75,11 @@ class Settings(BaseSettings):
     # in email_allowed_domains.
     email_redirect_to: str = ""
     email_allowed_domains: str = "sot.pdpu.ac.in"  # comma-separated
+    # Demo cap: while email_redirect_to is set, every message lands in one real inbox, so an
+    # announcement to 112 students would bury it. Only this many recipients per announcement
+    # are really sent (spread across students and faculty); the rest are recorded `held`, so
+    # the fan-out is still visible. 0 disables the cap. Never applies without a redirect.
+    email_demo_cap: int = 4
 
 
 settings = Settings()

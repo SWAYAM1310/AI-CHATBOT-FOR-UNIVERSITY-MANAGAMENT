@@ -32,15 +32,26 @@ from app.ai.tools import confirm
 from app.ai.tools.registry import Scope, tool
 from app.auth.context import AuthContext, Role
 from app.auth.security import hash_password
+from app.notify.announce import (
+    audience_label,
+    demo_split,
+    find_recent_duplicate,
+    queue_announcement_emails,
+    resolve_recipients,
+)
 from app.notify.draft import draft as draft_email_body
 from app.notify.mailer import queue_email
 from app.notify.templates import (
+    announcement_body,
+    announcement_subject,
     leave_applied_body,
     leave_applied_subject,
     leave_decided_body,
     leave_decided_subject,
 )
+from app.config import settings
 from app.models import (
+    Admin,
     Announcement,
     Assessment,
     AttendanceRecord,
@@ -50,6 +61,7 @@ from app.models import (
     DocumentRequest,
     Enrollment,
     Faculty,
+    Fee,
     LeaveRequest,
     Mark,
     Student,
@@ -59,6 +71,9 @@ from app.models import (
 MAX_LEAVE_DAYS = 10
 MAX_TITLE_CHARS = 120
 MAX_BODY_CHARS = 2000
+MAX_EMAIL_SUBJECT_CHARS = 200
+MAX_EMAIL_BODY_CHARS = 5000
+SEMESTERS = range(1, 9)
 DOC_TYPES = (  # what document_requests.doc_type holds today
     "Bonafide Certificate",
     "Bus Pass",
@@ -850,7 +865,7 @@ def decide_leave_request(
 
 @tool(
     name="publish_notice",
-    description="Publish a university-wide (or one department's) notice with a title and body; audience is all, student or faculty. Asks for confirmation.",
+    description="Publish a notice to students and/or faculty (title, body; audience all, student or faculty; optionally one department and/or one semester) and email it to each recipient. Asks for confirmation.",
     allowed_roles={Role.ADMIN},
     scope=Scope.UNIVERSITY,
     action=True,
@@ -863,6 +878,9 @@ def publish_notice(
     body: str,
     audience: str = "all",
     dept: str | None = None,
+    semester: int | None = None,
+    email_subject: str | None = None,
+    email_body: str | None = None,
     confirmed: bool = False,
     **_: Any,
 ) -> dict[str, Any]:
@@ -879,25 +897,175 @@ def publish_notice(
         if db.scalar(select(Department.id).where(Department.code == code)) is None:
             return _error(f"no department {code}")
         scope, scope_ref = "department", code
+    if semester is not None:
+        try:
+            semester = int(semester)
+        except (TypeError, ValueError):
+            return _error("semester must be a number from 1 to 8")
+        if semester not in SEMESTERS:
+            return _error("semester must be a number from 1 to 8")
 
-    args = {"title": title, "body": body, "audience": audience, "dept": scope_ref}
+    recipients = resolve_recipients(db, audience, term=ctx.term, dept=scope_ref, semester=semester)
+    if not recipients:
+        return _error("no active students or faculty match that audience")
+    n_students = sum(1 for r in recipients if r.role == "student")
+    n_faculty = len(recipients) - n_students
+
+    # the email is worded once, here, and frozen into the signed args: what the admin
+    # approves in the preview is exactly what every recipient receives
+    admin = db.get(Admin, ctx.admin_id)
+    label = audience_label(audience, scope_ref)
+    if email_subject is None:
+        email_subject = announcement_subject(title)
+    if email_body is None:
+        email_ctx = dict(title=title, body=body, audience_label=label, issued_by=admin.full_name if admin else None)
+        email_body = draft_email_body("announcement", **email_ctx) or announcement_body(**email_ctx)
+    email_subject, email_body = email_subject.strip(), email_body.strip()
+    if not email_subject or not email_body:
+        return _error("the email needs both a subject and a body")
+    if len(email_subject) > MAX_EMAIL_SUBJECT_CHARS or len(email_body) > MAX_EMAIL_BODY_CHARS:
+        return _error("the email subject or body is too long")
+
+    emailing = settings.email_mode != "off"
+    to_send, held = demo_split(recipients) if emailing else ([], [])
     where = f"{scope_ref} department" if scope_ref else "the whole university"
-    preview = {"summary": f"Publish \"{title}\" to {audience} in {where}", **args, "scope": scope}
+    args = {
+        "title": title,
+        "body": body,
+        "audience": audience,
+        "dept": scope_ref,
+        "semester": semester,
+        "email_subject": email_subject,
+        "email_body": email_body,
+    }
+    preview: dict[str, Any] = {
+        "summary": f"Publish \"{title}\" to {label.lower()}" + (f", semester {semester}" if semester else "") + (f" in {where}" if not scope_ref else ""),
+        "title": title,
+        "body": body,
+        "audience": audience,
+        "dept": scope_ref,
+        "semester": semester,
+        "scope": scope,
+        "recipients_students": n_students,
+        "recipients_faculty": n_faculty,
+        "emails_to_send": len(to_send),
+        "emails_held": len(held),
+    }
+    if emailing:
+        who = f"{len(recipients)} recipients ({n_students} students, {n_faculty} faculty)"
+        if held:
+            who += f" - demo mode: only {len(to_send)} are really sent, {len(held)} are held"
+        preview["email_preview"] = {"to": who, "subject": email_subject, "body": email_body}
     if not confirmed:
         return confirm.pending(ctx, "publish_notice", args, preview)
 
+    now = _now()
+    audience_roles = NOTICE_AUDIENCES[audience]
+    if find_recent_duplicate(
+        db, author_user_id=ctx.user_id, title=title, body=body, scope=scope, scope_ref=scope_ref,
+        audience_roles=audience_roles, semester=semester, now=now,
+    ):
+        return _error("this notice was already published moments ago")
     row = Announcement(
         author_user_id=ctx.user_id,
         scope=scope,
         scope_ref=scope_ref,
         title=title,
         body=body,
-        audience_roles=NOTICE_AUDIENCES[audience],
-        posted_at=_now(),
+        audience_roles=audience_roles,
+        posted_at=now,
+        semester=semester,
     )
     db.add(row)
     db.flush()
-    return {"done": True, "announcement_id": row.id, "message": f"Notice \"{title}\" published to {audience} in {where}."}
+
+    queued = held_n = 0
+    if emailing:
+        queued, held_n = queue_announcement_emails(db, row.id, recipients, email_subject, email_body)
+    message = f"Notice \"{title}\" published to {audience} in {where}."
+    if queued or held_n:
+        message += f" Emailing {queued} recipient(s)" + (f"; {held_n} more held (demo mode)." if held_n else ".")
+    return {
+        "done": True,
+        "announcement_id": row.id,
+        "recipients": len(recipients),
+        "emails_queued": queued,
+        "emails_held": held_n,
+        "message": message,
+    }
+
+
+@tool(
+    name="record_fee_payment",
+    description="Record a fee payment received for a student (student_roll_no, amount, optional paid_on date YYYY-MM-DD and term; default is the current term). Asks for confirmation.",
+    allowed_roles={Role.ADMIN},
+    scope=Scope.UNIVERSITY,
+    action=True,
+)
+def record_fee_payment(
+    *,
+    ctx: AuthContext,
+    db: Session,
+    student_roll_no: str,
+    amount: float,
+    paid_on: str | None = None,
+    term: str | None = None,
+    confirmed: bool = False,
+    **_: Any,
+) -> dict[str, Any]:
+    roll = (student_roll_no or "").strip().upper()
+    student = db.scalars(select(Student).where(Student.roll_no == roll)).first()
+    if student is None:
+        return _error(f"no student with roll number {roll or '(none given)'}")
+    term = (term or ctx.term).strip()
+    fee = db.scalars(select(Fee).where(Fee.student_id == student.id, Fee.term == term)).first()
+    if fee is None:
+        return _error(f"{roll} has no fee record for {term}")
+    try:
+        pay = Decimal(str(amount))
+    except (InvalidOperation, ValueError):
+        return _error("amount must be a number")
+    if not pay.is_finite() or pay <= 0:
+        return _error("amount must be greater than zero")
+    pay = pay.quantize(Decimal("0.01"))
+    due, paid = Decimal(fee.amount_due or 0), Decimal(fee.amount_paid or 0)
+    outstanding = due - paid
+    if outstanding <= 0:
+        return _error(f"{roll} has already paid in full for {term}")
+    if pay > outstanding:
+        return _error(f"amount {pay} is more than the {outstanding} outstanding for {roll} in {term}")
+    when = _parse_date(paid_on, "paid_on") if paid_on else _today()
+    if isinstance(when, dict):
+        return when
+    if when > _today():
+        return _error("a payment cannot be dated in the future")
+
+    new_paid = paid + pay
+    new_status = "paid" if new_paid >= due else "partial"
+    args = {"student_roll_no": roll, "amount": float(pay), "paid_on": when.isoformat(), "term": term}
+    preview = {
+        "summary": f"Record a payment of {pay} for {roll} {student.full_name} ({term}); fee becomes {new_status}",
+        **args,
+        "full_name": student.full_name,
+        "outstanding_before": float(outstanding),
+        "outstanding_after": float(due - new_paid),
+        "status_after": new_status,
+    }
+    if not confirmed:
+        return confirm.pending(ctx, "record_fee_payment", args, preview)
+
+    fee.amount_paid = new_paid
+    fee.status = new_status
+    fee.paid_on = when
+    db.flush()
+    return {
+        "done": True,
+        "fee_id": fee.id,
+        "status": new_status,
+        "outstanding": float(due - new_paid),
+        "message": f"Payment of {pay} recorded for {roll} ({term}): {new_status}"
+        + (f", {due - new_paid} still outstanding." if new_status == "partial" else "."),
+    }
 
 
 @tool(

@@ -299,3 +299,43 @@ def test_no_email_queued_when_recipient_has_no_address(db, undo, monkeypatch):
         )
     )
     assert row is None
+
+
+# --- SmtpTransport: the bytes that go on the wire ------------------------------------------------
+
+def test_smtp_transport_does_not_escape_a_body_line_that_starts_with_from(monkeypatch):
+    """smtplib.send_message flattens with mbox-style escaping: "From Monday..." arrived as ">From Monday...".
+
+    A notice written by an admin can start any line with that word, so the transport serialises
+    the message itself. A fake SMTP class stands in for the server; nothing touches the network.
+    """
+    from app.notify import transport as transport_mod
+
+    seen: dict = {}
+
+    class FakeSMTP:
+        def __init__(self, host, port, timeout=None):
+            seen["server"] = (host, port)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def sendmail(self, from_addr, to_addrs, data):
+            seen.update(from_addr=from_addr, to_addrs=to_addrs, data=data)
+
+    monkeypatch.setattr(transport_mod.smtplib, "SMTP", FakeSMTP)
+    transport_mod.SmtpTransport(host="localhost", port=1025).send(
+        from_addr="UniAssist <noreply@sot.pdpu.ac.in>",
+        to_addr="a@sot.pdpu.ac.in",
+        subject="Lab",
+        body="Dear all,\n\nFrom Monday the lab moves.\n\n— UniAssist\n",
+        headers={"X-UniAssist-Intended-To": "b@sot.pdpu.ac.in"},
+    )
+    data = seen["data"]
+    assert b"\r\nFrom Monday the lab moves." in data and b">From" not in data
+    assert "— UniAssist".encode() in data  # non-ASCII text survives as UTF-8
+    assert (seen["from_addr"], seen["to_addrs"]) == ("noreply@sot.pdpu.ac.in", ["a@sot.pdpu.ac.in"])  # the envelope is the bare address
+    assert b"X-UniAssist-Intended-To: b@sot.pdpu.ac.in" in data
