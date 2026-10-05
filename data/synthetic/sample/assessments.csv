@@ -737,3 +737,267 @@ id,offering_id,subject_code,term,type,title,max_marks,weightage_pct,due_date,sta
 736,250,24HS103T,2025-26-EVEN,IA,Internal Assessment,25,25,2026-03-04,graded
 737,250,24HS103T,2025-26-EVEN,Mid-Sem,Mid Semester Exam,25,25,2026-02-13,graded
 738,250,24HS103T,2025-26-EVEN,End-Sem,End Semester Exam,100,50,2026-05-15,graded
+739,251,24HS101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+740,251,24HS101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+741,251,24HS101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-27,graded
+742,252,24MA101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+743,252,24MA101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-19,graded
+744,252,24MA101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-24,graded
+745,253,24PH102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+746,253,24PH102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+747,253,24PH102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-17,graded
+748,254,24PH102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+749,254,24PH102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+750,254,24PH102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+751,255,24PH102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+752,255,24PH102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+753,255,24PH102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+754,256,24CV101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+755,256,24CV101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-21,graded
+756,256,24CV101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-20,graded
+757,257,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+758,257,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+759,257,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+760,258,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+761,258,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+762,258,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+763,259,24BT102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+764,259,24BT102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+765,259,24BT102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-25,graded
+766,260,24CP101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+767,260,24CP101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+768,260,24CP101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-23,graded
+769,261,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+770,261,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+771,261,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+772,262,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+773,262,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+774,262,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+775,263,24HS102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+776,263,24HS102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+777,263,24HS102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-21,graded
+778,264,24HS103T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+779,264,24HS103T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-22,graded
+780,264,24HS103T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-18,graded
+781,265,24MA101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+782,265,24MA101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-19,graded
+783,265,24MA101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-24,graded
+784,266,24HS101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+785,266,24HS101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+786,266,24HS101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-27,graded
+787,267,24CP101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+788,267,24CP101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+789,267,24CP101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-23,graded
+790,268,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+791,268,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+792,268,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+793,269,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+794,269,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+795,269,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+796,270,24CH101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+797,270,24CH101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-20,graded
+798,270,24CH101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-21,graded
+799,271,24CH101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-19,graded
+800,271,24CH101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-09-30,graded
+801,271,24CH101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-07,graded
+802,272,24CH101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-19,graded
+803,272,24CH101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-09-30,graded
+804,272,24CH101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-07,graded
+805,273,24EE101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+806,273,24EE101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-20,graded
+807,273,24EE101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-20,graded
+808,274,24EE101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+809,274,24EE101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-09-30,graded
+810,274,24EE101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-10,graded
+811,275,24EE101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+812,275,24EE101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-09-30,graded
+813,275,24EE101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-10,graded
+814,276,24BT101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+815,276,24BT101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+816,276,24BT101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-22,graded
+817,277,24HS104T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-12,graded
+818,277,24HS104T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-20,graded
+819,277,24HS104T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-22,graded
+820,278,24YOG101,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-12,graded
+821,278,24YOG101,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-21,graded
+822,278,24YOG101,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-26,graded
+823,279,24NSS101,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-11,graded
+824,279,24NSS101,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-21,graded
+825,279,24NSS101,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-21,graded
+826,280,24NCC101,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-11,graded
+827,280,24NCC101,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-19,graded
+828,280,24NCC101,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-22,graded
+829,281,24HS101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+830,281,24HS101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+831,281,24HS101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-27,graded
+832,282,24MA101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+833,282,24MA101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-19,graded
+834,282,24MA101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-24,graded
+835,283,24PH102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+836,283,24PH102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+837,283,24PH102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-17,graded
+838,284,24PH102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+839,284,24PH102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+840,284,24PH102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+841,285,24PH102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+842,285,24PH102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+843,285,24PH102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+844,286,24CV101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+845,286,24CV101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-21,graded
+846,286,24CV101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-20,graded
+847,287,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+848,287,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+849,287,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+850,288,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+851,288,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+852,288,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+853,289,24ME102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+854,289,24ME102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+855,289,24ME102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+856,290,24ME102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+857,290,24ME102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+858,290,24ME102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+859,291,24CP101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+860,291,24CP101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+861,291,24CP101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-23,graded
+862,292,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+863,292,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+864,292,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+865,293,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+866,293,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+867,293,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+868,294,24HS102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+869,294,24HS102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+870,294,24HS102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-21,graded
+871,295,24HS103T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+872,295,24HS103T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-22,graded
+873,295,24HS103T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-18,graded
+874,296,24HS101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+875,296,24HS101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+876,296,24HS101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-27,graded
+877,297,24MA101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+878,297,24MA101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-19,graded
+879,297,24MA101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-24,graded
+880,298,24PH101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+881,298,24PH101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-22,graded
+882,298,24PH101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-23,graded
+883,299,24PH101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+884,299,24PH101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-09-29,graded
+885,299,24PH101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+886,300,24PH101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+887,300,24PH101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-09-29,graded
+888,300,24PH101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+889,301,24CV101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+890,301,24CV101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-21,graded
+891,301,24CV101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-20,graded
+892,302,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+893,302,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+894,302,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+895,303,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+896,303,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+897,303,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+898,304,24BT102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+899,304,24BT102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+900,304,24BT102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-25,graded
+901,305,24CP101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+902,305,24CP101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+903,305,24CP101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-23,graded
+904,306,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+905,306,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+906,306,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+907,307,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+908,307,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+909,307,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+910,308,24HS102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+911,308,24HS102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+912,308,24HS102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-21,graded
+913,309,24HS103T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+914,309,24HS103T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-22,graded
+915,309,24HS103T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-18,graded
+916,310,24HS101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+917,310,24HS101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+918,310,24HS101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-27,graded
+919,311,24MA101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+920,311,24MA101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-19,graded
+921,311,24MA101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-24,graded
+922,312,24PH102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+923,312,24PH102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+924,312,24PH102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-17,graded
+925,313,24PH102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+926,313,24PH102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+927,313,24PH102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+928,314,24PH102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+929,314,24PH102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+930,314,24PH102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+931,315,24CV101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+932,315,24CV101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-21,graded
+933,315,24CV101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-20,graded
+934,316,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+935,316,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+936,316,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+937,317,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+938,317,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+939,317,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+940,318,24BT102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+941,318,24BT102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+942,318,24BT102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-25,graded
+943,319,24CP101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+944,319,24CP101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+945,319,24CP101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-23,graded
+946,320,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+947,320,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+948,320,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+949,321,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+950,321,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+951,321,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+952,322,24HS102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+953,322,24HS102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+954,322,24HS102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-21,graded
+955,323,24HS103T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+956,323,24HS103T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-22,graded
+957,323,24HS103T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-18,graded
+958,324,24MA101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+959,324,24MA101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-19,graded
+960,324,24MA101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-24,graded
+961,325,24PH102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+962,325,24PH102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+963,325,24PH102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-17,graded
+964,326,24PH102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+965,326,24PH102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+966,326,24PH102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+967,327,24PH102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-22,graded
+968,327,24PH102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+969,327,24PH102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+970,328,24BT102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-14,graded
+971,328,24BT102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+972,328,24BT102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-25,graded
+973,329,24CV101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+974,329,24CV101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-21,graded
+975,329,24CV101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-20,graded
+976,330,24CP101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-15,graded
+977,330,24CP101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+978,330,24CP101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-23,graded
+979,331,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+980,331,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+981,331,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+982,332,24CP101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+983,332,24CP101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+984,332,24CP101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+985,333,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+986,333,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+987,333,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+988,334,24ME101P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-21,graded
+989,334,24ME101P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+990,334,24ME101P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+991,335,24ME102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+992,335,24ME102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+993,335,24ME102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+994,336,24ME102P,2025-26-ODD,Mid-Sem-Viva,Mid Semester Viva,25,25,2025-08-20,graded
+995,336,24ME102P,2025-26-ODD,Lab-File,Practical Lab File,25,25,2025-10-02,graded
+996,336,24ME102P,2025-26-ODD,Lab-Exam,End Semester Practical Exam,50,50,2025-10-09,graded
+997,337,24HS101T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+998,337,24HS101T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+999,337,24HS101T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-27,graded
+1000,338,24HS102T,2025-26-ODD,IA,Internal Assessment,25,25,2025-08-13,graded
+1001,338,24HS102T,2025-26-ODD,Mid-Sem,Mid Semester Exam,25,25,2025-08-18,graded
+1002,338,24HS102T,2025-26-ODD,End-Sem,End Semester Exam,100,50,2025-11-21,graded

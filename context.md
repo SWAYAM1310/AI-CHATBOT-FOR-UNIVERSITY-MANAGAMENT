@@ -1,17 +1,20 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated **2026-10-05 — Phase 7
-(role portals, live data entry, profiles, agentic announcements) is in
-progress: 7a–7e and 7g-A (the faculty attendance calendar) are committed and
-pushed (through `ca2d859`). Uncommitted: the 7g-A follow-up, which makes the
-Calendar the only place attendance is taken (the course Attendance tab is gone)
-and turns its days into animated buttons, and 7h (the upkeep job that marks missed
-classes present, fills past assessments' marks, rounds marks to 0.5 and settles stale
-statuses). Next: commit those, then 7g parts B–E one at a time, then 7f. See §17: how to run both servers, the design notes, and
-the 7g-A follow-up and 7h.** 541 backend tests pass. Before that, §16 (the
-role-mismatch fix) and §15 (an evaluation session whose golden-set re-run was
-ABORTED on the Groq free-tier rate limit — still the one blocking item for the
-eval, unchanged).
+Snapshot for picking the work back up. Last updated **2026-10-05 (end of session).
+NEXT SESSION STARTS WITH PART 3 OF THE GRADING-SCHEME CHANGE** - see §17,
+"Grading scheme change": the database, backend and Results page already follow the
+user's scheme (theory IA 25 + Mid-Sem 25 + End-Sem out of 100 counted as 50;
+practical viva 25 + lab file 25 + practical exam 50; one IA per semester), committed
+and pushed through `af59474`. What is still on the OLD scheme is the RAG corpus: the
+examination regulations, two notices, their manifest titles and three eval
+questions, so the assistant answers *data* questions correctly (live tools) but
+quotes the old Quiz/Assignment/Internal Test rules for *policy* questions
+(verified 2026-10-05: `search_university_policies` still returns the "Quiz-1 ...
+5 %" table). Part 3 fixes that; Part 4 is the remaining page wording. After those,
+Phase 7 resumes (7g parts B-E, then 7f). 546 backend tests pass.
+
+Earlier in Phase 7: 7a-7e, 7g-A and 7h are committed and pushed; the student
+**Results** page (`2f1fab6`) replaced Home's marks table.
 
 Earlier snapshot (2026-10-03): the retrieval experiments were re-run and
 reproduced, and the 80-case golden-set re-run was attempted and ABORTED on the
@@ -2322,6 +2325,52 @@ Mid-Sem 25 + End-Sem written out of 100, counted as 50. **Practical:** Mid-Sem-V
   then re-render (`scripts/render_policies.py`) and re-ingest with Jina.
   **Part 4** - remaining page wording (Home "Assignments" -> IA submissions,
   faculty Roster/Marks pages).
+
+### Earlier semesters backfilled (2026-10-05, committed)
+Bug from the demo: the Results page offered semesters 3 and 2 only. The generator
+builds two terms (2025-26-EVEN, 2026-27-ODD), so every semester before the past
+one never existed - sample: the 2025 batch had no semester 1; full: 2024 batch no
+1-3, 2023 batch no 1-5 - and CGPA was just last term's SGPA.
+`scripts/backfill_history.py` (idempotent; runs after `regrade_dataset.py`) adds
+each missing completed semester from the same `CURRICULUM` and section rules:
+offerings, completed enrollments, assessments on the new scheme (all graded, marks
+around the student's own average share, IA mostly submitted, ~5 % missing -> 0,
+~12 % late x0.75), a paid fee per term, declared results per semester, and CGPA
+as the credit-weighted average over all semesters (`students.cgpa` = latest).
+No attendance for those terms. Term windows are the current/past term's moved
+by whole years. Result: every student has results for semesters 1..current-1
+(sample 56+56, full 3450/3450/2300/2300/1150/1150); 25BCP017 now sem 1 SGPA 9.15,
+CGPA 9.31 (was 9.45). Full-dataset backup before this: scratchpad
+`full_csv_backup_regraded/`. 546 tests pass; dev DB reloaded and checked in the
+browser.
+
+### >>> Resume here next session: grading-scheme Part 3 (RAG corpus) <<<
+1. Rewrite `docs/policies/examination_regulations.md` §2 for the new scheme:
+   theory table (IA 25 / Mid-Sem 25 / End-Sem 100 -> 50), drop 2.2.1's Term-Work
+   10 %; 2.2.2 one mid-semester window (20-25 Aug 2026, not two internal tests);
+   2.3 practical = Mid-Sem viva 25, practical lab file 25, end-semester practical
+   exam 50; 2.4 the IA is the submitted assignment/project (missing scores 0,
+   late within 3 days loses 25 %); keep 3.x passing rules (40 % per component and
+   course) consistent; check 3.4 / 4.x / 8.2 wording ("Lab-Exam", "CIA" -> IA).
+2. Notices: `docs/notices/internal_test_2_schedule.md` -> a Mid Semester
+   Examination notice (or retire it: Internal Test 2 no longer exists);
+   `faculty_marks_entry_deadline.md` -> Mid-Sem marks entry (same dates: exam
+   20-25 Aug, entry by 3 Sep). Rename files only if `docs/manifest.yaml` and
+   tests follow; update manifest titles (lines ~81, ~95).
+3. `eval/golden_set.yaml`: f02 "Assignment 2" -> IA submission, f07 "Internal
+   Test 1" -> mid-sem, f13 "Internal Test 2" marks deadline -> mid-sem; also
+   `eval/retrieval_set.yaml` if it mentions them. Validator only - the live eval
+   is Groq-bound.
+4. `backend/tests/test_rag_ingest.py:104` asserts "Quiz-1" in the regulations ->
+   "IA"/"Mid-Sem". grep tests for notice titles.
+5. `backend/.venv/Scripts/python.exe scripts/render_policies.py`, then
+   `python -m app.ai.rag.ingest --force` (policy + notice; Jina key in
+   backend/.env), then the dev-DB calendar gotcha above if pytest ran (re-ingest
+   tabular, delete source-less stale rows, run upkeep). Verify with
+   `search_university_policies` for "weightage theory course".
+6. Ask before committing. Then Part 4: Home "Assignments" section -> IA
+   submissions wording, faculty Roster/Marks pages, anything else saying
+   Quiz/Internal Test (grep the frontend).
 
 ### Next: 7f
 README feature list/screenshots, golden-set cases for `record_fee_payment` and a

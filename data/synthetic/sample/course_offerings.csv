@@ -249,3 +249,91 @@ id,subject_code,subject_name,dept_id,dept_code,term,semester,batch,faculty_id,se
 248,24CV101T,Environmental Science,6,CH,2025-26-EVEN,2,2025,20,Theory,1,,6
 249,24HS102T,Universal Human Values,6,CH,2025-26-EVEN,2,2025,25,Theory,1,,6
 250,24HS103T,Indian Knowledge System,6,CH,2025-26-EVEN,2,2025,25,Theory,1,,6
+251,24HS101T,English Communication,5,CE,2025-26-ODD,1,2025,27,Theory,1,,6
+252,24MA101T,Mathematics - I,5,CE,2025-26-ODD,1,2025,27,Theory,1,,6
+253,24PH102T,Engineering Physics,5,CE,2025-26-ODD,1,2025,25,Theory,1,,6
+254,24PH102P,Engineering Physics Laboratory,5,CE,2025-26-ODD,1,2025,25,Lab,,B1,3
+255,24PH102P,Engineering Physics Laboratory,5,CE,2025-26-ODD,1,2025,25,Lab,,B2,3
+256,24CV101T,Environmental Science,5,CE,2025-26-ODD,1,2025,18,Theory,1,,6
+257,24ME101P,Workshop Practices,5,CE,2025-26-ODD,1,2025,16,Lab,,B1,3
+258,24ME101P,Workshop Practices,5,CE,2025-26-ODD,1,2025,13,Lab,,B2,3
+259,24BT102T,Biology for Engineers,5,CE,2025-26-ODD,1,2025,27,Theory,1,,6
+260,24CP101T,Computer Programming - I,5,CE,2025-26-ODD,1,2025,2,Theory,1,,6
+261,24CP101P,Computer Programming - I Laboratory,5,CE,2025-26-ODD,1,2025,2,Lab,,B1,3
+262,24CP101P,Computer Programming - I Laboratory,5,CE,2025-26-ODD,1,2025,4,Lab,,B2,3
+263,24HS102T,Universal Human Values,5,CE,2025-26-ODD,1,2025,25,Theory,1,,6
+264,24HS103T,Indian Knowledge System,5,CE,2025-26-ODD,1,2025,28,Theory,1,,6
+265,24MA101T,Mathematics - I,6,CH,2025-26-ODD,1,2025,25,Theory,1,,6
+266,24HS101T,English Communication,6,CH,2025-26-ODD,1,2025,28,Theory,1,,6
+267,24CP101T,Computer Programming - I,6,CH,2025-26-ODD,1,2025,2,Theory,1,,6
+268,24CP101P,Computer Programming - I Laboratory,6,CH,2025-26-ODD,1,2025,3,Lab,,C1,3
+269,24CP101P,Computer Programming - I Laboratory,6,CH,2025-26-ODD,1,2025,1,Lab,,C2,3
+270,24CH101T,Engineering Chemistry,6,CH,2025-26-ODD,1,2025,23,Theory,1,,6
+271,24CH101P,Engineering Chemistry Laboratory,6,CH,2025-26-ODD,1,2025,23,Lab,,C1,3
+272,24CH101P,Engineering Chemistry Laboratory,6,CH,2025-26-ODD,1,2025,23,Lab,,C2,3
+273,24EE101T,Elements of Electrical and Electronics Engineering,6,CH,2025-26-ODD,1,2025,27,Theory,1,,6
+274,24EE101P,Elements of Electrical and Electronics Engineering Laboratory,6,CH,2025-26-ODD,1,2025,28,Lab,,C1,3
+275,24EE101P,Elements of Electrical and Electronics Engineering Laboratory,6,CH,2025-26-ODD,1,2025,27,Lab,,C2,3
+276,24BT101T,Biological Systems for Engineers,6,CH,2025-26-ODD,1,2025,28,Theory,1,,6
+277,24HS104T,Organizational Behaviour,6,CH,2025-26-ODD,1,2025,26,Theory,1,,6
+278,24YOG101,"Yoga, Health & Hygiene",6,CH,2025-26-ODD,1,2025,25,Theory,1,,6
+279,24NSS101,National Service Scheme (NSS),6,CH,2025-26-ODD,1,2025,25,Theory,1,,6
+280,24NCC101,National Cadet Corps (NCC),6,CH,2025-26-ODD,1,2025,27,Theory,1,,6
+281,24HS101T,English Communication,1,CP,2025-26-ODD,1,2025,26,Theory,1,,22
+282,24MA101T,Mathematics - I,1,CP,2025-26-ODD,1,2025,28,Theory,1,,22
+283,24PH102T,Engineering Physics,1,CP,2025-26-ODD,1,2025,25,Theory,1,,22
+284,24PH102P,Engineering Physics Laboratory,1,CP,2025-26-ODD,1,2025,26,Lab,,G1,11
+285,24PH102P,Engineering Physics Laboratory,1,CP,2025-26-ODD,1,2025,28,Lab,,G2,11
+286,24CV101T,Environmental Science,1,CP,2025-26-ODD,1,2025,20,Theory,1,,22
+287,24ME101P,Workshop Practices,1,CP,2025-26-ODD,1,2025,13,Lab,,G1,11
+288,24ME101P,Workshop Practices,1,CP,2025-26-ODD,1,2025,14,Lab,,G2,11
+289,24ME102P,Engineering Graphics,1,CP,2025-26-ODD,1,2025,15,Lab,,G1,11
+290,24ME102P,Engineering Graphics,1,CP,2025-26-ODD,1,2025,15,Lab,,G2,11
+291,24CP101T,Computer Programming - I,1,CP,2025-26-ODD,1,2025,4,Theory,1,,22
+292,24CP101P,Computer Programming - I Laboratory,1,CP,2025-26-ODD,1,2025,4,Lab,,G1,11
+293,24CP101P,Computer Programming - I Laboratory,1,CP,2025-26-ODD,1,2025,1,Lab,,G2,11
+294,24HS102T,Universal Human Values,1,CP,2025-26-ODD,1,2025,28,Theory,1,,22
+295,24HS103T,Indian Knowledge System,1,CP,2025-26-ODD,1,2025,25,Theory,1,,22
+296,24HS101T,English Communication,3,EC,2025-26-ODD,1,2025,25,Theory,1,,6
+297,24MA101T,Mathematics - I,3,EC,2025-26-ODD,1,2025,26,Theory,1,,6
+298,24PH101T,Applied Physics,3,EC,2025-26-ODD,1,2025,25,Theory,1,,6
+299,24PH101P,Applied Physics Laboratory,3,EC,2025-26-ODD,1,2025,28,Lab,,F1,3
+300,24PH101P,Applied Physics Laboratory,3,EC,2025-26-ODD,1,2025,25,Lab,,F2,3
+301,24CV101T,Environmental Science,3,EC,2025-26-ODD,1,2025,18,Theory,1,,6
+302,24ME101P,Workshop Practices,3,EC,2025-26-ODD,1,2025,14,Lab,,F1,3
+303,24ME101P,Workshop Practices,3,EC,2025-26-ODD,1,2025,16,Lab,,F2,3
+304,24BT102T,Biology for Engineers,3,EC,2025-26-ODD,1,2025,25,Theory,1,,6
+305,24CP101T,Computer Programming - I,3,EC,2025-26-ODD,1,2025,3,Theory,1,,6
+306,24CP101P,Computer Programming - I Laboratory,3,EC,2025-26-ODD,1,2025,2,Lab,,F1,3
+307,24CP101P,Computer Programming - I Laboratory,3,EC,2025-26-ODD,1,2025,4,Lab,,F2,3
+308,24HS102T,Universal Human Values,3,EC,2025-26-ODD,1,2025,27,Theory,1,,6
+309,24HS103T,Indian Knowledge System,3,EC,2025-26-ODD,1,2025,25,Theory,1,,6
+310,24HS101T,English Communication,2,IT,2025-26-ODD,1,2025,27,Theory,1,,10
+311,24MA101T,Mathematics - I,2,IT,2025-26-ODD,1,2025,28,Theory,1,,10
+312,24PH102T,Engineering Physics,2,IT,2025-26-ODD,1,2025,26,Theory,1,,10
+313,24PH102P,Engineering Physics Laboratory,2,IT,2025-26-ODD,1,2025,26,Lab,,H1,5
+314,24PH102P,Engineering Physics Laboratory,2,IT,2025-26-ODD,1,2025,28,Lab,,H2,5
+315,24CV101T,Environmental Science,2,IT,2025-26-ODD,1,2025,19,Theory,1,,10
+316,24ME101P,Workshop Practices,2,IT,2025-26-ODD,1,2025,16,Lab,,H1,5
+317,24ME101P,Workshop Practices,2,IT,2025-26-ODD,1,2025,16,Lab,,H2,5
+318,24BT102T,Biology for Engineers,2,IT,2025-26-ODD,1,2025,27,Theory,1,,10
+319,24CP101T,Computer Programming - I,2,IT,2025-26-ODD,1,2025,3,Theory,1,,10
+320,24CP101P,Computer Programming - I Laboratory,2,IT,2025-26-ODD,1,2025,2,Lab,,H1,5
+321,24CP101P,Computer Programming - I Laboratory,2,IT,2025-26-ODD,1,2025,1,Lab,,H2,5
+322,24HS102T,Universal Human Values,2,IT,2025-26-ODD,1,2025,28,Theory,1,,10
+323,24HS103T,Indian Knowledge System,2,IT,2025-26-ODD,1,2025,25,Theory,1,,10
+324,24MA101T,Mathematics - I,4,ME,2025-26-ODD,1,2025,25,Theory,1,,6
+325,24PH102T,Engineering Physics,4,ME,2025-26-ODD,1,2025,27,Theory,1,,6
+326,24PH102P,Engineering Physics Laboratory,4,ME,2025-26-ODD,1,2025,25,Lab,,A1,3
+327,24PH102P,Engineering Physics Laboratory,4,ME,2025-26-ODD,1,2025,27,Lab,,A2,3
+328,24BT102T,Biology for Engineers,4,ME,2025-26-ODD,1,2025,27,Theory,1,,6
+329,24CV101T,Environmental Science,4,ME,2025-26-ODD,1,2025,17,Theory,1,,6
+330,24CP101T,Computer Programming - I,4,ME,2025-26-ODD,1,2025,3,Theory,1,,6
+331,24CP101P,Computer Programming - I Laboratory,4,ME,2025-26-ODD,1,2025,3,Lab,,A1,3
+332,24CP101P,Computer Programming - I Laboratory,4,ME,2025-26-ODD,1,2025,1,Lab,,A2,3
+333,24ME101P,Workshop Practices,4,ME,2025-26-ODD,1,2025,13,Lab,,A1,3
+334,24ME101P,Workshop Practices,4,ME,2025-26-ODD,1,2025,15,Lab,,A2,3
+335,24ME102P,Engineering Graphics,4,ME,2025-26-ODD,1,2025,16,Lab,,A1,3
+336,24ME102P,Engineering Graphics,4,ME,2025-26-ODD,1,2025,15,Lab,,A2,3
+337,24HS101T,English Communication,4,ME,2025-26-ODD,1,2025,25,Theory,1,,6
+338,24HS102T,Universal Human Values,4,ME,2025-26-ODD,1,2025,26,Theory,1,,6
