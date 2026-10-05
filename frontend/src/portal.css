@@ -225,18 +225,6 @@
   flex-shrink: 0;
 }
 
-.stub {
-  max-width: 60ch;
-  padding: 18px 22px;
-  border: 1px dashed var(--rule);
-  border-radius: 12px;
-  background: var(--surface);
-}
-
-.stub p {
-  margin: 0;
-}
-
 /* the conversation rail's title: the brand is the portal navigation's job now */
 .rail-title {
   margin: 0;

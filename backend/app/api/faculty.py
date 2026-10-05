@@ -8,12 +8,14 @@ share one set of validation rules and one audit trail.
 """
 from __future__ import annotations
 
+from calendar import monthrange
 from datetime import date as Date
+from datetime import timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.ai.tools.builtin import PRESENT
@@ -22,6 +24,7 @@ from app.api.toolcall import read_tool, run_action
 from app.auth.context import AuthContext, Role
 from app.auth.deps import get_db, require_roles
 from app.models import (
+    AcademicCalendarEvent,
     Assessment,
     AttendanceRecord,
     AttendanceSession,
@@ -39,6 +42,7 @@ faculty_only = require_roles(Role.FACULTY)
 
 RECENT_SESSIONS = 10
 MAX_ROLLS = 500
+NO_TEACHING = ("holiday", "break", "exam")  # calendar events on which the timetable does not run
 
 
 class AttendanceIn(BaseModel):
@@ -243,6 +247,134 @@ def correct_attendance(
             "offering_id": offering.id,
         },
     )
+
+
+# --- calendar -----------------------------------------------------------------
+
+
+@router.get("/calendar")
+def calendar(
+    month: str = Query(pattern=r"^\d{4}-(0[1-9]|1[0-2])$", description="YYYY-MM"),
+    offering_id: int | None = Query(default=None, description="one section; omit for all of the caller's"),
+    ctx: AuthContext = Depends(faculty_only),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    """One month of teaching: what the timetable scheduled, what attendance says was held, and
+    the academic-calendar events (holidays, breaks, exams) that suspend the timetable."""
+    year, mon = (int(p) for p in month.split("-"))
+    first, last = Date(year, mon, 1), Date(year, mon, monthrange(year, mon)[1])
+    today = Date.today()
+
+    if offering_id is not None:
+        offerings = [_own(db, ctx, offering_id)]
+    else:
+        offerings = list(
+            db.scalars(
+                select(CourseOffering)
+                .where(CourseOffering.faculty_id == ctx.faculty_id, CourseOffering.term == ctx.term)
+                .order_by(CourseOffering.subject_code, CourseOffering.division, CourseOffering.lab_group)
+            )
+        )
+    by_id = {o.id: o for o in offerings}
+
+    in_term = or_(AcademicCalendarEvent.term == ctx.term, AcademicCalendarEvent.term.is_(None))
+    term_days = list(
+        db.scalars(select(AcademicCalendarEvent.start_date).where(in_term, AcademicCalendarEvent.event_type == "term"))
+    )
+    term_start, term_end = (min(term_days), max(term_days)) if term_days else (None, None)
+    events = list(
+        db.scalars(
+            select(AcademicCalendarEvent)
+            .where(
+                in_term,
+                AcademicCalendarEvent.start_date <= last,
+                func.coalesce(AcademicCalendarEvent.end_date, AcademicCalendarEvent.start_date) >= first,
+            )
+            .order_by(AcademicCalendarEvent.start_date, AcademicCalendarEvent.id)
+        )
+    )
+
+    def _covers(e: AcademicCalendarEvent, d: Date) -> bool:
+        return e.start_date <= d <= (e.end_date or e.start_date)
+
+    weekly: dict[int, list[tuple[TimetableSlot, str | None]]] = {}
+    for slot, room in db.execute(
+        select(TimetableSlot, Classroom.code)
+        .outerjoin(Classroom, Classroom.id == TimetableSlot.classroom_id)
+        .where(TimetableSlot.offering_id.in_(by_id))
+        .order_by(TimetableSlot.start_time)
+    ):
+        weekly.setdefault(slot.day_of_week, []).append((slot, room))
+
+    held: dict[tuple[Date, int], list[dict[str, Any]]] = {}
+    for session, total, absent in db.execute(
+        select(
+            AttendanceSession,
+            func.count(AttendanceRecord.id),
+            func.count(AttendanceRecord.id).filter(AttendanceRecord.status == "absent"),
+        )
+        .outerjoin(AttendanceRecord, AttendanceRecord.session_id == AttendanceSession.id)
+        .where(AttendanceSession.offering_id.in_(by_id), AttendanceSession.session_date.between(first, last))
+        .group_by(AttendanceSession.id)
+        .order_by(AttendanceSession.slot_no)
+    ):
+        held.setdefault((session.session_date, session.offering_id), []).append(
+            {"id": session.id, "slot_no": session.slot_no, "present": total - absent, "absent": absent}
+        )
+
+    days = []
+    d = first
+    while d <= last:
+        todays = [e for e in events if _covers(e, d)]
+        teaching = (
+            term_start is not None
+            and term_start <= d <= term_end
+            and not any(e.event_type in NO_TEACHING for e in todays)
+        )
+        classes: dict[int, dict[str, Any]] = {}
+        for slot, room in weekly.get(d.weekday(), []) if teaching else []:
+            row = classes.setdefault(
+                slot.offering_id,
+                {**_offering_out(by_id[slot.offering_id]), "start_time": None, "end_time": None, "room": room},
+            )
+            row["start_time"] = row["start_time"] or slot.start_time.strftime("%H:%M")
+            row["end_time"] = slot.end_time.strftime("%H:%M")  # slots are ordered, so this is the last one
+        for oid in by_id:
+            if (d, oid) in held and oid not in classes:  # held off the timetable: still a class that day
+                classes[oid] = {**_offering_out(by_id[oid]), "start_time": None, "end_time": None, "room": None}
+        for oid, row in classes.items():
+            row["sessions"] = held.get((d, oid), [])
+            row["status"] = "held" if row["sessions"] else ("due" if d <= today else "upcoming")
+        days.append(
+            {
+                "date": d.isoformat(),
+                "events": [
+                    {"event": e.event, "event_type": e.event_type, "start_date": e.start_date.isoformat()}
+                    for e in todays
+                ],
+                "classes": sorted(classes.values(), key=lambda c: (c["start_time"] or "99", c["course"])),
+            }
+        )
+        d += timedelta(days=1)
+
+    return {
+        "month": month,
+        "today": today.isoformat(),
+        "term": {
+            "start": term_start.isoformat() if term_start else None,
+            "end": term_end.isoformat() if term_end else None,
+        },
+        "events": [
+            {
+                "event": e.event,
+                "event_type": e.event_type,
+                "start_date": e.start_date.isoformat(),
+                "end_date": e.end_date.isoformat() if e.end_date else None,
+            }
+            for e in events
+        ],
+        "days": days,
+    }
 
 
 # --- marks --------------------------------------------------------------------

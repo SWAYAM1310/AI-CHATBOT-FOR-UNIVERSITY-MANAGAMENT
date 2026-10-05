@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import type { Role } from '../types'
 import { Avatar } from './Avatar'
 import { usePortal } from './context'
-import { BookIcon, ChatIcon, HomeIcon, MegaphoneIcon, MenuIcon, SignOutIcon, UserIcon, WalletIcon } from './icons'
+import { BookIcon, CalendarIcon, ChatIcon, HomeIcon, MegaphoneIcon, MenuIcon, SignOutIcon, UserIcon, WalletIcon } from './icons'
 
 interface NavItem {
   to: string
@@ -23,6 +23,7 @@ const NAV: Record<Role, NavItem[]> = {
   faculty: [
     { to: '/', label: 'Home', icon: <HomeIcon />, end: true },
     { to: '/courses', label: 'Courses', icon: <BookIcon /> },
+    { to: '/calendar', label: 'Calendar', icon: <CalendarIcon /> },
     { to: '/assistant', label: 'Assistant', icon: <ChatIcon /> },
     { to: '/profile', label: 'Profile', icon: <UserIcon /> },
   ],
@@ -41,7 +42,7 @@ function roleLabel(role: Role, isHod: boolean | undefined): string {
 }
 
 export function PortalLayout() {
-  const { session, me, signOut } = usePortal()
+  const { session, me, photoVersion, signOut } = usePortal()
   const { pathname } = useLocation()
   // the phone drawer is open for the page it was opened on; going somewhere closes it
   const [openOn, setOpenOn] = useState<string | null>(null)
@@ -85,7 +86,7 @@ export function PortalLayout() {
 
         <div className="portal-user">
           <NavLink to="/profile" className="portal-user-card" aria-label="Your profile">
-            <Avatar userId={me?.user_id} name={me?.full_name} hasPhoto={me?.has_photo} />
+            <Avatar userId={me?.user_id} name={me?.full_name} hasPhoto={me?.has_photo} version={photoVersion} />
             <span className="portal-user-text">
               <span className="portal-user-name">{me?.full_name ?? 'Signing in…'}</span>
               <span className="portal-user-role">{roleLabel(session.role, me?.is_hod)}</span>

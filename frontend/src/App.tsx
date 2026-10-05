@@ -10,6 +10,7 @@ import type { Me, Session } from './types'
 export default function App() {
   const [session, setSession] = useState<Session | null>(() => loadSession())
   const [me, setMe] = useState<Me | null>(null)
+  const [photoVersion, setPhotoVersion] = useState(0)
 
   const signOut = useCallback(() => {
     saveSession(null)
@@ -19,7 +20,10 @@ export default function App() {
   const refreshMe = useCallback(() => {
     api
       .me()
-      .then(setMe)
+      .then((m) => {
+        setMe(m)
+        setPhotoVersion((v) => v + 1)
+      })
       .catch(() => undefined) // the next full load will sort out an expired token
   }, [])
 
@@ -44,8 +48,8 @@ export default function App() {
   }, [session, signOut])
 
   const portal = useMemo(
-    () => (session ? { session, me, refreshMe, signOut } : null),
-    [session, me, refreshMe, signOut],
+    () => (session ? { session, me, refreshMe, photoVersion, signOut } : null),
+    [session, me, refreshMe, photoVersion, signOut],
   )
 
   function signIn(s: Session) {

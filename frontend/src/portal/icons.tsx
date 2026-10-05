@@ -34,6 +34,14 @@ export const BookIcon = () => (
   </Svg>
 )
 
+export const CalendarIcon = () => (
+  <Svg>
+    <rect x="4" y="5.5" width="16" height="14.5" rx="2" />
+    <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+    <path d="M8 14h2M14 14h2M8 17h2" />
+  </Svg>
+)
+
 export const MegaphoneIcon = () => (
   <Svg>
     <path d="M4 10v4h3l8 4V6L7 10H4Z" />

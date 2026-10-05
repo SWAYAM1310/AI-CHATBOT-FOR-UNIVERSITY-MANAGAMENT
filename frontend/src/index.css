@@ -19,6 +19,10 @@
   --amber-soft: #fbf0da;
   --red: #9b3b2a;
   --red-soft: #f8e2dc;
+  --present: #4d6b2f;
+  --present-soft: #e4e6c9;
+  --holiday: #4b5675;
+  --holiday-soft: #dcdee8;
   --sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;

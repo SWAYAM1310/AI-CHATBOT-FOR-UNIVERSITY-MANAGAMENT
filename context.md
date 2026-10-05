@@ -1,11 +1,19 @@
 # UniAssist — build context (resume here)
 
-Snapshot for picking the work back up. Last updated **2026-10-03 — an
-evaluation session: the retrieval experiments were re-run and reproduced, and
-the 80-case golden-set re-run was attempted and ABORTED on the Groq free-tier
-rate limit. See §15 for the resume command and the one-cell diff.** The single
-blocking item for the project is the golden-set re-run; everything else below
-is green (434 tests pass, DB and corpus intact).
+Snapshot for picking the work back up. Last updated **2026-10-05 — Phase 7
+(role portals, live data entry, profiles, agentic announcements) is in
+progress: 7a–7d are pushed, the faculty pages and the student Home + Profile
+page are built and browser-tested but NOT committed (the user asked to hold the
+commit), and the admin pages (Announcements, Fees, Home) are next. See §17 —
+it lists the exact uncommitted files, how to run both servers, and the design
+notes for the admin pages.** 526 backend tests pass. Before that, §16 (the
+role-mismatch fix) and §15 (an evaluation session whose golden-set re-run was
+ABORTED on the Groq free-tier rate limit — still the one blocking item for the
+eval, unchanged).
+
+Earlier snapshot (2026-10-03): the retrieval experiments were re-run and
+reproduced, and the 80-case golden-set re-run was attempted and ABORTED on the
+Groq free-tier rate limit (§15 has the resume command and the one-cell diff).
 
 Previously updated **2026-09-17, Phase 6
 (agentic email notifications) committed (`2c52868`) and verified offline,
@@ -1964,3 +1972,282 @@ term). So "my students" from an admin became a university-wide list.
   wrong-role orchestrator path, per-role router prompt). Not yet verified
   live against Groq — the wrong-role routing is a prompt rule, so it needs
   the golden-set re-run (a19/a20/f23) to confirm.
+
+
+---
+
+## 17. Phase 7 — role portals, live data entry, profiles, agentic announcements (2026-10-05, IN PROGRESS)
+
+Plan file (local, not in the repo): `C:/Users/ASUS/.claude/plans/now-we-have-to-linear-ullman.md`.
+The user's brief: (1) live data entry from the website (faculty tick attendance
+and type marks for a roster; admin records fee payments; students see it at
+once), (2) a profile section for everyone, (3) admin announcements that email
+each recipient (agentic: audience resolved, email drafted, confirm card). Plus
+"entire UI changes": login lands on a role dashboard, not the chatbot.
+**Working style:** one sub-phase at a time, report after each, ask before every
+commit. Dev emails: the user does not want 112 mails in their inbox — only ~4
+may really send (`EMAIL_DEMO_CAP`, below).
+
+### Where things stand
+
+| Step | What | State |
+|---|---|---|
+| 7a | profile API: view, safe edits, password, photo | pushed `453bd6b` |
+| — | student date-of-birth fix in the generator + `students.csv` | pushed `dc924da` |
+| 7b | faculty portal API + student dashboard API | pushed `1c245c8` |
+| 7c | fee recording + announcements that email their audience | pushed `ac355d3` |
+| 7d | frontend shell: react-router portal, role navigation | pushed `985570d` |
+| 7e-1 | faculty pages: Home, Courses, Roster/Attendance/Marks tabs | **built + browser-tested, UNCOMMITTED** |
+| 7e-2 | student Home + Profile page (all roles) | **built + browser-tested, UNCOMMITTED** |
+| 7e-3 | admin pages: Home, Fees, Announcements | **built + browser-tested, UNCOMMITTED** |
+| 7f | **docs, README, golden-set cases (validator only)** | **NOT STARTED — next** |
+
+**The user asked not to commit 7e-1/7e-2 yet; 7e-3 is also uncommitted — ask first.** Uncommitted files:
+backend `app/ai/tools/builtin.py`, `app/ai/tools/faculty_tools.py`,
+`tests/test_faculty_tools.py` (the duplicate-students fix, below); frontend
+`src/{App,api,main,types}.ts(x)`, `src/pages.css`, `src/portal/{Profile,format,ui,useLoad}.ts(x)`,
+`src/portal/{PortalLayout,PortalRoutes,context,pages}.tsx`, `src/portal/faculty/`,
+`src/portal/student/`, plus from 7e-3 `src/portal/admin/` (new), `src/portal.css`
+(stub styles removed) and more in `api.ts`, `types.ts`, `pages.css`, `pages.tsx`,
+`PortalRoutes.tsx`. Suggested commits: one for the backend duplicate fix, one for
+the faculty pages, one for student Home + Profile, one for the admin pages
+(`pages.css`/`api.ts`/`types.ts` are shared, so either split them by hunk or merge
+the frontend commits).
+
+Tests: **526 backend tests pass** (449 at the start of this session). The
+frontend has no test runner: it is checked with `npm run build` (tsc + vite),
+`npm run lint` (oxlint; the only warnings are two older ones in `App.tsx` and
+`Rail.tsx`) and headless-Chromium Playwright runs (`backend/.venv` has
+`playwright`; Chromium is installed). Those driver scripts were one-offs in a
+scratch directory and are not in the repo.
+
+### 7a — profile API (`backend/app/api/profile.py`)
+- `GET/PATCH /api/profile`: full record per role. Only contact fields are
+  editable (student: phone, personal_email, address_city/state; faculty:
+  phone, personal_email, office_room; admin: phone, personal_email). Unknown
+  keys are a 422 (`extra="forbid"`), a field the role lacks is a 400.
+- `POST /api/profile/password` (verifies current; 8–128 chars; must differ).
+- Photo: `POST/DELETE /api/profile/photo`, `GET /api/profile/photo/{user_id}`
+  (owner, faculty, admin; other students get 403). Re-encoded with Pillow to a
+  256px WebP (strips EXIF, rejects non-images / >2 MB / huge pixel counts),
+  stored at `backend/media/avatars/<user_id>.webp` (gitignored) — the file name
+  comes from the token, never from the upload.
+- `users.photo_path` migration `b2c3d4e5f6a7`; `/api/me` gained `full_name`,
+  `has_photo`. New deps: `python-multipart`, `pillow`.
+
+### 7b — faculty portal + student dashboard
+- `backend/app/api/faculty.py` (faculty only; a section they do not teach is a
+  **404 on every route**, reads and writes): `/courses`, `/offerings/{id}/roster`,
+  `/offerings/{id}/attendance` (GET a day + history, POST mark, **PUT correct**),
+  `/offerings/{id}/assessments`, `/assessments/{id}/marks` (GET, POST),
+  `/dashboard` (today's classes with "attendance marked", at-risk, pending
+  leave for HODs, announcements).
+- `backend/app/api/student.py`: `/api/student/dashboard` — attendance with
+  `recover` (classes to attend in a row to get back to 75%) / `can_skip`, marks,
+  fees, assignments, exams, today's timetable, announcements.
+- `backend/app/api/toolcall.py`: **writes** go through the chat's action tools
+  (`REGISTRY.invoke(..., confirmed=True)` → role check, identity stripping,
+  audit row; the button click stands in for the confirm card); **reads** use
+  `read_tool` (same functions, no audit row — a dashboard polling every 30 s
+  would flood the audit table).
+- Action-tool changes: new `correct_attendance` (only flips absent/present;
+  late/excused are kept); `enter_marks` takes `absent_roll_nos` (absentee = no
+  score + `is_absent`); `mark_attendance`/`correct_attendance`/`enter_marks`
+  take a hidden **`offering_id`** (in `schema.py` `INJECTED`, never shown to the
+  model) because the same common first-year course is taught to several
+  departments' divisions (16 ambiguous faculty/course/division groups this
+  term), so course + division cannot name a section. It passes the same
+  ownership check. Action tools are now **10** (`test_action_tools.py`).
+
+### 7c — fees and agentic announcements
+- `record_fee_payment` (admin action tool; **parameter is `student_roll_no`**,
+  because `roll_no` is in `IDENTITY_ARGS` and would be hidden from the model).
+  Refuses overpayment, future dates, paid-in-full; status becomes `paid` or
+  `partial`. Also `POST /api/admin/fees/{fee_id}/payment`.
+- `publish_notice` now: resolves recipients (`backend/app/notify/announce.py`:
+  audience all/student/faculty × department × semester; faculty semester filter =
+  teaches a course of that semester this term; admins are not emailed), drafts
+  one email (LLM if `EMAIL_DRAFT_ENABLED`, else the template in
+  `notify/templates.py`), previews counts + the exact email, and on confirm
+  writes the in-app `Announcement` (new `semester` column, migration
+  `c3d4e5f6a7b8`; a semester notice reaches only that semester's students in
+  their feed) plus **one `email_outbox` row per recipient**
+  (`announcement:<id>:<address>` idempotency key). The email text is frozen into
+  the signed confirm args, exactly like the leave tools. A repeat of the same
+  notice by the same admin within 60 s is a 409 (double-click guard).
+- **Demo cap** (`EMAIL_DEMO_CAP`, default 4, in `.env.example`): only while
+  `EMAIL_REDIRECT_TO` is set, only N recipients per announcement are really
+  emailed (alternating student/faculty), the rest are stored with status
+  **`held`** (reason in `error`) and never sent. No redirect (Mailpit,
+  allowlisted domain, tests) = no cap. The greeting is generic ("Dear Students
+  of the CP department,") so every recipient gets the identical previewed text.
+- Emails are sent from a **FastAPI background task** after the response
+  (`mailer.flush_in_background(row_ids)` opens its own session) — both the
+  website publish and `/api/chat/confirm` now do this.
+- `backend/app/api/admin.py` (admin only): `GET /dashboard` (KPIs + per-
+  department table + recent notices), `GET /fees?term=&dept=&status=&q=&page=`
+  (status counts ignore the status filter so chips stay stable),
+  `POST /fees/{id}/payment`, `POST /announcements/preview` (writes nothing;
+  returns `preview` counts + `email` + `emailing`), `POST /announcements`
+  (publish; accepts optional edited `email_subject`/`email_body`),
+  `GET /announcements` (with delivery counts sent/queued/held/failed/suppressed),
+  `GET /announcements/{id}/deliveries` (per-recipient).
+- **Live proofs:** Mailpit — 48 emails to the CP department (44 students + 4
+  faculty), 48 distinct recipients, body byte-for-byte the preview. Gmail (the
+  redirect in `backend/.env`) — exactly **4 sent, 44 held, 0 failed**; arrival
+  in the inbox was not machine-verified (the Gmail connector is a different
+  account), the user confirms visually.
+
+### 7d — portal shell (frontend)
+- `react-router-dom`. `App.tsx`: signed out → `Login`; signed in →
+  `BrowserRouter` + `PortalContext` (`session`, `me`, `refreshMe`,
+  `photoVersion`, `signOut`) + `PortalRoutes`. Signing in always lands on `/`.
+- `src/portal/PortalLayout.tsx`: left navigation per role (student: Home,
+  Assistant, Profile; faculty: Home, Courses, Assistant, Profile; admin: Home,
+  Announcements, Fees, Assistant, Profile), user card with avatar + sign-out, a
+  phone drawer. `PortalRoutes.tsx` holds the route table; a URL a role has no
+  page for redirects to Home. The chat is the `/assistant` page (`pages.tsx`
+  `Assistant`); `Chat` lost its sign-out; the rail's brand block was replaced by
+  a "Conversations" title and it starts collapsed below 1100px.
+- Look: the established parchment / Fraunces / crest-orange identity was kept on
+  purpose (the user's brief was structure, not branding). Styles live in
+  `src/portal.css` (shell) and `src/pages.css` (page blocks).
+
+### 7e-1 / 7e-2 — pages built so far (uncommitted)
+- Shared: `portal/useLoad.ts` (load by key, `reload()`, optional refresh on tab
+  focus and on an interval, `version` for re-seeding forms), `portal/format.ts`
+  (dates, `sectionLabel`, rupees via `Intl en-IN`, `firstName` keeps "Dr."),
+  `portal/ui.tsx` (`Notice`, `Loading`, `Empty`), `portal/Avatar.tsx`.
+- Faculty (`portal/faculty/`): `FacultyHome` (greeting, today's classes with a
+  Take-attendance button, students who need attention, HOD leave list,
+  announcements), `Courses` (sections grouped by course), `CourseLayout` +
+  tabs, `Roster`, `Attendance` (date/slot, a checkbox per student, record or
+  save correction, recent sessions), `Marks` (assessment picker, per-row score
+  with 0..max validation and an Absent box, Enter moves down, saves only the
+  changed rows).
+- Student (`portal/student/StudentHome.tsx`): attendance bars with the 75% rule
+  drawn on each, "needs your attention", today, marks, fees, exams, assignments,
+  announcements; refreshes every 30 s and on focus.
+- `portal/Profile.tsx`: photo, editable contact details, read-only official
+  details, password change.
+- Browser-verified end to end: a faculty member marked attendance and entered
+  marks; the student's real dashboard percentage moved (96.8% → 93.8%) and the
+  open student page updated on focus; photo upload/removal, contact edit,
+  password change and restore all worked; faculty/admin profiles show only
+  their own editable fields; no horizontal scroll on a phone. All test rows were
+  removed afterwards.
+
+### Bugs found and fixed this session (all real, all with tests)
+1. **§16** — faculty tools answered admins ("which of my students…"); now
+   faculty-only + a `wrong_role` router intent.
+2. **Student birth years 0011–0020** — generator bug (`2026 - batch + 17`).
+   The generator now shifts the year after the draw so the seeded stream is
+   unchanged; only `students.csv` `date_of_birth` differs. (Regenerating the
+   sample also rewrites `exam_schedule.csv` — that table is **not
+   deterministic** across runs; do not commit that file.)
+3. **`>From` in emails** — `smtplib.send_message` escapes body lines starting
+   with "From "; `SmtpTransport` now serialises the message itself.
+4. **Tests could email a real person** — `backend/.env` points at Gmail with a
+   redirect to the user's inbox and the confirm endpoints send after commit.
+   `tests/conftest.py` now forces console email for every test.
+5. **Repeated students in the "all my courses" faculty tools** — a student in
+   both a theory course and its lab appeared once per section
+   (`identify_at_risk_students`: 12 rows for 7 students; `list_course_students`:
+   68 rows for 35). Fixed with `.distinct()` + a regression test. **Uncommitted.**
+
+### 7e-3 — admin pages (uncommitted, 2026-10-05)
+Frontend only; the backend is unchanged. `src/portal/admin/`:
+- `AdminHome.tsx` (`/`): KPI strip (students, average attendance, fees collected
+  %, outstanding), a full-width collected-vs-outstanding strip, a per-department
+  table with attendance bars (75% rule drawn on them) and fee-collection bars;
+  each department's outstanding amount links to `/fees?dept=XX`. "See overdue
+  fees" links to `/fees?status=overdue`. SH (no students) shows one explanatory
+  cell.
+- `Fees.tsx` (`/fees`): filters live in the URL (`dept`, `status`, `q`, `page`);
+  status chips from `counts`; search as you type (300 ms debounce); 25 per page.
+  "Record payment" opens a native `<dialog>` (amount defaults to outstanding,
+  client-side check against overpaying, date can't be in the future); the
+  server's 400/409 text is shown inside the dialog. Success: "Recorded ₹X from
+  Name (roll). ₹Y is still outstanding."
+- `Announcements.tsx` (`/announcements`): form (title, message, audience as
+  segmented radios, department, semester) → **Preview** (reach count, the demo-cap
+  line when `emails_held > 0`, editable email subject/body) → **Publish**. Editing
+  the notice drops the preview (it may no longer be accurate). Publish always sends the
+  reviewed subject/body so the server does not draft a new one. Below: published
+  notices with a delivery strip (sent/sending/held/failed) and a "Recipients"
+  drill-down; both poll every 3 s while any email is `queued`.
+- `notices.ts`: `noticeAudience()` and `deliverySummary()` labels shared by Home
+  and Announcements. The department dropdowns come from `/api/admin/dashboard`
+  (there is no departments endpoint).
+- `pages.tsx` now only holds `Assistant`; the `Stub` pages and `.stub` CSS are gone.
+- Phones: `.stack-table` (in `pages.css`) turns the Fees, Departments and
+  Recipients tables into labelled cards under 800px (`data-label` on each `td`,
+  `lead-cell` first, `phone-hide` drops a column); the KPIs go 2×2.
+- **Verified:** `npm run build` clean, lint only the two old warnings; Playwright
+  against a **second, Mailpit-only stack** (backend :8001 with `EMAIL_MODE=smtp
+  SMTP_HOST=localhost SMTP_PORT=1025 EMAIL_REDIRECT_TO=` and a temporary Vite
+  config on :5174; the normal :8000 sends to real Gmail, so never test Publish
+  there): Home → overdue link → filtered fees; payment of ₹50,000 turned
+  25BCE001 from Overdue to Partial; overpay blocked; Escape closes the dialog;
+  CP semester 3 students preview = 22 people; Publish → "22 sending" turned into
+  "22 of 22 emails sent" by polling; Mailpit received 22 emails with the
+  **edited** subject; no horizontal scroll at 390px; no console errors. All test
+  rows were removed afterwards (announcement 46 + 22 outbox rows, fee 90 back to
+  ₹0/overdue, audit rows 357–361, which included the previews: every
+  `REGISTRY.invoke` is audited, previews too). Temp config and servers removed.
+
+### 7g-A — attendance calendar + P/A register (uncommitted, 2026-10-05)
+The plain date input on a course's Attendance tab was replaced by a month calendar.
+Plan: `C:\Users\ASUS\.claude\plans\this-looks-good-but-serialized-elephant.md`.
+
+**Backend: `GET /api/faculty/calendar?month=YYYY-MM[&offering_id=N]`** (`app/api/faculty.py`)
+- `days[]`: one entry per date, `{date, events[{event, event_type, start_date}], classes[]}`.
+- Each class has the offering fields plus times, room, `status` (held | due | upcoming) and `sessions[{id, slot_no, present, absent}]`.
+- Scheduled classes come from `TimetableSlot` by weekday, inside the term window (the `term` rows of `academic_calendar`), skipping holiday, break and exam days.
+- Held classes come from `AttendanceSession`. A class held off the timetable still appears.
+- 6 tests are in `tests/test_faculty_portal_api.py`. **532 pass.**
+
+**Frontend: `src/portal/calendar/`**
+- `MonthCalendar` is a generic Monday-first grid. Below 800px it reflows into an agenda.
+- `TeachingCalendar` handles the faculty data: chips, legend, month in `?month=`.
+- `RegisterSheet` shows P/A buttons per student, keyboard P/A/↑/↓, and the save bar.
+- `RegisterDay` holds the pages:
+  - `/calendar`, `/calendar/:date?offering=`
+  - `/courses/:id/attendance`, `/courses/:id/attendance/:date`
+- `transition.ts` handles the date-to-heading morph via `document.startViewTransition`. BrowserRouter wraps navigation in `startTransition`, so neither `<Link viewTransition>` nor flushSync works. The callback polls with **setTimeout, not rAF**, because rAF does not fire while the transition is pending.
+- Styles are in `src/calendar.css`. New tokens: `--present*` (olive), `--holiday*` (slate, hatched).
+- The old `faculty/Attendance.tsx` and the `.att-*` CSS are gone. Home's "Take attendance" opens today's register.
+
+**Gotcha:** `uvicorn --reload` left an orphaned `multiprocessing.spawn` worker holding :8000 and serving stale code, so new routes returned 404. Kill the spawn child too, not only the reloader.
+
+**Next, one at a time** (approved, plan parts B–E):
+- B. Academic calendar page for all roles
+- C. Student attendance calendar
+- D. Live "now" line on Today
+- E. Marks distribution strip
+
+### Next: 7f
+README feature list/screenshots, golden-set cases for `record_fee_payment` and a
+semester-filtered `publish_notice` (confirm path; run only the validator — the
+live eval is Groq-bound), final pass on this file.
+
+### How to run everything
+```bash
+docker compose up -d                       # Postgres :5434 + Mailpit :1025/:8025
+cd backend && ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --reload-dir app --timeout-graceful-shutdown 3 --port 8000
+cd frontend && npm run dev                 # http://localhost:5173
+```
+`--reload-dir app --timeout-graceful-shutdown 3` matters: a bare `--reload`
+watches `.venv` and hangs on open browser connections, leaving the old code
+serving. Demo logins (password `uniassist`): student `25bcp017@sot.pdpu.ac.in`
+(Isha Kanani), faculty `jay.jadeja@sot.pdpu.ac.in` (faculty 2, teaches DBMS) or
+`milan.vyas@sot.pdpu.ac.in` (HOD of CP, faculty 4), admin
+`tanvi.joshi@sot.pdpu.ac.in`.
+
+**Environment gotchas:** `backend/.env` is Gmail SMTP + `EMAIL_REDIRECT_TO=<sender-gmail>`
+(real address deliberately not written here — the repo is public); the Bash
+tool collapses double backslashes in heredocs and breaks on Windows paths in
+inline Python, so write patch scripts with the file-writing tool; after a
+`pytest` run the dev DB is reloaded from the CSVs (chat history is wiped; the
+RAG corpus is restored by `conftest.py`); the Groq free tier (200k tokens/day on
+`gpt-oss-120b`) still blocks the golden-set re-run (§15).

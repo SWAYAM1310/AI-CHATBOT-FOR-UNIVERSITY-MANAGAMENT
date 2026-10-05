@@ -8,6 +8,8 @@ export interface Portal {
   me: Me | null
   /** Re-read /api/me, e.g. after a profile photo changes. */
   refreshMe: () => void
+  /** Changes whenever the photo may have: avatars include it so they re-fetch. */
+  photoVersion: number
   signOut: () => void
 }
 

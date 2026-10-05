@@ -158,3 +158,360 @@ export interface Turn {
   stage?: string  // "routing" | "planning" | "running_tools" | "retrieving" | "writing"
   liveTools?: ToolRunOut[]  // tool calls as they finish, before the final trace exists
 }
+
+// --- faculty portal (backend/app/api/faculty.py) -------------------------------------------
+
+export interface FacultyCourse {
+  offering_id: number
+  course: string
+  name: string
+  dept_code: string
+  semester: number
+  division: string | null
+  lab_group: string | null
+  session_type: string | null
+  enrolled: number | null
+}
+
+export interface RosterStudent {
+  roll_no: string
+  full_name: string
+  dept_code: string
+  division: string | null
+  attended: number
+  total: number
+  attendance_percent: number | null
+  missing_submissions: number
+}
+
+export interface RosterOut {
+  offering: FacultyCourse
+  students: RosterStudent[]
+}
+
+export interface AttendanceSession {
+  id: number
+  date: string
+  slot_no: number | null
+  marked_at: string | null
+  present: number
+  absent: number
+  absent_roll_nos: string[]
+}
+
+export interface AttendanceDay {
+  offering: FacultyCourse
+  date: string | null
+  sessions: AttendanceSession[]
+  recent: AttendanceSession[]
+}
+
+export interface CalendarEvent {
+  event: string
+  event_type: string // term | holiday | break | exam | registration | result | orientation | fee
+  start_date: string
+  end_date: string | null
+}
+
+/** held: attendance exists; due: timetabled, today or earlier, not marked; upcoming: timetabled, later. */
+export type ClassStatus = 'held' | 'due' | 'upcoming'
+
+export interface CalendarClass extends FacultyCourse {
+  start_time: string | null
+  end_time: string | null
+  room: string | null
+  status: ClassStatus
+  sessions: { id: number; slot_no: number | null; present: number; absent: number }[]
+}
+
+export interface CalendarDay {
+  date: string
+  events: { event: string; event_type: string; start_date: string }[]
+  classes: CalendarClass[]
+}
+
+export interface FacultyCalendar {
+  month: string
+  today: string
+  term: { start: string | null; end: string | null }
+  events: CalendarEvent[]
+  days: CalendarDay[]
+}
+
+export interface AssessmentRow {
+  assessment_id: number
+  type: string
+  title: string | null
+  max_marks: number | null
+  weightage_pct: number | null
+  due_date: string | null
+  status: string | null
+  graded: number
+}
+
+export interface AssessmentList {
+  offering: FacultyCourse
+  assessments: AssessmentRow[]
+}
+
+export interface MarksSheet {
+  offering: FacultyCourse
+  assessment: { assessment_id: number; type: string; title: string | null; max_marks: number | null }
+  students: { roll_no: string; full_name: string; score: number | null; is_absent: boolean }[]
+}
+
+export interface AnnouncementItem {
+  title: string
+  body: string | null
+  scope: string
+  posted_at: string | null
+}
+
+export interface AtRiskStudent {
+  roll_no: string
+  full_name: string
+  attendance_percent: number | null
+  marks_percent: number | null
+  missing_submissions: number
+  reasons: string
+}
+
+export interface PendingLeave {
+  leave_request_id: number
+  roll_no: string
+  full_name: string
+  from_date: string
+  to_date: string
+  reason: string | null
+  applied_on: string | null
+}
+
+export interface TodayClass extends FacultyCourse {
+  start_time: string
+  end_time: string
+  room: string | null
+  attendance_marked: boolean
+}
+
+export interface FacultyDashboard {
+  faculty: { full_name: string; designation: string | null; dept_code: string; is_hod: boolean }
+  term: string
+  date: string
+  weekday: number
+  courses: number
+  students: number
+  today: TodayClass[]
+  at_risk: { count: number; students: AtRiskStudent[] }
+  pending_leave: { count: number; requests: PendingLeave[] }
+  announcements: AnnouncementItem[]
+}
+
+export interface ActionResult {
+  done: boolean
+  message: string
+  [key: string]: unknown
+}
+
+// --- student dashboard (backend/app/api/student.py) ------------------------------------------
+
+export interface CourseAttendance {
+  course: string
+  name: string
+  attended: number
+  total: number
+  percent: number
+  below_threshold: boolean
+  recover: number | null
+  can_skip: number | null
+}
+
+export interface MarkRow {
+  course: string
+  assessment_type: string
+  title: string | null
+  score: number | null
+  max_marks: number | null
+  is_absent: boolean
+}
+
+export interface FeeEntry {
+  term: string
+  amount_due: number | null
+  amount_paid: number | null
+  status: string
+  due_date: string | null
+  paid_on: string | null
+  outstanding: number
+}
+
+export interface AssignmentRow {
+  course: string
+  title: string | null
+  due_date: string | null
+  status: string
+  submitted_at: string | null
+}
+
+export interface ExamRow {
+  exam_type: string
+  course: string
+  name: string
+  date: string
+  start_time: string | null
+  end_time: string | null
+  room: string | null
+}
+
+export interface ClassSlot {
+  day_of_week: number
+  start_time: string
+  end_time: string
+  course: string
+  name: string
+  session_type: string | null
+  room: string | null
+}
+
+export interface StudentDashboard {
+  student: { full_name: string; roll_no: string; dept_code: string; semester: number; division: string | null; cgpa: number | null }
+  term: string
+  generated_at: string
+  date: string
+  weekday: number
+  attendance: { threshold: number; overall_percent: number | null; short_courses: number; courses: CourseAttendance[] }
+  marks: MarkRow[]
+  fees: { all_paid: boolean; outstanding: number; entries: FeeEntry[] }
+  assignments: AssignmentRow[]
+  exams: ExamRow[]
+  today: ClassSlot[]
+  announcements: AnnouncementItem[]
+}
+
+// --- profile (backend/app/api/profile.py) ---------------------------------------------------
+
+export interface ProfileOut {
+  role: Role
+  editable: string[]
+  has_photo: boolean
+  profile: Record<string, string | number | boolean | null>
+}
+
+// --- admin portal (backend/app/api/admin.py) ------------------------------------------------
+
+export interface DeliveryCounts {
+  sent: number
+  queued: number
+  held: number
+  failed: number
+  suppressed: number
+  total: number
+}
+
+export interface AdminNotice {
+  announcement_id: number
+  title: string
+  body: string | null
+  scope: string
+  dept: string | null
+  /** comma-separated roles, e.g. "student,faculty" */
+  audience: string
+  semester: number | null
+  posted_at: string | null
+  delivery: DeliveryCounts
+}
+
+export interface DepartmentRow {
+  dept: string
+  name: string
+  hod: string | null
+  students: number
+  faculty: number
+  offerings_this_term: number
+  avg_attendance_percent: number | null
+  below_attendance: number
+  fee_collection_percent: number | null
+  fee_outstanding: number | null
+}
+
+export interface AdminDashboard {
+  admin: { full_name: string; designation: string | null }
+  term: string
+  kpis: {
+    students: number
+    faculty: number
+    departments: number
+    avg_attendance_percent: number | null
+    below_attendance: number
+    fees_billed: number
+    fees_collected: number
+    fees_outstanding: number
+    fee_collection_percent: number | null
+  }
+  departments: DepartmentRow[]
+  recent_announcements: AdminNotice[]
+}
+
+export const FEE_STATUSES = ['paid', 'partial', 'unpaid', 'overdue'] as const
+export type FeeStatus = (typeof FEE_STATUSES)[number]
+
+export interface FeeRecord {
+  fee_id: number
+  roll_no: string
+  full_name: string
+  dept_code: string
+  semester: number
+  term: string
+  amount_due: number
+  amount_paid: number
+  outstanding: number
+  status: FeeStatus
+  due_date: string | null
+  paid_on: string | null
+}
+
+export interface FeePage {
+  term: string
+  total: number
+  page: number
+  page_size: number
+  counts: Record<FeeStatus, number>
+  fees: FeeRecord[]
+}
+
+export type NoticeAudience = 'all' | 'student' | 'faculty'
+
+export interface NoticeDraft {
+  title: string
+  body: string
+  audience: NoticeAudience
+  dept?: string
+  semester?: number
+  email_subject?: string
+  email_body?: string
+}
+
+export interface NoticePreview {
+  preview: {
+    summary: string
+    recipients_students: number
+    recipients_faculty: number
+    emails_to_send: number
+    emails_held: number
+  }
+  /** null when email is switched off on the server: the notice is then in-app only */
+  email: { to: string; subject: string; body: string } | null
+  emailing: boolean
+}
+
+export interface PublishResult extends ActionResult {
+  announcement_id: number
+  recipients: number
+  emails_queued: number
+  emails_held: number
+}
+
+export interface DeliveryList {
+  announcement_id: number
+  delivery: DeliveryCounts
+  emails: { intended_to: string; to: string; status: string; attempts: number; error: string | null; sent_at: string | null }[]
+}

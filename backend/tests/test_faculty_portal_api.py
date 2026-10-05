@@ -317,3 +317,70 @@ def test_faculty_dashboard_shows_courses_todays_classes_and_hod_leave():
     assert {"count", "students"} <= d["at_risk"].keys()
     hod = client.get("/api/faculty/dashboard", headers=_login("faculty:4")).json()
     assert hod["faculty"]["is_hod"] is True and hod["pending_leave"]["count"] >= 1
+
+
+# --- calendar -------------------------------------------------------------------------------
+
+
+def _calendar(h, month: str, **params) -> dict:
+    r = client.get("/api/faculty/calendar", headers=h, params={"month": month, **params})
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def _day(cal: dict, iso: str) -> dict:
+    return next(d for d in cal["days"] if d["date"] == iso)
+
+
+def test_calendar_has_every_day_of_the_month_and_the_term_window(fac):
+    cal = _calendar(fac, "2026-10")
+    assert [d["date"] for d in cal["days"]] == [f"2026-10-{n:02d}" for n in range(1, 32)]
+    assert cal["term"] == {"start": "2026-06-16", "end": "2026-11-06"}
+    assert any(e["event_type"] == "holiday" for e in cal["events"])
+
+
+def test_a_holiday_is_flagged_and_suspends_the_timetable(fac):
+    cal = _calendar(fac, "2026-10")
+    gandhi = _day(cal, "2026-10-02")
+    assert [e["event_type"] for e in gandhi["events"]] == ["holiday"]
+    assert all(c["status"] == "held" for c in gandhi["classes"])  # only a class someone actually marked
+    assert any(d["classes"] for d in cal["days"])  # the timetable does run on ordinary days
+
+
+def test_status_follows_the_attendance_actually_recorded(fac):
+    cal = _calendar(fac, "2026-08")
+    today = date.today().isoformat()
+    statuses = set()
+    for d in cal["days"]:
+        for c in d["classes"]:
+            statuses.add(c["status"])
+            assert (c["status"] == "held") == bool(c["sessions"])
+            assert c["status"] != "upcoming" or d["date"] > today
+            assert {"course", "name", "division", "lab_group", "session_type"} <= c.keys()
+    assert "held" in statuses
+
+
+def test_marking_a_due_class_turns_it_held_on_the_calendar(fac, undo):
+    cal = _calendar(fac, "2026-09", offering_id=DBMS_OFFERING)
+    due = next(d for d in cal["days"] if any(c["status"] == "due" for c in d["classes"]))
+    r = client.post(
+        f"/api/faculty/offerings/{DBMS_OFFERING}/attendance", headers=fac, json={"date": due["date"], "absent_roll_nos": []}
+    )
+    assert r.status_code == 201, r.text
+    [cls] = _day(_calendar(fac, "2026-09", offering_id=DBMS_OFFERING), due["date"])["classes"]
+    assert cls["status"] == "held"
+    assert cls["sessions"][0]["present"] == len(_roster(fac)) and cls["sessions"][0]["absent"] == 0
+
+
+def test_calendar_filters_to_one_section_and_hides_foreign_ones(fac):
+    cal = _calendar(fac, "2026-08", offering_id=DBMS_OFFERING)
+    assert {c["offering_id"] for d in cal["days"] for c in d["classes"]} == {DBMS_OFFERING}
+    assert client.get(
+        "/api/faculty/calendar", headers=fac, params={"month": "2026-08", "offering_id": OTHER_OFFERING}
+    ).status_code == 404
+
+
+def test_calendar_rejects_a_bad_month_and_non_faculty(fac):
+    for bad in ("2026-13", "2026-1", "october"):
+        assert client.get("/api/faculty/calendar", headers=fac, params={"month": bad}).status_code == 422
+    assert client.get("/api/faculty/calendar", headers=_login("student:17"), params={"month": "2026-10"}).status_code == 403
