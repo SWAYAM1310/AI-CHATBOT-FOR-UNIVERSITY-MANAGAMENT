@@ -94,19 +94,28 @@ def _parse_date(raw: Any, label: str) -> date | dict[str, Any]:
 
 
 def _own_offering(
-    db: Session, ctx: AuthContext, course_code: str, division: str | None, lab_group: str | None
+    db: Session,
+    ctx: AuthContext,
+    course_code: str,
+    division: str | None,
+    lab_group: str | None,
+    offering_id: int | None = None,
 ) -> CourseOffering | dict[str, Any]:
     """Exactly one offering of `course_code` the caller teaches this term, or an error.
 
     Lab and theory have distinct codes, so ambiguity only arises when the same
     faculty takes the same course for two divisions / lab groups — then the
-    model has to say which.
+    model has to say which. The website names the section exactly with
+    `offering_id`; it is checked against the same ownership filter, so it can
+    never reach a section the caller does not teach.
     """
     q = select(CourseOffering).where(
         CourseOffering.subject_code == course_code.upper(), CourseOffering.term == ctx.term
     )
     if ctx.role is Role.FACULTY:
         q = q.where(CourseOffering.faculty_id == ctx.faculty_id)
+    if offering_id is not None:
+        q = q.where(CourseOffering.id == offering_id)
     if division:
         q = q.where(CourseOffering.division == str(division))
     if lab_group:
@@ -351,10 +360,11 @@ def mark_attendance(
     slot_no: int | None = None,
     division: str | None = None,
     lab_group: str | None = None,
+    offering_id: int | None = None,
     confirmed: bool = False,
     **_: Any,
 ) -> dict[str, Any]:
-    offering = _own_offering(db, ctx, course_code, division, lab_group)
+    offering = _own_offering(db, ctx, course_code, division, lab_group, offering_id)
     if isinstance(offering, dict):
         return offering
     when = _parse_date(date, "date")
@@ -386,6 +396,7 @@ def mark_attendance(
         "slot_no": slot_no,
         "division": offering.division,
         "lab_group": offering.lab_group,
+        "offering_id": offering.id,
     }
     preview = {
         "summary": f"Mark {offering.subject_code} on {when.isoformat()}: {len(roster) - len(absent)} present, {len(absent)} absent",
@@ -420,6 +431,98 @@ def mark_attendance(
         "message": f"Attendance for {offering.subject_code} on {when.isoformat()} recorded: {len(roster) - len(absent)} present, {len(absent)} absent.",
     }
 
+@tool(
+    name="correct_attendance",
+    description="Correct attendance already recorded for one session of a course you teach: everyone enrolled is present except the roll numbers listed as absent. Asks for confirmation.",
+    allowed_roles={Role.FACULTY},
+    scope=Scope.OWN_COURSES,
+    action=True,
+)
+def correct_attendance(
+    *,
+    ctx: AuthContext,
+    db: Session,
+    course_code: str,
+    date: str,
+    absent_roll_nos: list[str] | None = None,
+    slot_no: int | None = None,
+    division: str | None = None,
+    lab_group: str | None = None,
+    offering_id: int | None = None,
+    confirmed: bool = False,
+    **_: Any,
+) -> dict[str, Any]:
+    offering = _own_offering(db, ctx, course_code, division, lab_group, offering_id)
+    if isinstance(offering, dict):
+        return offering
+    when = _parse_date(date, "date")
+    if isinstance(when, dict):
+        return when
+
+    roster = _roster(db, offering.id)
+    absent = sorted(set(_roll_list(absent_roll_nos)))
+    unknown = [r for r in absent if r not in roster]
+    if unknown:
+        return _error(f"not enrolled in {offering.subject_code}: {', '.join(unknown)}")
+
+    found = select(AttendanceSession).where(
+        AttendanceSession.offering_id == offering.id, AttendanceSession.session_date == when
+    )
+    if slot_no is not None:
+        found = found.where(AttendanceSession.slot_no == slot_no)
+    sessions = list(db.scalars(found))
+    if not sessions:
+        return _error(f"no attendance is recorded for {offering.subject_code} on {when.isoformat()}; mark it first")
+    if len(sessions) > 1:
+        return _error(f"{offering.subject_code} has {len(sessions)} sessions on {when.isoformat()}; give the slot number")
+    session = sessions[0]
+
+    records = {r.student_id: r for r in db.scalars(select(AttendanceRecord).where(AttendanceRecord.session_id == session.id))}
+    absent_set = set(absent)
+    changes: list[tuple[Student, str, str]] = []  # (student, from, to)
+    for roll, s in roster.items():
+        current = records[s.id].status if s.id in records else None
+        if roll in absent_set:
+            new = "absent"
+        else:
+            # late / excused stay as recorded: they are not absences, so there is nothing to correct
+            new = "present" if current in (None, "absent") else current
+        if new != current:
+            changes.append((s, current or "none", new))
+    if not changes:
+        return _error(f"{offering.subject_code} on {when.isoformat()} already matches that list; nothing to correct")
+
+    args = {
+        "course_code": offering.subject_code,
+        "date": when.isoformat(),
+        "absent_roll_nos": absent,
+        "slot_no": session.slot_no,
+        "division": offering.division,
+        "lab_group": offering.lab_group,
+        "offering_id": offering.id,
+    }
+    preview = {
+        "summary": f"Correct {offering.subject_code} on {when.isoformat()}: {len(changes)} change(s)",
+        **args,
+        "changes": [f"{s.roll_no} {s.full_name}: {old} -> {new}" for s, old, new in changes],
+    }
+    if not confirmed:
+        return confirm.pending(ctx, "correct_attendance", args, preview)
+
+    for s, _old, new in changes:
+        if s.id in records:
+            records[s.id].status = new
+        else:
+            db.add(AttendanceRecord(session_id=session.id, student_id=s.id, status=new))
+    session.marked_at = _now()
+    db.flush()
+    return {
+        "done": True,
+        "session_id": session.id,
+        "changed": len(changes),
+        "message": f"Attendance for {offering.subject_code} on {when.isoformat()} corrected: {len(changes)} change(s).",
+    }
+
 
 def _mark_entries(raw: Any) -> dict[str, Any] | list[tuple[str, Decimal]]:
     """Accept {"25BCP017": 18} or [{"roll_no": "25BCP017", "score": 18}]; normalise."""
@@ -446,7 +549,7 @@ def _mark_entries(raw: Any) -> dict[str, Any] | list[tuple[str, Decimal]]:
 
 @tool(
     name="enter_marks",
-    description="Enter or update scores for one assessment of a course you teach; marks maps roll numbers to scores. Asks for confirmation.",
+    description="Enter or update scores for one assessment of a course you teach; marks maps roll numbers to scores, and absent_roll_nos lists students who were absent for it. Asks for confirmation.",
     allowed_roles={Role.FACULTY},
     scope=Scope.OWN_COURSES,
     action=True,
@@ -457,13 +560,15 @@ def enter_marks(
     db: Session,
     course_code: str,
     assessment: str,
-    marks: dict[str, float],
+    marks: dict[str, float] | None = None,
+    absent_roll_nos: list[str] | None = None,
     division: str | None = None,
     lab_group: str | None = None,
+    offering_id: int | None = None,
     confirmed: bool = False,
     **_: Any,
 ) -> dict[str, Any]:
-    offering = _own_offering(db, ctx, course_code, division, lab_group)
+    offering = _own_offering(db, ctx, course_code, division, lab_group, offering_id)
     if isinstance(offering, dict):
         return offering
     wanted = (assessment or "").strip().lower()
@@ -478,11 +583,20 @@ def enter_marks(
         names = sorted({a.type for a in db.scalars(own)})
         return _error(f"no assessment {assessment!r} in {offering.subject_code}; have: {', '.join(names)}")
 
-    entries = _mark_entries(marks)
+    entries: list[tuple[str, Decimal]] | dict[str, Any] = _mark_entries(marks) if marks else []
     if isinstance(entries, dict):
         return entries
+    absent = sorted(set(_roll_list(absent_roll_nos)))
+    if not entries and not absent:
+        return _error("no marks given")
     roster = _roster(db, offering.id)
     max_marks = Decimal(target.max_marks) if target.max_marks is not None else None
+    unknown = [r for r in absent if r not in roster]
+    if unknown:
+        return _error(f"not enrolled in {offering.subject_code}: {', '.join(unknown)}")
+    both = sorted(set(absent) & {roll for roll, _ in entries})
+    if both:
+        return _error(f"{', '.join(both)} cannot be both absent and scored")
     for roll, score in entries:
         if roll not in roster:
             return _error(f"{roll} is not enrolled in {offering.subject_code}")
@@ -494,11 +608,16 @@ def enter_marks(
         "course_code": offering.subject_code,
         "assessment": target.type,
         "marks": clean,
+        "absent_roll_nos": absent,
         "division": offering.division,
         "lab_group": offering.lab_group,
+        "offering_id": offering.id,
     }
+    summary = f"Enter {len(clean)} score(s) for {target.title or target.type} in {offering.subject_code}"
+    if absent:
+        summary += f", {len(absent)} absent"
     preview = {
-        "summary": f"Enter {len(clean)} score(s) for {target.title or target.type} in {offering.subject_code}",
+        "summary": summary,
         **args,
         "max_marks": float(max_marks) if max_marks is not None else None,
     }
@@ -518,6 +637,15 @@ def enter_marks(
             inserted += 1
         else:
             row.score, row.is_absent, row.graded_on = score, False, _today()
+            updated += 1
+    for roll in absent:  # an absentee has no score: the flag is the record
+        sid = roster[roll].id
+        row = existing.get(sid)
+        if row is None:
+            db.add(Mark(assessment_id=target.id, student_id=sid, score=None, is_absent=True, graded_on=_today()))
+            inserted += 1
+        else:
+            row.score, row.is_absent, row.graded_on = None, True, _today()
             updated += 1
     db.flush()
     return {

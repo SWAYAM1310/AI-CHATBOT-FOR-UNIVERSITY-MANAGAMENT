@@ -23,7 +23,9 @@ from typing import Any
 from app.auth.context import Role
 from app.ai.tools.registry import IDENTITY_ARGS, REGISTRY, ToolSpec
 
-INJECTED = frozenset({"ctx", "db", "confirmed", "email_subject", "email_body"})
+# `offering_id` is how the website names an exact section (the same common course is taught to
+# several departments' divisions, so course + division cannot): the model never sets it
+INJECTED = frozenset({"ctx", "db", "confirmed", "email_subject", "email_body", "offering_id"})
 
 _JSON_TYPES: dict[Any, str] = {
     str: "string",

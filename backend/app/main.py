@@ -10,8 +10,10 @@ from sqlalchemy import text
 
 from app.api import auth as auth_api
 from app.api import chat as chat_api
+from app.api import faculty as faculty_api
 from app.api import me as me_api
 from app.api import profile as profile_api
+from app.api import student as student_api
 from app.config import settings
 from app.db.session import engine
 
@@ -28,6 +30,8 @@ app.add_middleware(
 app.include_router(auth_api.router)
 app.include_router(me_api.router)
 app.include_router(profile_api.router)
+app.include_router(faculty_api.router)
+app.include_router(student_api.router)
 app.include_router(chat_api.router)
 
 
