@@ -125,6 +125,24 @@ def rand_date(rng: random.Random, start: dt.date, end: dt.date) -> dt.date:
     return start + dt.timedelta(days=rng.randint(0, (end - start).days))
 
 
+def student_birth_date(rng: random.Random, batch: int) -> dt.date:
+    """A birth date for a student admitted in `batch`: 17-19 years old at admission.
+
+    The draw is made over the same (year-agnostic) span the generator always used
+    and the year is shifted afterwards. That keeps the seeded random stream, and
+    therefore every other table, byte-identical; it only corrects the years,
+    which had come out as 0011-0020 (`2026 - batch + 17` is a small number, not a
+    birth year).
+    """
+    start = dt.date(2026 - batch + 17, 1, 1)
+    drawn = rand_date(rng, start, dt.date(2026 - batch + 19, 12, 31))
+    shift = (batch - 19) - start.year
+    try:
+        return drawn.replace(year=drawn.year + shift)
+    except ValueError:  # 29 February landing in a non-leap year
+        return drawn.replace(year=drawn.year + shift, day=28)
+
+
 def phone(rng: random.Random) -> str:
     return f"+91{rng.randint(6, 9)}{rng.randint(10**8, 10**9 - 1)}"
 
@@ -342,8 +360,7 @@ def gen_students(rng: random.Random, sample: bool, dept_id_by_code):
                     "university_email": f"{roll.lower()}@{DOMAIN}",
                     "personal_email": personal_email(rng, first, last, pers_used),
                     "gender": gender,
-                    "date_of_birth": rand_date(rng, dt.date(2026 - batch + 17, 1, 1),
-                                               dt.date(2026 - batch + 19, 12, 31)).isoformat(),
+                    "date_of_birth": student_birth_date(rng, batch).isoformat(),
                     "phone": phone(rng), "address_city": city, "address_state": state,
                     "dept_id": dept_id_by_code[d["code"]], "dept_code": d["code"],
                     "batch": batch, "semester": AD.CURRENT_SEM_BY_BATCH[batch],
