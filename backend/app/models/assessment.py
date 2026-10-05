@@ -52,7 +52,9 @@ class Assessment(Base):
     offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False, index=True)
     subject_code = Column(String, nullable=True)
     term = Column(String, nullable=True)
-    type = Column(String, nullable=False)  # Quiz-1, Assignment, Mid-Sem, Internal Test, ...
+    # theory: IA (25), Mid-Sem (25), End-Sem (out of 100, counts 50); practical: Mid-Sem-Viva (25),
+    # Lab-File (25), Lab-Exam (50); project: Term-Work (100). Weightages add to 100 per course.
+    type = Column(String, nullable=False)
     title = Column(String, nullable=True)
     max_marks = Column(Numeric(6, 2), nullable=True)
     weightage_pct = Column(Numeric(5, 2), nullable=True)

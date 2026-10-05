@@ -53,166 +53,86 @@ id,term,exam_type,subject_code,subject_name,dept_code,semester,exam_date,start_t
 52,2025-26-EVEN,End-Sem,24CV101T,Environmental Science,CH,2,2026-05-11,10:00,12:00,85,completed
 53,2025-26-EVEN,End-Sem,24HS102T,Universal Human Values,CH,2,2026-05-21,14:00,16:00,85,completed
 54,2025-26-EVEN,End-Sem,24HS103T,Indian Knowledge System,CH,2,2026-05-15,10:00,12:00,84,completed
-55,2026-27-ODD,Internal-1,24MA202T,Discrete Mathematics,CP,3,2026-08-22,10:00,11:30,84,completed
-56,2026-27-ODD,Internal-1,24CS201T,Database Management System,CP,3,2026-08-23,10:00,11:30,84,completed
-57,2026-27-ODD,Internal-1,24CS202T,Digital Logic and Design,CP,3,2026-08-21,10:00,11:30,84,completed
-58,2026-27-ODD,Internal-1,24CS203T,Data Structures,CP,3,2026-08-22,10:00,11:30,83,completed
-59,2026-27-ODD,Internal-1,24CS204T,Object Oriented Programming,CP,3,2026-08-22,10:00,11:30,82,completed
-60,2026-27-ODD,Internal-1,24HS101T,English Communication,CP,1,2026-08-24,10:00,11:30,83,completed
-61,2026-27-ODD,Internal-1,24MA101T,Mathematics - I,CP,1,2026-08-20,14:00,15:30,83,completed
-62,2026-27-ODD,Internal-1,24PH102T,Engineering Physics,CP,1,2026-08-23,10:00,11:30,82,completed
-63,2026-27-ODD,Internal-1,24CV101T,Environmental Science,CP,1,2026-08-24,14:00,15:30,84,completed
-64,2026-27-ODD,Internal-1,24CP101T,Computer Programming - I,CP,1,2026-08-20,14:00,15:30,85,completed
-65,2026-27-ODD,Internal-1,24HS102T,Universal Human Values,CP,1,2026-08-20,10:00,11:30,85,completed
-66,2026-27-ODD,Internal-1,24HS103T,Indian Knowledge System,CP,1,2026-08-20,10:00,11:30,82,completed
-67,2026-27-ODD,Internal-1,24IT201T,Introduction to Artificial Intelligence,IT,3,2026-08-21,14:00,15:30,83,completed
-68,2026-27-ODD,Internal-1,24IT202T,Digital Circuits,IT,3,2026-08-21,10:00,11:30,85,completed
-69,2026-27-ODD,Internal-1,24IT203T,Data Structures and Algorithms,IT,3,2026-08-21,10:00,11:30,82,completed
-70,2026-27-ODD,Internal-1,24IT204T,Fundamentals of ICT,IT,3,2026-08-23,10:00,11:30,83,completed
-71,2026-27-ODD,Internal-1,24IT205T,Electronics Devices and Circuits,IT,3,2026-08-24,10:00,11:30,84,completed
-72,2026-27-ODD,Internal-1,24MA202T,Discrete Mathematics,IT,3,2026-08-22,10:00,11:30,85,completed
-73,2026-27-ODD,Internal-1,24HS101T,English Communication,IT,1,2026-08-24,14:00,15:30,83,completed
-74,2026-27-ODD,Internal-1,24MA101T,Mathematics - I,IT,1,2026-08-20,10:00,11:30,84,completed
-75,2026-27-ODD,Internal-1,24PH102T,Engineering Physics,IT,1,2026-08-23,10:00,11:30,82,completed
-76,2026-27-ODD,Internal-1,24CV101T,Environmental Science,IT,1,2026-08-24,10:00,11:30,84,completed
-77,2026-27-ODD,Internal-1,24BT102T,Biology for Engineers,IT,1,2026-08-22,10:00,11:30,85,completed
-78,2026-27-ODD,Internal-1,24CP101T,Computer Programming - I,IT,1,2026-08-20,10:00,11:30,83,completed
-79,2026-27-ODD,Internal-1,24HS102T,Universal Human Values,IT,1,2026-08-20,14:00,15:30,83,completed
-80,2026-27-ODD,Internal-1,24HS103T,Indian Knowledge System,IT,1,2026-08-20,10:00,11:30,85,completed
-81,2026-27-ODD,Internal-1,24EC201T,Introduction to Artificial Intelligence,EC,3,2026-08-24,10:00,11:30,85,completed
-82,2026-27-ODD,Internal-1,24EC202T,Digital Circuits,EC,3,2026-08-20,10:00,11:30,84,completed
-83,2026-27-ODD,Internal-1,24EC203T,Electronics Devices and Circuits,EC,3,2026-08-20,14:00,15:30,82,completed
-84,2026-27-ODD,Internal-1,24EC204T,Networks and Systems,EC,3,2026-08-23,10:00,11:30,83,completed
-85,2026-27-ODD,Internal-1,24MA201T,Mathematics - III,EC,3,2026-08-22,10:00,11:30,85,completed
-86,2026-27-ODD,Internal-1,24HS101T,English Communication,EC,1,2026-08-24,10:00,11:30,83,completed
-87,2026-27-ODD,Internal-1,24MA101T,Mathematics - I,EC,1,2026-08-20,14:00,15:30,83,completed
-88,2026-27-ODD,Internal-1,24PH101T,Applied Physics,EC,1,2026-08-20,10:00,11:30,84,completed
-89,2026-27-ODD,Internal-1,24CV101T,Environmental Science,EC,1,2026-08-24,10:00,11:30,83,completed
-90,2026-27-ODD,Internal-1,24BT102T,Biology for Engineers,EC,1,2026-08-22,10:00,11:30,83,completed
-91,2026-27-ODD,Internal-1,24CP101T,Computer Programming - I,EC,1,2026-08-20,10:00,11:30,83,completed
-92,2026-27-ODD,Internal-1,24HS102T,Universal Human Values,EC,1,2026-08-20,14:00,15:30,85,completed
-93,2026-27-ODD,Internal-1,24HS103T,Indian Knowledge System,EC,1,2026-08-20,10:00,11:30,85,completed
-94,2026-27-ODD,Internal-1,24MA201T,Mathematics - III,ME,3,2026-08-22,14:00,15:30,83,completed
-95,2026-27-ODD,Internal-1,24ME201T,Introduction to Artificial Intelligence,ME,3,2026-08-24,10:00,11:30,84,completed
-96,2026-27-ODD,Internal-1,24ME202T,Engineering Mechanics,ME,3,2026-08-23,10:00,11:30,84,completed
-97,2026-27-ODD,Internal-1,24ME203T,Thermodynamics,ME,3,2026-08-24,10:00,11:30,83,completed
-98,2026-27-ODD,Internal-1,24ME204T,Mechanical Measurement and Metrology,ME,3,2026-08-24,10:00,11:30,82,completed
-99,2026-27-ODD,Internal-1,24MA101T,Mathematics - I,ME,1,2026-08-20,10:00,11:30,82,completed
-100,2026-27-ODD,Internal-1,24PH102T,Engineering Physics,ME,1,2026-08-23,10:00,11:30,82,completed
-101,2026-27-ODD,Internal-1,24BT102T,Biology for Engineers,ME,1,2026-08-22,10:00,11:30,83,completed
-102,2026-27-ODD,Internal-1,24CV101T,Environmental Science,ME,1,2026-08-24,14:00,15:30,85,completed
-103,2026-27-ODD,Internal-1,24CP101T,Computer Programming - I,ME,1,2026-08-20,14:00,15:30,82,completed
-104,2026-27-ODD,Internal-1,24HS101T,English Communication,ME,1,2026-08-24,10:00,11:30,85,completed
-105,2026-27-ODD,Internal-1,24HS102T,Universal Human Values,ME,1,2026-08-20,10:00,11:30,84,completed
-106,2026-27-ODD,Internal-1,24MA201T,Mathematics - III,CE,3,2026-08-22,14:00,15:30,84,completed
-107,2026-27-ODD,Internal-1,24CV201T,Introduction to Artificial Intelligence,CE,3,2026-08-24,10:00,11:30,84,completed
-108,2026-27-ODD,Internal-1,24CV202T,Building Materials and Construction Technology,CE,3,2026-08-23,14:00,15:30,85,completed
-109,2026-27-ODD,Internal-1,24CV203T,Building Planning and Computer Aided Drawing,CE,3,2026-08-23,10:00,11:30,83,completed
-110,2026-27-ODD,Internal-1,24CV204T,Solid Mechanics,CE,3,2026-08-24,10:00,11:30,85,completed
-111,2026-27-ODD,Internal-1,24CV205T,Concrete Technology,CE,3,2026-08-20,10:00,11:30,84,completed
-112,2026-27-ODD,Internal-1,24HS101T,English Communication,CE,1,2026-08-24,10:00,11:30,82,completed
-113,2026-27-ODD,Internal-1,24MA101T,Mathematics - I,CE,1,2026-08-20,10:00,11:30,83,completed
-114,2026-27-ODD,Internal-1,24PH102T,Engineering Physics,CE,1,2026-08-23,10:00,11:30,83,completed
-115,2026-27-ODD,Internal-1,24CV101T,Environmental Science,CE,1,2026-08-24,10:00,11:30,83,completed
-116,2026-27-ODD,Internal-1,24BT102T,Biology for Engineers,CE,1,2026-08-22,14:00,15:30,85,completed
-117,2026-27-ODD,Internal-1,24CP101T,Computer Programming - I,CE,1,2026-08-20,10:00,11:30,82,completed
-118,2026-27-ODD,Internal-1,24HS102T,Universal Human Values,CE,1,2026-08-20,10:00,11:30,84,completed
-119,2026-27-ODD,Internal-1,24HS103T,Indian Knowledge System,CE,1,2026-08-20,10:00,11:30,84,completed
-120,2026-27-ODD,Internal-1,24MA201T,Mathematics - III,CH,3,2026-08-22,10:00,11:30,83,completed
-121,2026-27-ODD,Internal-1,24CH201T,Introduction to Artificial Intelligence,CH,3,2026-08-20,14:00,15:30,84,completed
-122,2026-27-ODD,Internal-1,24CH202T,Chemical Process Calculations,CH,3,2026-08-23,10:00,11:30,82,completed
-123,2026-27-ODD,Internal-1,24CH203T,Mechanical Unit Operations,CH,3,2026-08-24,10:00,11:30,83,completed
-124,2026-27-ODD,Internal-1,24CH204T,Fluid Mechanics,CH,3,2026-08-23,10:00,11:30,83,completed
-125,2026-27-ODD,Internal-1,24MA101T,Mathematics - I,CH,1,2026-08-20,10:00,11:30,83,completed
-126,2026-27-ODD,Internal-1,24HS101T,English Communication,CH,1,2026-08-24,14:00,15:30,83,completed
-127,2026-27-ODD,Internal-1,24CP101T,Computer Programming - I,CH,1,2026-08-20,14:00,15:30,85,completed
-128,2026-27-ODD,Internal-1,24CH101T,Engineering Chemistry,CH,1,2026-08-24,10:00,11:30,83,completed
-129,2026-27-ODD,Internal-1,24EE101T,Elements of Electrical and Electronics Engineering,CH,1,2026-08-24,10:00,11:30,83,completed
-130,2026-27-ODD,Internal-1,24BT101T,Biological Systems for Engineers,CH,1,2026-08-24,10:00,11:30,83,completed
-131,2026-27-ODD,Internal-1,24HS104T,Organizational Behaviour,CH,1,2026-08-20,10:00,11:30,85,completed
-132,2026-27-ODD,Internal-1,24YOG101,"Yoga, Health & Hygiene",CH,1,2026-08-24,14:00,15:30,85,completed
-133,2026-27-ODD,Internal-1,24NSS101,National Service Scheme (NSS),CH,1,2026-08-23,10:00,11:30,83,completed
-134,2026-27-ODD,Internal-1,24NCC101,National Cadet Corps (NCC),CH,1,2026-08-24,10:00,11:30,85,completed
-135,2026-27-ODD,Internal-2,24MA202T,Discrete Mathematics,CP,3,2026-09-23,14:00,15:30,85,scheduled
-136,2026-27-ODD,Internal-2,24CS201T,Database Management System,CP,3,2026-09-24,10:00,11:30,85,scheduled
-137,2026-27-ODD,Internal-2,24CS202T,Digital Logic and Design,CP,3,2026-09-22,14:00,15:30,84,scheduled
-138,2026-27-ODD,Internal-2,24CS203T,Data Structures,CP,3,2026-09-23,10:00,11:30,85,scheduled
-139,2026-27-ODD,Internal-2,24CS204T,Object Oriented Programming,CP,3,2026-09-23,10:00,11:30,85,scheduled
-140,2026-27-ODD,Internal-2,24HS101T,English Communication,CP,1,2026-09-25,14:00,15:30,85,scheduled
-141,2026-27-ODD,Internal-2,24MA101T,Mathematics - I,CP,1,2026-09-21,10:00,11:30,83,scheduled
-142,2026-27-ODD,Internal-2,24PH102T,Engineering Physics,CP,1,2026-09-24,10:00,11:30,82,scheduled
-143,2026-27-ODD,Internal-2,24CV101T,Environmental Science,CP,1,2026-09-25,14:00,15:30,85,scheduled
-144,2026-27-ODD,Internal-2,24CP101T,Computer Programming - I,CP,1,2026-09-21,10:00,11:30,83,scheduled
-145,2026-27-ODD,Internal-2,24HS102T,Universal Human Values,CP,1,2026-09-21,10:00,11:30,85,scheduled
-146,2026-27-ODD,Internal-2,24HS103T,Indian Knowledge System,CP,1,2026-09-21,10:00,11:30,82,scheduled
-147,2026-27-ODD,Internal-2,24IT201T,Introduction to Artificial Intelligence,IT,3,2026-09-22,10:00,11:30,83,scheduled
-148,2026-27-ODD,Internal-2,24IT202T,Digital Circuits,IT,3,2026-09-22,14:00,15:30,83,scheduled
-149,2026-27-ODD,Internal-2,24IT203T,Data Structures and Algorithms,IT,3,2026-09-22,10:00,11:30,84,scheduled
-150,2026-27-ODD,Internal-2,24IT204T,Fundamentals of ICT,IT,3,2026-09-24,14:00,15:30,84,scheduled
-151,2026-27-ODD,Internal-2,24IT205T,Electronics Devices and Circuits,IT,3,2026-09-25,14:00,15:30,84,scheduled
-152,2026-27-ODD,Internal-2,24MA202T,Discrete Mathematics,IT,3,2026-09-23,10:00,11:30,83,scheduled
-153,2026-27-ODD,Internal-2,24HS101T,English Communication,IT,1,2026-09-25,10:00,11:30,85,scheduled
-154,2026-27-ODD,Internal-2,24MA101T,Mathematics - I,IT,1,2026-09-21,10:00,11:30,83,scheduled
-155,2026-27-ODD,Internal-2,24PH102T,Engineering Physics,IT,1,2026-09-24,14:00,15:30,83,scheduled
-156,2026-27-ODD,Internal-2,24CV101T,Environmental Science,IT,1,2026-09-25,10:00,11:30,85,scheduled
-157,2026-27-ODD,Internal-2,24BT102T,Biology for Engineers,IT,1,2026-09-23,14:00,15:30,82,scheduled
-158,2026-27-ODD,Internal-2,24CP101T,Computer Programming - I,IT,1,2026-09-21,10:00,11:30,84,scheduled
-159,2026-27-ODD,Internal-2,24HS102T,Universal Human Values,IT,1,2026-09-21,10:00,11:30,83,scheduled
-160,2026-27-ODD,Internal-2,24HS103T,Indian Knowledge System,IT,1,2026-09-21,10:00,11:30,84,scheduled
-161,2026-27-ODD,Internal-2,24EC201T,Introduction to Artificial Intelligence,EC,3,2026-09-25,14:00,15:30,85,scheduled
-162,2026-27-ODD,Internal-2,24EC202T,Digital Circuits,EC,3,2026-09-21,10:00,11:30,82,scheduled
-163,2026-27-ODD,Internal-2,24EC203T,Electronics Devices and Circuits,EC,3,2026-09-21,10:00,11:30,85,scheduled
-164,2026-27-ODD,Internal-2,24EC204T,Networks and Systems,EC,3,2026-09-24,10:00,11:30,83,scheduled
-165,2026-27-ODD,Internal-2,24MA201T,Mathematics - III,EC,3,2026-09-23,10:00,11:30,84,scheduled
-166,2026-27-ODD,Internal-2,24HS101T,English Communication,EC,1,2026-09-25,10:00,11:30,82,scheduled
-167,2026-27-ODD,Internal-2,24MA101T,Mathematics - I,EC,1,2026-09-21,10:00,11:30,83,scheduled
-168,2026-27-ODD,Internal-2,24PH101T,Applied Physics,EC,1,2026-09-21,10:00,11:30,82,scheduled
-169,2026-27-ODD,Internal-2,24CV101T,Environmental Science,EC,1,2026-09-25,14:00,15:30,83,scheduled
-170,2026-27-ODD,Internal-2,24BT102T,Biology for Engineers,EC,1,2026-09-23,10:00,11:30,84,scheduled
-171,2026-27-ODD,Internal-2,24CP101T,Computer Programming - I,EC,1,2026-09-21,10:00,11:30,84,scheduled
-172,2026-27-ODD,Internal-2,24HS102T,Universal Human Values,EC,1,2026-09-21,10:00,11:30,83,scheduled
-173,2026-27-ODD,Internal-2,24HS103T,Indian Knowledge System,EC,1,2026-09-21,14:00,15:30,85,scheduled
-174,2026-27-ODD,Internal-2,24MA201T,Mathematics - III,ME,3,2026-09-23,10:00,11:30,82,scheduled
-175,2026-27-ODD,Internal-2,24ME201T,Introduction to Artificial Intelligence,ME,3,2026-09-25,10:00,11:30,82,scheduled
-176,2026-27-ODD,Internal-2,24ME202T,Engineering Mechanics,ME,3,2026-09-24,10:00,11:30,85,scheduled
-177,2026-27-ODD,Internal-2,24ME203T,Thermodynamics,ME,3,2026-09-25,10:00,11:30,82,scheduled
-178,2026-27-ODD,Internal-2,24ME204T,Mechanical Measurement and Metrology,ME,3,2026-09-25,10:00,11:30,85,scheduled
-179,2026-27-ODD,Internal-2,24MA101T,Mathematics - I,ME,1,2026-09-21,14:00,15:30,84,scheduled
-180,2026-27-ODD,Internal-2,24PH102T,Engineering Physics,ME,1,2026-09-24,10:00,11:30,85,scheduled
-181,2026-27-ODD,Internal-2,24BT102T,Biology for Engineers,ME,1,2026-09-23,10:00,11:30,85,scheduled
-182,2026-27-ODD,Internal-2,24CV101T,Environmental Science,ME,1,2026-09-25,10:00,11:30,85,scheduled
-183,2026-27-ODD,Internal-2,24CP101T,Computer Programming - I,ME,1,2026-09-21,14:00,15:30,82,scheduled
-184,2026-27-ODD,Internal-2,24HS101T,English Communication,ME,1,2026-09-25,10:00,11:30,84,scheduled
-185,2026-27-ODD,Internal-2,24HS102T,Universal Human Values,ME,1,2026-09-21,14:00,15:30,84,scheduled
-186,2026-27-ODD,Internal-2,24MA201T,Mathematics - III,CE,3,2026-09-23,14:00,15:30,85,scheduled
-187,2026-27-ODD,Internal-2,24CV201T,Introduction to Artificial Intelligence,CE,3,2026-09-25,10:00,11:30,83,scheduled
-188,2026-27-ODD,Internal-2,24CV202T,Building Materials and Construction Technology,CE,3,2026-09-24,10:00,11:30,83,scheduled
-189,2026-27-ODD,Internal-2,24CV203T,Building Planning and Computer Aided Drawing,CE,3,2026-09-24,14:00,15:30,83,scheduled
-190,2026-27-ODD,Internal-2,24CV204T,Solid Mechanics,CE,3,2026-09-25,14:00,15:30,82,scheduled
-191,2026-27-ODD,Internal-2,24CV205T,Concrete Technology,CE,3,2026-09-21,14:00,15:30,83,scheduled
-192,2026-27-ODD,Internal-2,24HS101T,English Communication,CE,1,2026-09-25,10:00,11:30,84,scheduled
-193,2026-27-ODD,Internal-2,24MA101T,Mathematics - I,CE,1,2026-09-21,10:00,11:30,85,scheduled
-194,2026-27-ODD,Internal-2,24PH102T,Engineering Physics,CE,1,2026-09-24,14:00,15:30,85,scheduled
-195,2026-27-ODD,Internal-2,24CV101T,Environmental Science,CE,1,2026-09-25,10:00,11:30,82,scheduled
-196,2026-27-ODD,Internal-2,24BT102T,Biology for Engineers,CE,1,2026-09-23,14:00,15:30,85,scheduled
-197,2026-27-ODD,Internal-2,24CP101T,Computer Programming - I,CE,1,2026-09-21,10:00,11:30,83,scheduled
-198,2026-27-ODD,Internal-2,24HS102T,Universal Human Values,CE,1,2026-09-21,14:00,15:30,84,scheduled
-199,2026-27-ODD,Internal-2,24HS103T,Indian Knowledge System,CE,1,2026-09-21,10:00,11:30,84,scheduled
-200,2026-27-ODD,Internal-2,24MA201T,Mathematics - III,CH,3,2026-09-23,10:00,11:30,85,scheduled
-201,2026-27-ODD,Internal-2,24CH201T,Introduction to Artificial Intelligence,CH,3,2026-09-21,10:00,11:30,82,scheduled
-202,2026-27-ODD,Internal-2,24CH202T,Chemical Process Calculations,CH,3,2026-09-24,10:00,11:30,85,scheduled
-203,2026-27-ODD,Internal-2,24CH203T,Mechanical Unit Operations,CH,3,2026-09-25,10:00,11:30,84,scheduled
-204,2026-27-ODD,Internal-2,24CH204T,Fluid Mechanics,CH,3,2026-09-24,10:00,11:30,82,scheduled
-205,2026-27-ODD,Internal-2,24MA101T,Mathematics - I,CH,1,2026-09-21,10:00,11:30,83,scheduled
-206,2026-27-ODD,Internal-2,24HS101T,English Communication,CH,1,2026-09-25,14:00,15:30,82,scheduled
-207,2026-27-ODD,Internal-2,24CP101T,Computer Programming - I,CH,1,2026-09-21,10:00,11:30,83,scheduled
-208,2026-27-ODD,Internal-2,24CH101T,Engineering Chemistry,CH,1,2026-09-25,14:00,15:30,82,scheduled
-209,2026-27-ODD,Internal-2,24EE101T,Elements of Electrical and Electronics Engineering,CH,1,2026-09-25,14:00,15:30,82,scheduled
-210,2026-27-ODD,Internal-2,24BT101T,Biological Systems for Engineers,CH,1,2026-09-25,10:00,11:30,85,scheduled
-211,2026-27-ODD,Internal-2,24HS104T,Organizational Behaviour,CH,1,2026-09-21,10:00,11:30,85,scheduled
-212,2026-27-ODD,Internal-2,24YOG101,"Yoga, Health & Hygiene",CH,1,2026-09-25,10:00,11:30,83,scheduled
-213,2026-27-ODD,Internal-2,24NSS101,National Service Scheme (NSS),CH,1,2026-09-24,10:00,11:30,84,scheduled
-214,2026-27-ODD,Internal-2,24NCC101,National Cadet Corps (NCC),CH,1,2026-09-25,10:00,11:30,82,scheduled
+55,2026-27-ODD,Mid-Sem,24MA202T,Discrete Mathematics,CP,3,2026-08-22,10:00,11:30,84,completed
+56,2026-27-ODD,Mid-Sem,24CS201T,Database Management System,CP,3,2026-08-23,10:00,11:30,84,completed
+57,2026-27-ODD,Mid-Sem,24CS202T,Digital Logic and Design,CP,3,2026-08-21,10:00,11:30,84,completed
+58,2026-27-ODD,Mid-Sem,24CS203T,Data Structures,CP,3,2026-08-22,10:00,11:30,83,completed
+59,2026-27-ODD,Mid-Sem,24CS204T,Object Oriented Programming,CP,3,2026-08-22,10:00,11:30,82,completed
+60,2026-27-ODD,Mid-Sem,24HS101T,English Communication,CP,1,2026-08-24,10:00,11:30,83,completed
+61,2026-27-ODD,Mid-Sem,24MA101T,Mathematics - I,CP,1,2026-08-20,14:00,15:30,83,completed
+62,2026-27-ODD,Mid-Sem,24PH102T,Engineering Physics,CP,1,2026-08-23,10:00,11:30,82,completed
+63,2026-27-ODD,Mid-Sem,24CV101T,Environmental Science,CP,1,2026-08-24,14:00,15:30,84,completed
+64,2026-27-ODD,Mid-Sem,24CP101T,Computer Programming - I,CP,1,2026-08-20,14:00,15:30,85,completed
+65,2026-27-ODD,Mid-Sem,24HS102T,Universal Human Values,CP,1,2026-08-20,10:00,11:30,85,completed
+66,2026-27-ODD,Mid-Sem,24HS103T,Indian Knowledge System,CP,1,2026-08-20,10:00,11:30,82,completed
+67,2026-27-ODD,Mid-Sem,24IT201T,Introduction to Artificial Intelligence,IT,3,2026-08-21,14:00,15:30,83,completed
+68,2026-27-ODD,Mid-Sem,24IT202T,Digital Circuits,IT,3,2026-08-21,10:00,11:30,85,completed
+69,2026-27-ODD,Mid-Sem,24IT203T,Data Structures and Algorithms,IT,3,2026-08-21,10:00,11:30,82,completed
+70,2026-27-ODD,Mid-Sem,24IT204T,Fundamentals of ICT,IT,3,2026-08-23,10:00,11:30,83,completed
+71,2026-27-ODD,Mid-Sem,24IT205T,Electronics Devices and Circuits,IT,3,2026-08-24,10:00,11:30,84,completed
+72,2026-27-ODD,Mid-Sem,24MA202T,Discrete Mathematics,IT,3,2026-08-22,10:00,11:30,85,completed
+73,2026-27-ODD,Mid-Sem,24HS101T,English Communication,IT,1,2026-08-24,14:00,15:30,83,completed
+74,2026-27-ODD,Mid-Sem,24MA101T,Mathematics - I,IT,1,2026-08-20,10:00,11:30,84,completed
+75,2026-27-ODD,Mid-Sem,24PH102T,Engineering Physics,IT,1,2026-08-23,10:00,11:30,82,completed
+76,2026-27-ODD,Mid-Sem,24CV101T,Environmental Science,IT,1,2026-08-24,10:00,11:30,84,completed
+77,2026-27-ODD,Mid-Sem,24BT102T,Biology for Engineers,IT,1,2026-08-22,10:00,11:30,85,completed
+78,2026-27-ODD,Mid-Sem,24CP101T,Computer Programming - I,IT,1,2026-08-20,10:00,11:30,83,completed
+79,2026-27-ODD,Mid-Sem,24HS102T,Universal Human Values,IT,1,2026-08-20,14:00,15:30,83,completed
+80,2026-27-ODD,Mid-Sem,24HS103T,Indian Knowledge System,IT,1,2026-08-20,10:00,11:30,85,completed
+81,2026-27-ODD,Mid-Sem,24EC201T,Introduction to Artificial Intelligence,EC,3,2026-08-24,10:00,11:30,85,completed
+82,2026-27-ODD,Mid-Sem,24EC202T,Digital Circuits,EC,3,2026-08-20,10:00,11:30,84,completed
+83,2026-27-ODD,Mid-Sem,24EC203T,Electronics Devices and Circuits,EC,3,2026-08-20,14:00,15:30,82,completed
+84,2026-27-ODD,Mid-Sem,24EC204T,Networks and Systems,EC,3,2026-08-23,10:00,11:30,83,completed
+85,2026-27-ODD,Mid-Sem,24MA201T,Mathematics - III,EC,3,2026-08-22,10:00,11:30,85,completed
+86,2026-27-ODD,Mid-Sem,24HS101T,English Communication,EC,1,2026-08-24,10:00,11:30,83,completed
+87,2026-27-ODD,Mid-Sem,24MA101T,Mathematics - I,EC,1,2026-08-20,14:00,15:30,83,completed
+88,2026-27-ODD,Mid-Sem,24PH101T,Applied Physics,EC,1,2026-08-20,10:00,11:30,84,completed
+89,2026-27-ODD,Mid-Sem,24CV101T,Environmental Science,EC,1,2026-08-24,10:00,11:30,83,completed
+90,2026-27-ODD,Mid-Sem,24BT102T,Biology for Engineers,EC,1,2026-08-22,10:00,11:30,83,completed
+91,2026-27-ODD,Mid-Sem,24CP101T,Computer Programming - I,EC,1,2026-08-20,10:00,11:30,83,completed
+92,2026-27-ODD,Mid-Sem,24HS102T,Universal Human Values,EC,1,2026-08-20,14:00,15:30,85,completed
+93,2026-27-ODD,Mid-Sem,24HS103T,Indian Knowledge System,EC,1,2026-08-20,10:00,11:30,85,completed
+94,2026-27-ODD,Mid-Sem,24MA201T,Mathematics - III,ME,3,2026-08-22,14:00,15:30,83,completed
+95,2026-27-ODD,Mid-Sem,24ME201T,Introduction to Artificial Intelligence,ME,3,2026-08-24,10:00,11:30,84,completed
+96,2026-27-ODD,Mid-Sem,24ME202T,Engineering Mechanics,ME,3,2026-08-23,10:00,11:30,84,completed
+97,2026-27-ODD,Mid-Sem,24ME203T,Thermodynamics,ME,3,2026-08-24,10:00,11:30,83,completed
+98,2026-27-ODD,Mid-Sem,24ME204T,Mechanical Measurement and Metrology,ME,3,2026-08-24,10:00,11:30,82,completed
+99,2026-27-ODD,Mid-Sem,24MA101T,Mathematics - I,ME,1,2026-08-20,10:00,11:30,82,completed
+100,2026-27-ODD,Mid-Sem,24PH102T,Engineering Physics,ME,1,2026-08-23,10:00,11:30,82,completed
+101,2026-27-ODD,Mid-Sem,24BT102T,Biology for Engineers,ME,1,2026-08-22,10:00,11:30,83,completed
+102,2026-27-ODD,Mid-Sem,24CV101T,Environmental Science,ME,1,2026-08-24,14:00,15:30,85,completed
+103,2026-27-ODD,Mid-Sem,24CP101T,Computer Programming - I,ME,1,2026-08-20,14:00,15:30,82,completed
+104,2026-27-ODD,Mid-Sem,24HS101T,English Communication,ME,1,2026-08-24,10:00,11:30,85,completed
+105,2026-27-ODD,Mid-Sem,24HS102T,Universal Human Values,ME,1,2026-08-20,10:00,11:30,84,completed
+106,2026-27-ODD,Mid-Sem,24MA201T,Mathematics - III,CE,3,2026-08-22,14:00,15:30,84,completed
+107,2026-27-ODD,Mid-Sem,24CV201T,Introduction to Artificial Intelligence,CE,3,2026-08-24,10:00,11:30,84,completed
+108,2026-27-ODD,Mid-Sem,24CV202T,Building Materials and Construction Technology,CE,3,2026-08-23,14:00,15:30,85,completed
+109,2026-27-ODD,Mid-Sem,24CV203T,Building Planning and Computer Aided Drawing,CE,3,2026-08-23,10:00,11:30,83,completed
+110,2026-27-ODD,Mid-Sem,24CV204T,Solid Mechanics,CE,3,2026-08-24,10:00,11:30,85,completed
+111,2026-27-ODD,Mid-Sem,24CV205T,Concrete Technology,CE,3,2026-08-20,10:00,11:30,84,completed
+112,2026-27-ODD,Mid-Sem,24HS101T,English Communication,CE,1,2026-08-24,10:00,11:30,82,completed
+113,2026-27-ODD,Mid-Sem,24MA101T,Mathematics - I,CE,1,2026-08-20,10:00,11:30,83,completed
+114,2026-27-ODD,Mid-Sem,24PH102T,Engineering Physics,CE,1,2026-08-23,10:00,11:30,83,completed
+115,2026-27-ODD,Mid-Sem,24CV101T,Environmental Science,CE,1,2026-08-24,10:00,11:30,83,completed
+116,2026-27-ODD,Mid-Sem,24BT102T,Biology for Engineers,CE,1,2026-08-22,14:00,15:30,85,completed
+117,2026-27-ODD,Mid-Sem,24CP101T,Computer Programming - I,CE,1,2026-08-20,10:00,11:30,82,completed
+118,2026-27-ODD,Mid-Sem,24HS102T,Universal Human Values,CE,1,2026-08-20,10:00,11:30,84,completed
+119,2026-27-ODD,Mid-Sem,24HS103T,Indian Knowledge System,CE,1,2026-08-20,10:00,11:30,84,completed
+120,2026-27-ODD,Mid-Sem,24MA201T,Mathematics - III,CH,3,2026-08-22,10:00,11:30,83,completed
+121,2026-27-ODD,Mid-Sem,24CH201T,Introduction to Artificial Intelligence,CH,3,2026-08-20,14:00,15:30,84,completed
+122,2026-27-ODD,Mid-Sem,24CH202T,Chemical Process Calculations,CH,3,2026-08-23,10:00,11:30,82,completed
+123,2026-27-ODD,Mid-Sem,24CH203T,Mechanical Unit Operations,CH,3,2026-08-24,10:00,11:30,83,completed
+124,2026-27-ODD,Mid-Sem,24CH204T,Fluid Mechanics,CH,3,2026-08-23,10:00,11:30,83,completed
+125,2026-27-ODD,Mid-Sem,24MA101T,Mathematics - I,CH,1,2026-08-20,10:00,11:30,83,completed
+126,2026-27-ODD,Mid-Sem,24HS101T,English Communication,CH,1,2026-08-24,14:00,15:30,83,completed
+127,2026-27-ODD,Mid-Sem,24CP101T,Computer Programming - I,CH,1,2026-08-20,14:00,15:30,85,completed
+128,2026-27-ODD,Mid-Sem,24CH101T,Engineering Chemistry,CH,1,2026-08-24,10:00,11:30,83,completed
+129,2026-27-ODD,Mid-Sem,24EE101T,Elements of Electrical and Electronics Engineering,CH,1,2026-08-24,10:00,11:30,83,completed
+130,2026-27-ODD,Mid-Sem,24BT101T,Biological Systems for Engineers,CH,1,2026-08-24,10:00,11:30,83,completed
+131,2026-27-ODD,Mid-Sem,24HS104T,Organizational Behaviour,CH,1,2026-08-20,10:00,11:30,85,completed
+132,2026-27-ODD,Mid-Sem,24YOG101,"Yoga, Health & Hygiene",CH,1,2026-08-24,14:00,15:30,85,completed
+133,2026-27-ODD,Mid-Sem,24NSS101,National Service Scheme (NSS),CH,1,2026-08-23,10:00,11:30,83,completed
+134,2026-27-ODD,Mid-Sem,24NCC101,National Cadet Corps (NCC),CH,1,2026-08-24,10:00,11:30,85,completed
 215,2026-27-ODD,End-Sem,24MA202T,Discrete Mathematics,CP,3,2026-11-27,10:00,12:00,82,scheduled
 216,2026-27-ODD,End-Sem,24CS201T,Database Management System,CP,3,2026-11-21,10:00,12:00,82,scheduled
 217,2026-27-ODD,End-Sem,24CS202T,Digital Logic and Design,CP,3,2026-11-21,10:00,12:00,84,scheduled

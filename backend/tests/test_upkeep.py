@@ -29,7 +29,7 @@ TERM = settings.current_term
 TODAY = date(2026, 10, 6)  # so everything up to Monday 5 Oct is settled
 CUTOFF = TODAY - timedelta(days=1)
 NO_CLASS_DAYS = {date(2026, 8, 15), date(2026, 8, 26), date(2026, 9, 5), date(2026, 10, 2)}  # holidays
-EXAM_WEEKS = [(date(2026, 8, 20), date(2026, 8, 25)), (date(2026, 9, 21), date(2026, 9, 26))]
+EXAM_WEEKS = [(date(2026, 8, 20), date(2026, 8, 25))]  # the mid-semester exam
 
 
 @pytest.fixture()
@@ -106,7 +106,7 @@ def test_past_assessments_get_half_step_marks_inside_each_students_range(db):
     counts = run_upkeep(db, TODAY)
     graded = list(db.scalars(select(Assessment).where(Assessment.auto_graded.is_(True))))
     assert counts["assessments_auto_graded"] == len(graded) > 0
-    assert "Internal-2" in {a.type for a in graded}  # held 21-26 Sep, nobody entered it
+    assert "Lab-File" in {a.type for a in graded}  # due a week before the practical exam, nobody entered it
 
     for a in graded:
         assert a.due_date <= CUTOFF and a.status == "graded"

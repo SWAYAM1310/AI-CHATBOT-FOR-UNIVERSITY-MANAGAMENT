@@ -404,8 +404,13 @@ table.data {
   background: var(--red);
 }
 
-.results-ia .table-wrap {
+.results-total .table-wrap {
   border-top: 2px solid var(--crest);
+}
+
+.results-table td .score-scaled {
+  display: block;
+  margin-top: 2px;
 }
 
 .results-note {

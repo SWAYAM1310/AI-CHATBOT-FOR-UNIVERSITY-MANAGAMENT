@@ -196,7 +196,7 @@ def test_run_analytics_failure_rate_is_the_non_pass_share_of_declared_results(db
 def test_course_performance_reports_a_per_course_failure_rate(db):
     rows = REGISTRY.invoke("get_course_performance", make_ctx("admin"), db, {"course": "24CS202T"})
     assert rows and all("failure_rate_percent" in r for r in rows)
-    # the planted ~35% Internal-1 fail rate in Digital Logic (24CS202T) shows as students under 40% on a component
+    # the planted ~35% Mid-Sem fail rate in Digital Logic (24CS202T) shows as students under 40% on a component
     assert any((r["failure_rate_percent"] or 0) >= 20 for r in rows)
     assert all(r["failure_rate_percent"] is None or 0 <= r["failure_rate_percent"] <= 100 for r in rows)
 

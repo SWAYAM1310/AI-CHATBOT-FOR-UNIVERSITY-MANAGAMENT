@@ -122,11 +122,9 @@ def test_attendance_summary_is_consistent_with_the_below_threshold_list(db, teac
 def test_missing_submissions_filters_by_assessment(db, teacher):
     every = REGISTRY.invoke("list_missing_submissions", teacher, db, {"course_code": DBMS})
     assert every and {r["status"] for r in every} <= {"missing", "late"}
-    one = REGISTRY.invoke(
-        "list_missing_submissions", teacher, db, {"course_code": DBMS, "assessment": "Assignment-1"}
-    )
-    assert one and all(r["type"] == "Assignment-1" for r in one)
-    assert len(one) < len(every)
+    ia = REGISTRY.invoke("list_missing_submissions", teacher, db, {"course_code": DBMS, "assessment": "IA"})
+    assert ia == every  # the IA is the one piece of work a student hands in
+    assert REGISTRY.invoke("list_missing_submissions", teacher, db, {"course_code": DBMS, "assessment": "Mid-Sem"}) == []
 
 
 def test_marks_summary_stats_are_sane_and_filterable(db, teacher):
@@ -135,9 +133,9 @@ def test_marks_summary_stats_are_sane_and_filterable(db, teacher):
     for r in rows:
         assert r["lowest"] <= r["mean"] <= r["highest"] <= r["max_marks"]
     only = REGISTRY.invoke(
-        "get_course_marks_summary", teacher, db, {"course_code": DBMS, "assessment_type": "Assignment-1"}
+        "get_course_marks_summary", teacher, db, {"course_code": DBMS, "assessment_type": "IA"}
     )
-    assert [r["type"] for r in only] == ["Assignment-1"]
+    assert [r["type"] for r in only] == ["IA"]
 
 
 def test_at_risk_students_carry_reasons_and_agree_with_the_other_tools(db, teacher):

@@ -591,7 +591,7 @@ def enter_marks(
     wanted = (assessment or "").strip().lower()
     own = select(Assessment).where(Assessment.offering_id == offering.id)
     target = None
-    if wanted:  # by type ("Assignment-1") first, then by title
+    if wanted:  # by type ("Mid-Sem") first, then by title
         target = (
             db.scalars(own.where(func.lower(Assessment.type) == wanted)).first()
             or db.scalars(own.where(func.lower(Assessment.title) == wanted)).first()

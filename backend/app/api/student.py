@@ -24,9 +24,6 @@ from app.models import Assessment, CourseOffering, Enrollment, Mark, ResultSemes
 
 router = APIRouter(prefix="/api/student", tags=["student"])
 
-# The end-of-term examinations; every other component is continuous internal assessment
-# (Examination Regulations 2.1: CIA during the semester, ESE after the last teaching day).
-EXTERNAL_TYPES = {"End-Sem", "Lab-Exam"}
 
 
 def _attendance(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -95,29 +92,21 @@ def _num(v: Any) -> float | None:
     return float(v) if v is not None else None
 
 
-def _internal_assessment(assessments: list[dict[str, Any]]) -> dict[str, Any] | None:
-    """The course's internal assessment (IA): each internal component's mark scaled to its weightage.
-
-    An absent student scores zero on that component. Until every internal component is
-    graded the figure is a running total, and `complete` says so.
-    """
-    internal = [a for a in assessments if a["type"] not in EXTERNAL_TYPES and a["weightage_pct"] and a["max_marks"]]
-    if not internal:
+def _course_total(assessments: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The course total out of 100: each component's mark scaled to its weightage, so an
+    End-Sem written out of 100 counts as 50. Only once every component has a mark (absent
+    counts as zero); a partial total would read as a low one."""
+    weighted = [a for a in assessments if a["weightage_pct"] and a["max_marks"]]
+    if not weighted or not all(a["is_absent"] or a["score"] is not None for a in weighted):
         return None
-    graded = [a for a in internal if a["is_absent"] or a["score"] is not None]
-    score = sum(0.0 if a["is_absent"] else a["score"] / a["max_marks"] * a["weightage_pct"] for a in graded)
-    return {
-        "score": round(score, 2),
-        "out_of": sum(a["weightage_pct"] for a in internal),
-        "graded_out_of": sum(a["weightage_pct"] for a in graded),
-        "complete": len(graded) == len(internal),
-    }
+    score = sum(0.0 if a["is_absent"] else a["score"] / a["max_marks"] * a["weightage_pct"] for a in weighted)
+    return {"score": round(score, 2), "out_of": sum(a["weightage_pct"] for a in weighted)}
 
 
 @router.get("/results")
 def results(ctx: AuthContext = Depends(require_roles(Role.STUDENT)), db: Session = Depends(get_db)) -> dict[str, Any]:
     """Every semester the student has been enrolled in, newest first: each course's assessments
-    (including those not held yet), its IA, and the declared semester result where there is one."""
+    (including those not held yet), its total once all are marked, and the declared semester result."""
     rows = db.execute(
         select(
             CourseOffering.term,
@@ -188,6 +177,6 @@ def results(ctx: AuthContext = Depends(require_roles(Role.STUDENT)), db: Session
     for sem in semesters.values():
         courses = list(sem["courses"].values())
         for c in courses:
-            c["ia"] = _internal_assessment(c["assessments"])
+            c["total"] = _course_total(c["assessments"])
         out.append({**sem, "courses": courses})
     return {"term": ctx.term, "semesters": out}

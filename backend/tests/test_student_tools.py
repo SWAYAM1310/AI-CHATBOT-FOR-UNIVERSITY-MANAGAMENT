@@ -101,7 +101,7 @@ def test_get_my_assignments_filters_by_status():
     with SessionLocal() as db:
         every = REGISTRY.invoke("get_my_assignments", ctx, db)
         rows = REGISTRY.invoke("get_my_assignments", ctx, db, {"status": "missing"})
-    assert every, "assessment types are 'Assignment-N'; the filter must match them"
+    assert every and {r["title"] for r in every} == {"Internal Assessment"}  # one IA per theory course
     assert all(r["status"] == "missing" for r in rows)
     assert len(rows) < len(every)
 

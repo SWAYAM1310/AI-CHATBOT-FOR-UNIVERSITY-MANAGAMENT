@@ -86,6 +86,8 @@ def clean_tables(tables: list[Table]) -> list[Table]:
 
     - a column that is empty in every row of a table is a ruling artefact, not data
     - a row whose first cell is empty continues the row above (a wrapped cell)
+    - so does a row with text only where the row above has it, that leaves empty a
+      column every other row fills: the second line of a wrapped first cell
     """
     cleaned: list[Table] = []
     for t in tables:
@@ -93,9 +95,18 @@ def clean_tables(tables: list[Table]) -> list[Table]:
         rows = [r + [""] * (width - len(r)) for r in t.rows]
         keep = [j for j in range(width) if any(r[j] for r in rows)]
         rows = [[r[j] for j in keep] for r in rows]
+
+        def continues(i: int) -> bool:
+            r, above = rows[i], rows[i - 1]
+            if not r[0]:
+                return True
+            filled_elsewhere = [j for j in range(len(r)) if all(o[j] for k, o in enumerate(rows) if k != i)]
+            only_under_text = all(above[j] for j in range(len(r)) if r[j])
+            return len(rows) > 2 and only_under_text and any(not r[j] for j in filled_elsewhere)
+
         merged: list[list[str]] = []
-        for r in rows:
-            if merged and not r[0]:
+        for i, r in enumerate(rows):
+            if merged and continues(i):
                 merged[-1] = [f"{a} {b}".strip() if b else a for a, b in zip(merged[-1], r)]
             else:
                 merged.append(r)

@@ -395,11 +395,9 @@ export interface ResultAssessment {
   is_absent: boolean
 }
 
-export interface InternalAssessment {
-  score: number // weighted, out of `out_of`
-  out_of: number
-  graded_out_of: number
-  complete: boolean
+export interface CourseTotal {
+  score: number // every component scaled to its weightage
+  out_of: number // 100
 }
 
 export interface ResultCourse {
@@ -407,7 +405,7 @@ export interface ResultCourse {
   name: string
   component: string | null
   assessments: ResultAssessment[]
-  ia: InternalAssessment | null
+  total: CourseTotal | null // only once every component has a mark
 }
 
 export interface ResultSemesterSummary {

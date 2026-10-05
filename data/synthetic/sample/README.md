@@ -44,7 +44,7 @@ Not generated here (populated later): `conversations`, `messages`, `documents`, 
 ## Planted demo edge cases
 
 - **~68% attendance**: student `25BCP017` in `24CS201T` (Database Management System), current term.
-- **~35% Internal-1 fail rate**: `24CS202T` (Digital Logic and Design), current term.
-- **missing Assignment 2**: ~18% of the `24CS201T` cohort, `submissions.status = 'missing'`.
+- **~35% Mid-Sem fail rate**: `24CS202T` (Digital Logic and Design), current term.
+- **missing IA submissions**: ~18% of the `24CS201T` cohort, `submissions.status = 'missing'`.
 - **unpaid fees + pending scholarship**: student `25BCP012` (`fees.status='unpaid'`, `scholarships.status='pending'`).
 - **pending leave requests** (for decide_leave_request): 25BCP003, 25BCP021, 25BIT004 (others are 2024-batch rolls not present in this dataset).

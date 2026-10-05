@@ -7,8 +7,9 @@ import { PageHeader } from '../PageHeader'
 import { Empty, Loading, Notice } from '../ui'
 import { useLoad } from '../useLoad'
 
-const EXTERNAL = new Set(['End-Sem', 'Lab-Exam']) // the end-of-term exams; everything else is internal
-const PASS_PCT = 40 // the pass mark on a component, and on aggregate IA (Examination Regulations 3.1, 3.2)
+const PASS_PCT = 40 // the pass mark on a component and on a course (Examination Regulations 3.1)
+// theory, then practical, then project work; anything else after, by date
+const TYPE_ORDER = ['IA', 'Mid-Sem', 'End-Sem', 'Mid-Sem-Viva', 'Lab-File', 'Lab-Exam', 'Term-Work']
 
 interface Row {
   course: ResultCourse
@@ -35,8 +36,8 @@ function termLabel(term: string): string {
 
 const same = <T,>(xs: T[]): T | null => (xs.every((x) => x === xs[0]) ? xs[0] : null)
 
-/** One group per exam type, in the order they are held: internal components, then the end-of-term exams. */
-function groupByType(courses: ResultCourse[]): { internal: Group[]; external: Group[] } {
+/** One group per exam type: theory (IA, Mid-Sem, End-Sem), then practical, then project work. */
+function groupByType(courses: ResultCourse[]): Group[] {
   const byType = new Map<string, Row[]>()
   for (const course of courses) {
     for (const a of course.assessments) {
@@ -51,8 +52,8 @@ function groupByType(courses: ResultCourse[]): { internal: Group[]; external: Gr
     first: rows.map((r) => r.a.due_date ?? '9999').sort()[0],
     rows,
   }))
-  groups.sort((x, y) => x.first.localeCompare(y.first) || x.type.localeCompare(y.type))
-  return { internal: groups.filter((g) => !EXTERNAL.has(g.type)), external: groups.filter((g) => EXTERNAL.has(g.type)) }
+  const rank = (t: string) => (TYPE_ORDER.includes(t) ? TYPE_ORDER.indexOf(t) : TYPE_ORDER.length)
+  return groups.sort((x, y) => rank(x.type) - rank(y.type) || x.first.localeCompare(y.first) || x.type.localeCompare(y.type))
 }
 
 function Meter({ pct }: { pct: number }) {
@@ -74,6 +75,8 @@ function MarkCell({ a }: { a: ResultAssessment }) {
     )
   }
   const pct = a.max_marks ? (a.score * 100) / a.max_marks : null
+  // an End-Sem written out of 100 counts as 50 towards the course: say what this mark is worth
+  const scaled = pct !== null && a.weightage_pct !== null && a.weightage_pct !== a.max_marks ? (pct * a.weightage_pct) / 100 : null
   return (
     <td className={`num${pct !== null && pct < PASS_PCT ? ' low' : ''}`} data-label="Marks">
       <span className="score">
@@ -82,6 +85,11 @@ function MarkCell({ a }: { a: ResultAssessment }) {
           {num(a.score)} / {a.max_marks !== null ? num(a.max_marks) : '?'}
         </span>
       </span>
+      {scaled !== null && (
+        <span className="score-scaled muted small">
+          counts {num(scaled)} / {num(a.weightage_pct!)}
+        </span>
+      )}
     </td>
   )
 }
@@ -115,7 +123,12 @@ function ResultTable({ caption, children }: { caption: string; children: ReactNo
 
 function TypeSection({ g }: { g: Group }) {
   const id = `type-${g.type}`
-  const meta = [g.max !== null && `out of ${num(g.max)}`, g.weight !== null && `${num(g.weight)}% of the course`].filter(Boolean).join(', ')
+  const meta = [
+    g.max !== null && `out of ${num(g.max)}`,
+    g.weight !== null && (g.max === g.weight ? null : `counts as ${num(g.weight)}`),
+  ]
+    .filter(Boolean)
+    .join(', ')
   return (
     <section className="block" aria-labelledby={id}>
       <h2 id={id} className="results-h">
@@ -134,40 +147,44 @@ function TypeSection({ g }: { g: Group }) {
   )
 }
 
-function IaSection({ courses }: { courses: ResultCourse[] }) {
-  const rows = courses.filter((c) => c.ia !== null)
-  if (rows.length === 0) return null
-  const partial = rows.some((c) => !c.ia!.complete)
+function TotalSection({ courses }: { courses: ResultCourse[] }) {
+  const done = courses.filter((c) => c.total !== null)
+  const waiting = courses.length - done.length
   return (
-    <section className="block results-ia" aria-labelledby="type-ia">
-      <h2 id="type-ia" className="results-h">
-        Internal assessment (IA)
-        <span className="muted small">every internal component scaled to its weightage</span>
+    <section className="block results-total" aria-labelledby="type-total">
+      <h2 id="type-total" className="results-h">
+        Total
+        <span className="muted small">out of 100</span>
       </h2>
-      <ResultTable caption="Internal assessment marks">
-        {rows.map((c) => {
-          const ia = c.ia!
-          const pct = (ia.score * 100) / ia.out_of
-          return (
-            <tr key={c.course}>
-              <CourseCells c={c} />
-              <td className={`num${ia.complete && pct < PASS_PCT ? ' low' : ''}`} data-label="Marks">
-                <span className="score">
-                  <Meter pct={pct} />
-                  <span className="score-text">
-                    {num(ia.score)} / {num(ia.out_of)}
-                    {!ia.complete && <span className="muted small"> so far</span>}
-                  </span>
-                </span>
-              </td>
-            </tr>
-          )
-        })}
-      </ResultTable>
-      {partial && (
-        <p className="small muted results-note">
-          "So far" counts only the components already graded; the rest still add to the total.
-        </p>
+      {done.length === 0 ? (
+        <Empty>The total appears once every exam of {courses.length === 1 ? 'the course' : 'a course'} has its marks.</Empty>
+      ) : (
+        <>
+          <ResultTable caption="Course totals out of 100">
+            {done.map((c) => {
+              const t = c.total!
+              const pct = (t.score * 100) / t.out_of
+              return (
+                <tr key={c.course}>
+                  <CourseCells c={c} />
+                  <td className={`num${pct < PASS_PCT ? ' low' : ''}`} data-label="Marks">
+                    <span className="score">
+                      <Meter pct={pct} />
+                      <span className="score-text">
+                        {num(t.score)} / {num(t.out_of)}
+                      </span>
+                    </span>
+                  </td>
+                </tr>
+              )
+            })}
+          </ResultTable>
+          {waiting > 0 && (
+            <p className="small muted results-note">
+              {plural(waiting, 'more course is', 'more courses are')} still waiting on an exam.
+            </p>
+          )}
+        </>
       )}
     </section>
   )
@@ -194,7 +211,7 @@ export function Results() {
   const sem = semesters.find((s) => String(s.semester) === params.get('sem')) ?? semesters.find((s) => s.current) ?? semesters[0]
   const course = sem?.courses.find((c) => c.course === params.get('course'))
   const shown = sem ? (course ? [course] : sem.courses) : []
-  const { internal, external } = groupByType(shown)
+  const groups = groupByType(shown)
 
   function pick(next: { sem?: string; course?: string }) {
     const p = new URLSearchParams(params)
@@ -245,17 +262,14 @@ export function Results() {
             </label>
           </div>
 
-          {internal.length === 0 && external.length === 0 ? (
+          {groups.length === 0 ? (
             <Empty>No assessments have been set for {course ? course.name : 'this semester'} yet.</Empty>
           ) : (
             <>
-              {internal.map((g) => (
+              {groups.map((g) => (
                 <TypeSection key={g.type} g={g} />
               ))}
-              <IaSection courses={shown} />
-              {external.map((g) => (
-                <TypeSection key={g.type} g={g} />
-              ))}
+              <TotalSection courses={shown} />
             </>
           )}
         </>

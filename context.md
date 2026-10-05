@@ -2265,23 +2265,63 @@ automated, and the data stays realistic. Plan: `C:\Users\ASUS\.claude\plans\ther
 
 **Gotcha (again):** `uvicorn --reload` hangs when files change while a browser tab is open. It keeps serving the old code. Kill every `uvicorn`/`multiprocessing` python process and start it again.
 
-### Student Results page (2026-10-05)
+### Student Results page (committed `2f1fab6`, 2026-10-05; reshaped by the grading change below)
 The Home "Marks this term" table (17+ rows, course code only, score a screen away)
 moved to its own **Results** page (`/results`, second in the student sidebar).
 - `GET /api/student/results` (`backend/app/api/student.py`): every enrolled
   semester newest first, each course with all its assessments (left-joined, so
   scheduled End-Sem/Lab-Exam show as "On <date>"), the declared `results_semester`
-  row (SGPA/CGPA in the page lede), and an **IA** per course = every component
-  except End-Sem/Lab-Exam scaled to its weightage (theory /50 per Exam. Regs 2.2.1,
-  lab CIE /60, the internship's Term-Work /100); `complete: false` = "so far".
-  The dashboard no longer returns `marks`.
+  row (SGPA/CGPA in the page lede), and a **total** per course (each component
+  scaled to its weightage, out of 100; `null` until every component has a mark;
+  `_course_total`). The dashboard no longer returns `marks`.
 - `frontend/src/portal/student/Results.tsx`: Semester + Subject (All or one)
-  pickers kept in the URL (`?sem=&course=`); one table per exam type in held
-  order (Course code | Course name | Marks), then IA, then the end-of-term exams.
+  pickers kept in the URL (`?sem=&course=`); one table per exam type
+  (Course code | Course name | Marks) in a fixed order - theory IA, Mid-Sem,
+  End-Sem; practical viva, lab file, practical exam; Term-Work - then **Total
+  out of 100** listing only fully marked courses. An End-Sem mark also shows
+  what it counts for ("97 / 100, counts 48.5 / 50").
   Tables capped at 760px with a small score meter; on phones the course name
   leads each stacked row.
 - 4 tests in `test_faculty_portal_api.py` (students-only, semesters/result,
-  parity with `get_my_marks`, the IA arithmetic). 545 pass.
+  parity with `get_my_marks`, every course out of 100 + the total rule).
+
+### Grading scheme change (2026-10-05; Parts 1-2 of 4 committed, Parts 3-4 to do)
+The user's university grades every course out of 100. **Theory:** one IA 25 (the
+assignment/project the instructor sets; also the one submitted piece of work) +
+Mid-Sem 25 + End-Sem written out of 100, counted as 50. **Practical:** Mid-Sem-Viva
+25 + Lab-File 25 + Lab-Exam 50. **Project/internship** (24INT151): Term-Work 100.
+- Part 1, data: `scripts/regrade_dataset.py` converted both datasets in place
+  (idempotent): IA from Quiz-1 + Assignment-1/2 (missing submission 0, late x0.75),
+  Mid-Sem = Internal-1 rescaled to 25 on its 20-25 Aug day, Internal-2 dropped,
+  viva/lab file from Lab-CIE with a stable wobble, End-Sem/Lab-Exam marks kept;
+  Assignment-2's submissions became the IA's; past-term SGPA/CGPA recomputed.
+  Exam schedule, CSV calendar and announcements renamed (Mid Semester Examination).
+  Generator, `academic_data.py`, `fix_dataset.py` and data READMEs follow the scheme.
+- Part 2, backend: `get_my_assignments` keys on a submission record, not a type
+  name; the Results endpoint returns `total` (out of 100, only once every
+  component has a mark) instead of a computed IA; the page orders theory, then
+  practical, then Term-Work, then Total, and shows what an End-Sem mark counts
+  for. `clean_tables` now also merges a wrapped first cell (the re-rendered
+  calendar PDF split "Odd Semester 2026-27 classes end"). The calendar Markdown +
+  PDF have one Mid Semester Examination; the dev DB calendar was re-ingested with
+  Jina and its two stale Internal Test rows deleted (ingest never deletes).
+  546 tests pass.
+- Dev-DB gotcha met here: `conftest._preserve_doc_store` snapshots the dev DB's
+  `academic_calendar` + doc chunks *before* the test run and restores them after,
+  so a pytest run after a calendar change puts the old rows back. Fix: re-ingest
+  (`python -m app.ai.rag.ingest --doc-type tabular --force`), delete rows left
+  with `source_chunk_id IS NULL` that are no longer in the CSV/Markdown, then
+  `python -m app.jobs.upkeep`.
+- Full (gitignored) dataset backup from before the conversion: the session
+  scratchpad `full_csv_backup/` (temporary; the sample is in git history).
+- Next: **Part 3** - `docs/policies/examination_regulations.md` (still the old
+  Quiz/Assignment/Internal/Lab-CIE table, clauses 2.2-2.3, 3.4),
+  `docs/notices/internal_test_2_schedule.md` + `faculty_marks_entry_deadline.md`,
+  their `docs/manifest.yaml` titles, eval questions f02/f07/f13 in
+  `eval/golden_set.yaml`, `test_rag_ingest.py` ("Quiz-1" in the regulations);
+  then re-render (`scripts/render_policies.py`) and re-ingest with Jina.
+  **Part 4** - remaining page wording (Home "Assignments" -> IA submissions,
+  faculty Roster/Marks pages).
 
 ### Next: 7f
 README feature list/screenshots, golden-set cases for `record_fee_payment` and a

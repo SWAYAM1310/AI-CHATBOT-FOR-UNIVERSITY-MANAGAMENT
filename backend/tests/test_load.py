@@ -90,7 +90,7 @@ def test_planted_fail_rate_24cs202t(conn):
             JOIN course_offerings co ON co.id = a.offering_id
             JOIN marks m ON m.assessment_id = a.id
             WHERE co.subject_code = '24CS202T'
-              AND a.type ILIKE '%internal%1%'
+              AND a.type = 'Mid-Sem'
               AND m.score IS NOT NULL
             """
         )

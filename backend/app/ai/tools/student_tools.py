@@ -219,7 +219,7 @@ def get_my_exam_schedule(*, ctx: AuthContext, db: Session, **_: Any) -> list[dic
 
 @tool(
     name="get_my_assignments",
-    description="The calling student's assignments this term with submission status, optionally filtered by status (submitted/missing/late).",
+    description="The calling student's submitted coursework this term (each theory course's one IA assignment/project) with submission status, optionally filtered by status (submitted/missing/late).",
     allowed_roles={Role.STUDENT},
     scope=Scope.SELF,
 )
@@ -235,8 +235,7 @@ def get_my_assignments(*, ctx: AuthContext, db: Session, status: str | None = No
         .join(CourseOffering, CourseOffering.id == Assessment.offering_id)
         .join(Submission, Submission.assessment_id == Assessment.id)
         .where(
-            Submission.student_id == ctx.student_id,
-            Assessment.type.like("Assignment%"),  # types are "Assignment-1", "Assignment-2", ...
+            Submission.student_id == ctx.student_id,  # work that is handed in has a submission record
             Assessment.term == ctx.term,
         )
     )

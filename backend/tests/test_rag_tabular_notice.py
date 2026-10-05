@@ -77,6 +77,21 @@ def test_clean_tables_drops_phantom_columns_and_merges_split_rows():
     ]
 
 
+def test_clean_tables_merges_a_wrapped_first_cell():
+    raw = Table(
+        page=2,
+        rows=[
+            ["Dussehra holiday", "holiday", "20 October 2026", "", "all", "2026-27- ODD"],
+            ["Odd Semester 2026-27", "term", "6 November", "", "all", "2026-27-"],
+            ["classes end", "", "2026", "", "", "ODD"],  # no Type, and text only under text
+            ["Diwali vacation", "break", "7 November 2026", "15 November 2026", "all", "2026-27- ODD"],
+        ],
+    )
+    (t,) = clean_tables([raw])
+    assert t.rows[1] == ["Odd Semester 2026-27 classes end", "term", "6 November 2026", "", "all", "2026-27- ODD"]
+    assert len(t.rows) == 3
+
+
 @pytest.mark.parametrize(
     ("text_", "expected"),
     [("26 August 2026", date(2026, 8, 26)), ("5 Sep 2026", date(2026, 9, 5)), ("2026-08-26", date(2026, 8, 26)),
@@ -89,9 +104,9 @@ def test_parse_date_formats(text_, expected):
 def test_calendar_pdf_tables_keep_every_row_including_the_one_at_the_page_break():
     tables = extract_tables(CALENDAR.path)
     data = [r for t in tables for r in t.rows if r[0] != "Event" and len(r) == 6]
-    assert len(data) == 25
+    assert len(data) == 24
     assert any(r[0] == "Raksha Bandhan holiday" and r[2] == "26 August 2026" for r in data)
-    assert any(r[0] == "Dussehra holiday" and r[2] == "20 October 2026" for r in data)  # was a split row
+    assert any(r[0] == "Odd Semester 2026-27 classes end" and r[2] == "6 November 2026" for r in data)  # a wrapped row
     assert all(len(r) == 6 for t in tables for r in t.rows if r[0] != "Applies")
 
 
@@ -123,7 +138,7 @@ def test_notice_is_one_chunk_headed_by_its_title():
 
 def test_calendar_rows_are_upserted_with_their_source_chunk(db):
     rows = db.scalars(select(AcademicCalendarEvent).order_by(AcademicCalendarEvent.start_date)).all()
-    assert len(rows) == 25 and all(r.source_chunk_id for r in rows)
+    assert len(rows) == 24 and all(r.source_chunk_id for r in rows)
     raksha = next(r for r in rows if r.event == "Raksha Bandhan holiday")
     assert (raksha.start_date, raksha.end_date, raksha.event_type, raksha.term) == (date(2026, 8, 26), None, "holiday", "2026-27-ODD")
     exams = next(r for r in rows if r.event == "Odd Semester end-term examinations")
@@ -145,7 +160,7 @@ def test_reingest_corrects_a_changed_row_and_reinserts_a_deleted_one(db):
     assert exams.end_date == date(2026, 11, 28)
     diwali = db.scalars(select(AcademicCalendarEvent).where(AcademicCalendarEvent.event == "Diwali vacation")).one()
     assert (diwali.start_date, diwali.end_date, diwali.source_chunk_id is not None) == (date(2026, 11, 7), date(2026, 11, 15), True)
-    assert db.scalar(select(func.count(AcademicCalendarEvent.id))) == 25
+    assert db.scalar(select(func.count(AcademicCalendarEvent.id))) == 24
 
 
 def test_non_calendar_tabular_documents_extract_nothing(db):
@@ -170,7 +185,7 @@ def test_policy_search_covers_notices_and_the_calendar_and_respects_audience(db)
 
 def test_get_academic_calendar_returns_rows_and_citable_source_passages(db):
     result = REGISTRY.invoke("get_academic_calendar", make_ctx("student", 17), db, {"event_type": "exam"})
-    assert [r["event"] for r in result["rows"]] == ["Internal Test 1", "Internal Test 2", "Odd Semester end-term examinations"]
+    assert [r["event"] for r in result["rows"]] == ["Mid Semester Examination", "Odd Semester end-term examinations"]
     assert result["passages"] and all({"chunk_id", "document", "section", "page", "excerpt"} <= set(p) for p in result["passages"])
     assert all(p["document"].startswith("Academic Calendar") for p in result["passages"])
 
@@ -181,6 +196,6 @@ def test_a_calendar_answer_can_cite_the_calendar_pdf(db):
     provider = ScriptedProvider(route, plan, LLMResponse(text="Exams run 17–28 November [[cite:{cid}]]."))
     out = run_turn(question="when are the end-sem exams?", ctx=make_ctx("student", 17), db=db, provider=provider)
     prompt = provider.calls[-1]["messages"][-1]["content"]
-    assert "### get_academic_calendar" in prompt and "| Internal Test 2 |" in prompt  # the rows stay in the tool results
+    assert "### get_academic_calendar" in prompt and "| Mid Semester Examination |" in prompt  # the rows stay in the tool results
     assert "[[cite:" in prompt and "Academic Calendar 2026-27" in prompt  # and the calendar PDF is offered to cite
     assert out.tool_runs[0].passages

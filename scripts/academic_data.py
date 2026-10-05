@@ -109,15 +109,21 @@ EXAM_HALL_CAPACITY = 120
 # Assessment templates  (week is 1-indexed from teaching_start)
 # component: LECTURE assessments apply to theory offerings only
 # ---------------------------------------------------------------------------
+# A theory course is out of 100: one IA (the assignment/project the instructor sets) 25,
+# the mid-semester exam 25, and the end-semester exam written out of 100 and counted as 50.
 ASSESSMENT_TEMPLATE = [
     # type, title, max_marks, weightage_pct, week, kind
-    ("Quiz-1",       "Quiz 1",            10, 5,  3,  "quiz"),
-    ("Assignment-1", "Assignment 1",      10, 7,  4,  "assignment"),
-    ("Internal-1",   "Internal Test 1",   20, 15, 6,  "test"),
-    ("Assignment-2", "Assignment 2",      10, 8,  9,  "assignment"),
-    ("Internal-2",   "Internal Test 2",   20, 15, 12, "test"),
-    ("End-Sem",      "End Semester Exam", 100, 40, 18, "endsem"),
+    ("IA",      "Internal Assessment", 25,  25, 9,  "assignment"),
+    ("Mid-Sem", "Mid Semester Exam",   25,  25, 10, "test"),
+    ("End-Sem", "End Semester Exam",   100, 50, 18, "endsem"),
 ]
+# A practical course: mid-semester viva 25, practical lab file 25, end-semester practical exam 50.
+LAB_ASSESSMENT_TEMPLATE = [
+    ("Mid-Sem-Viva", "Mid Semester Viva",           25, 25, 10, "lab"),
+    ("Lab-File",     "Practical Lab File",          25, 25, 16, "lab"),
+    ("Lab-Exam",     "End Semester Practical Exam", 50, 50, 17, "lab"),
+]
+LATE_FACTOR = 0.75     # a late IA submission loses 25% of its marks; a missing one scores 0
 PASS_FRACTION = 0.40   # < 40% of max on an assessment is a fail on that head
 
 # ---------------------------------------------------------------------------
@@ -288,14 +294,14 @@ DEMO = {
     "attendance_subject": "24CS201T",     # Database Management System (CP sem 3)
     "attendance_target_pct": 68.0,
 
-    # course with a ~35% fail rate on Internal Test 1 (admin analytics demo)
+    # course with a ~35% fail rate on the mid-semester exam (admin analytics demo)
     "fail_subject": "24CS202T",           # Digital Logic and Design (CP sem 3)
-    "fail_assessment": "Internal-1",
+    "fail_assessment": "Mid-Sem",
     "fail_rate": 0.35,
 
-    # cohort with missing Assignment 2 submissions (faculty demo)
+    # cohort with missing IA submissions (faculty demo)
     "missing_subject": "24CS201T",
-    "missing_assessment": "Assignment-2",
+    "missing_assessment": "IA",
     "missing_rate": 0.18,
 
     # student with unpaid fees and a pending scholarship

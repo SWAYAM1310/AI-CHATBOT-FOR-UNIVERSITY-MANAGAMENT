@@ -26,11 +26,10 @@ This calendar lists the key dates for the Even Semester 2025-26 (closing) and th
 | Odd Semester 2026-27 classes begin | term | 16 June 2026 | | all | 2026-27-ODD |
 | Course registration / add-drop window | registration | 16 June 2026 | 27 June 2026 | all | 2026-27-ODD |
 | Independence Day | holiday | 15 August 2026 | | all | 2026-27-ODD |
-| Internal Test 1 | exam | 20 August 2026 | 25 August 2026 | all | 2026-27-ODD |
+| Mid Semester Examination | exam | 20 August 2026 | 25 August 2026 | all | 2026-27-ODD |
 | Raksha Bandhan holiday | holiday | 26 August 2026 | | all | 2026-27-ODD |
 | Janmashtami holiday | holiday | 5 September 2026 | | all | 2026-27-ODD |
 | Odd Semester fee payment last date | fee | 12 September 2026 | | all | 2026-27-ODD |
-| Internal Test 2 | exam | 21 September 2026 | 26 September 2026 | all | 2026-27-ODD |
 | Gandhi Jayanti | holiday | 2 October 2026 | | all | 2026-27-ODD |
 | End-semester examination form submission | registration | 12 October 2026 | 20 October 2026 | all | 2026-27-ODD |
 | Dussehra holiday | holiday | 20 October 2026 | | all | 2026-27-ODD |

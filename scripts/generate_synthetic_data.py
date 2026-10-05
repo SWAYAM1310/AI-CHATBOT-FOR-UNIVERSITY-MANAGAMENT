@@ -13,8 +13,8 @@ Two academic terms are modelled:
 
 Deliberately planted demo edge cases (see academic_data.DEMO):
     - a CP sem-3 student at ~68% attendance in DBMS
-    - Digital Logic & Design with a ~35% fail rate on Internal Test 1
-    - a cohort with missing Assignment 2 submissions in DBMS
+    - Digital Logic & Design with a ~35% fail rate on the mid-semester exam
+    - a cohort with missing IA submissions in DBMS
     - a student with unpaid fees and a pending scholarship
     - several pending leave requests for the decide_leave_request demo
 
@@ -670,8 +670,7 @@ def half_step(x: float) -> float:
 # day inside the window; exam_date() picks it, and the assessments share that date.
 EXAM_WINDOWS = {
     (AD.PAST_TERM, "End-Sem"): (AD.TERM_WINDOWS[AD.PAST_TERM]["exam_start"], AD.TERM_WINDOWS[AD.PAST_TERM]["exam_end"]),
-    (AD.CURRENT_TERM, "Internal-1"): (dt.date(2026, 8, 20), dt.date(2026, 8, 25)),
-    (AD.CURRENT_TERM, "Internal-2"): (dt.date(2026, 9, 21), dt.date(2026, 9, 26)),
+    (AD.CURRENT_TERM, "Mid-Sem"): (dt.date(2026, 8, 20), dt.date(2026, 8, 25)),
     (AD.CURRENT_TERM, "End-Sem"): (AD.TERM_WINDOWS[AD.CURRENT_TERM]["exam_start"], AD.TERM_WINDOWS[AD.CURRENT_TERM]["exam_end"]),
 }
 
@@ -701,8 +700,7 @@ def gen_assessments(rng, offerings, roster, students_by_id, forced):
         if comp == "Theory":
             templates = AD.ASSESSMENT_TEMPLATE
         elif comp == "Lab":
-            templates = [("Lab-CIE", "Lab Continuous Evaluation", 50, 60, 10, "lab"),
-                         ("Lab-Exam", "Lab End Examination", 50, 40, 17, "lab")]
+            templates = AD.LAB_ASSESSMENT_TEMPLATE
         else:  # Project / Self-study
             templates = [("Term-Work", "Term Work Evaluation", 100, 100, 16, "project")]
 
@@ -715,24 +713,7 @@ def gen_assessments(rng, offerings, roster, students_by_id, forced):
             a_rows.append({"id": aid, "offering_id": o["id"], "subject_code": o["subject_code"],
                            "term": term, "type": atype, "title": title, "max_marks": maxm,
                            "weightage_pct": wt, "due_date": due.isoformat(), "status": status})
-            if conducted:
-                fail_force = forced["fail"].get((o["id"], atype))
-                fail_targets = set()
-                if fail_force:
-                    k = int(len(enrolled) * fail_force)
-                    fail_targets = set(rng.sample(enrolled, k))
-                for stu in enrolled:
-                    ab = students_by_id[stu]["_ability"]
-                    if stu in fail_targets:
-                        frac = clamp(rng.gauss(0.28, 0.07), 0.0, 0.39)
-                    else:
-                        frac = clamp(rng.gauss(ab + 0.08, 0.11), 0.0, 1.0)
-                    absent = rng.random() < 0.015
-                    m_rows.append({"id": mid, "assessment_id": aid, "student_id": stu,
-                                   "score": 0.0 if absent else half_step(maxm * frac),
-                                   "is_absent": absent,
-                                   "graded_on": (due + dt.timedelta(days=rng.randint(4, 12))).isoformat()})
-                    mid += 1
+            handed_in: dict[int, str] = {}
             if kind == "assignment":
                 miss_force = forced["missing"].get((o["id"], atype), 0.05)
                 for stu in enrolled:
@@ -745,9 +726,32 @@ def gen_assessments(rng, offerings, roster, students_by_id, forced):
                     else:
                         st = "submitted"
                         ts = (due - dt.timedelta(days=rng.randint(0, 3))).isoformat() + "T21:00:00"
+                    handed_in[stu] = st
                     s_rows.append({"id": subid, "assessment_id": aid, "student_id": stu,
                                    "status": st, "submitted_at": ts})
                     subid += 1
+            if conducted:
+                fail_force = forced["fail"].get((o["id"], atype))
+                fail_targets = set()
+                if fail_force:
+                    k = int(len(enrolled) * fail_force)
+                    fail_targets = set(rng.sample(enrolled, k))
+                for stu in enrolled:
+                    ab = students_by_id[stu]["_ability"]
+                    if stu in fail_targets:
+                        frac = clamp(rng.gauss(0.28, 0.07), 0.0, 0.39)
+                    else:
+                        frac = clamp(rng.gauss(ab + 0.08, 0.11), 0.0, 1.0)
+                    if handed_in.get(stu) == "missing":
+                        frac = 0.0
+                    elif handed_in.get(stu) == "late":
+                        frac *= AD.LATE_FACTOR
+                    absent = rng.random() < 0.015
+                    m_rows.append({"id": mid, "assessment_id": aid, "student_id": stu,
+                                   "score": 0.0 if absent else half_step(maxm * frac),
+                                   "is_absent": absent,
+                                   "graded_on": (due + dt.timedelta(days=rng.randint(4, 12))).isoformat()})
+                    mid += 1
             aid += 1
     return pd.DataFrame(a_rows), pd.DataFrame(m_rows), pd.DataFrame(s_rows)
 
@@ -1140,9 +1144,9 @@ def _write_readme(out_dir, tables, n_sess, n_rec, sample):
         "",
         f"- **~68% attendance**: student `{d['attendance_roll']}` in "
         f"`{d['attendance_subject']}` (Database Management System), current term.",
-        f"- **~35% Internal-1 fail rate**: `{d['fail_subject']}` (Digital Logic and Design), "
+        f"- **~35% Mid-Sem fail rate**: `{d['fail_subject']}` (Digital Logic and Design), "
         "current term.",
-        f"- **missing Assignment 2**: ~{int(d['missing_rate']*100)}% of the "
+        f"- **missing IA submissions**: ~{int(d['missing_rate']*100)}% of the "
         f"`{d['missing_subject']}` cohort, `submissions.status = 'missing'`.",
         f"- **unpaid fees + pending scholarship**: student `{d['fee_roll']}` "
         f"(`fees.status='unpaid'`, `scholarships.status='pending'`).",

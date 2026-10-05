@@ -168,7 +168,7 @@ def test_preview_pass_writes_nothing(db, undo):
         ("student", 17, "apply_for_leave", leave_args()),
         ("student", 17, "request_document", {"doc_type": "bus pass"}),
         ("faculty", TEACHES_DBMS, "mark_attendance", {"course_code": DBMS, "date": date.today().isoformat()}),
-        ("faculty", TEACHES_DBMS, "enter_marks", {"course_code": DBMS, "assessment": "Quiz-1", "marks": {"25BCP017": 5}}),
+        ("faculty", TEACHES_DBMS, "enter_marks", {"course_code": DBMS, "assessment": "Mid-Sem", "marks": {"25BCP017": 5}}),
         ("faculty", TEACHES_DBMS, "post_announcement", {"course_code": DBMS, "title": "t", "body": "b"}),
         ("faculty", HOD_CP, "decide_leave_request", {"leave_request_id": PENDING_CP_LEAVE, "decision": "approve"}),
         ("admin", None, "publish_notice", {"title": "t", "body": "b"}),
@@ -267,34 +267,34 @@ def test_enter_marks_validates_assessment_roster_and_range(db):
     teacher = make_ctx("faculty", TEACHES_DBMS)
     base = {"course_code": DBMS, "marks": {"25BCP017": 5}}
     out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Viva"})
-    assert "no assessment" in out["error"] and "Quiz-1" in out["error"]
-    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Quiz-1", "marks": {"99XXX999": 5}})
+    assert "no assessment" in out["error"] and "Mid-Sem" in out["error"]
+    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Mid-Sem", "marks": {"99XXX999": 5}})
     assert "not enrolled" in out["error"]
-    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Quiz-1", "marks": {"25BCP017": 1e6}})
+    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Mid-Sem", "marks": {"25BCP017": 1e6}})
     assert "outside" in out["error"]
-    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Quiz-1", "marks": {"25BCP017": "lots"}})
+    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Mid-Sem", "marks": {"25BCP017": "lots"}})
     assert "not a number" in out["error"]
-    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Quiz-1", "marks": {"25BCP017": 6.3}})
+    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Mid-Sem", "marks": {"25BCP017": 6.3}})
     assert "steps of 0.5" in out["error"]
-    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Quiz-1", "marks": {"25BCP017": 6.5}})
+    out = REGISTRY.invoke("enter_marks", teacher, db, {**base, "assessment": "Mid-Sem", "marks": {"25BCP017": 6.5}})
     assert "error" not in out and out["preview"]["marks"] == {"25BCP017": 6.5}
 
 
 def test_enter_marks_upserts_and_the_summary_reflects_it(db, undo):
     teacher = make_ctx("faculty", TEACHES_DBMS)
-    quiz = db.scalars(select(Assessment).where(Assessment.subject_code == DBMS, Assessment.type == "Quiz-1")).first()
-    mark = db.scalars(select(Mark).where(Mark.assessment_id == quiz.id).limit(1)).one()
+    mid = db.scalars(select(Assessment).where(Assessment.subject_code == DBMS, Assessment.type == "Mid-Sem")).first()
+    mark = db.scalars(select(Mark).where(Mark.assessment_id == mid.id).limit(1)).one()
     original = (mark.student_id, mark.score, mark.is_absent, mark.graded_on)
     roll = db.scalar(select(Student.roll_no).where(Student.id == mark.student_id))
     try:
-        args = {"course_code": DBMS, "assessment": "quiz-1", "marks": [{"roll_no": roll, "score": 1}]}
+        args = {"course_code": DBMS, "assessment": "mid-sem", "marks": [{"roll_no": roll, "score": 1}]}
         preview = REGISTRY.invoke("enter_marks", teacher, db, args)["preview"]
-        assert preview["assessment"] == "Quiz-1" and preview["max_marks"] >= 1
+        assert preview["assessment"] == "Mid-Sem" and preview["max_marks"] >= 1
         done = REGISTRY.invoke("enter_marks", teacher, db, args, confirmed=True)
         assert (done["inserted"], done["updated"]) == (0, 1)
         db.refresh(mark)
         assert float(mark.score) == 1.0 and mark.is_absent is False
-        rows = REGISTRY.invoke("get_course_marks_summary", teacher, db, {"course_code": DBMS, "assessment_type": "Quiz-1"})
+        rows = REGISTRY.invoke("get_course_marks_summary", teacher, db, {"course_code": DBMS, "assessment_type": "Mid-Sem"})
         assert rows[0]["lowest"] <= 1.0
     finally:
         mark.student_id, mark.score, mark.is_absent, mark.graded_on = original
@@ -307,13 +307,13 @@ def test_post_announcement_reaches_an_enrolled_student(db, undo):
         "post_announcement", make_ctx("faculty", NOT_DBMS), db, {"course_code": DBMS, "title": "t", "body": "b"}
     )["error"]
     assert "required" in REGISTRY.invoke("post_announcement", teacher, db, {"course_code": DBMS, "title": "t", "body": " "})["error"]
-    args = {"course_code": DBMS, "title": "Quiz-2 moved to Friday", "body": "Same syllabus, same room."}
+    args = {"course_code": DBMS, "title": "Extra class on Friday", "body": "Same syllabus, same room."}
     done = REGISTRY.invoke("post_announcement", teacher, db, args, confirmed=True)
     db.commit()
     row = db.get(Announcement, done["announcement_id"])
     assert (row.scope, row.scope_ref, row.audience_roles, row.author_user_id) == ("course", DBMS, "student", teacher.user_id)
     seen = REGISTRY.invoke("get_my_announcements", make_ctx("student", 17), db)
-    assert "Quiz-2 moved to Friday" in {a["title"] for a in seen}
+    assert "Extra class on Friday" in {a["title"] for a in seen}
 
 
 def test_leave_decisions_belong_to_the_students_own_hod(db):

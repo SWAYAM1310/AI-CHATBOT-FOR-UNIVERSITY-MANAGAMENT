@@ -4,7 +4,7 @@
 
 1. Marks are whole or half (7, 7.5), never 7.3: every score is rounded to the nearest
    0.5 (half up) and kept inside 0..max_marks.
-2. An exam is due the day the exam schedule sits it: Internal-1/2 and End-Sem
+2. An exam is due the day the exam schedule sits it: Mid-Sem and End-Sem
    assessments take that subject's exam_schedule date, and a mark graded before
    its exam moves to 2-8 days after it.
 
@@ -21,7 +21,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent / "data" / "synthetic"
-EXAMS = {"Internal-1", "Internal-2", "End-Sem"}
+EXAMS = {"Mid-Sem", "End-Sem"}
 
 
 def read(path: Path) -> tuple[list[str], list[dict[str, str]]]:

@@ -36,7 +36,6 @@ from app.models import (
 FACULTY_ROLES = {Role.FACULTY}
 ATTENDANCE_RISK_PCT = 75.0  # the university's own attendance floor
 MARKS_RISK_PCT = 40.0  # below this share of max marks on graded work
-ASSIGNMENT_PREFIX = "Assignment"  # assessments.type is "Assignment-1", "Assignment-2", ...
 
 
 def _num(value: Any) -> float | None:
@@ -174,7 +173,7 @@ def get_course_attendance_summary(
 
 @tool(
     name="list_missing_submissions",
-    description="Students in a course you teach (or all your courses if course_code is omitted) who have not submitted (or submitted late) an assignment; optionally one assignment by title or type.",
+    description="Students in a course you teach (or all your courses if course_code is omitted) who have not submitted (or submitted late) their IA work (the assignment/project); optionally one assessment by title or type.",
     allowed_roles=FACULTY_ROLES,
     scope=Scope.OWN_COURSES,
 )
@@ -267,7 +266,7 @@ def get_course_marks_summary(
 
 @tool(
     name="identify_at_risk_students",
-    description="Students in a course you teach (all your courses if course_code is omitted) flagged for low attendance (<75%), low marks (<40% on graded work) or missing assignments, with the reasons.",
+    description="Students in a course you teach (all your courses if course_code is omitted) flagged for low attendance (<75%), low marks (<40% on graded work) or missing IA submissions, with the reasons.",
     allowed_roles=FACULTY_ROLES,
     scope=Scope.OWN_COURSES,
 )

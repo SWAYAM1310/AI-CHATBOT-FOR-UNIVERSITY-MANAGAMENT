@@ -1,7 +1,7 @@
 """Phase 7b — the faculty portal API, the student dashboard, and the action-tool changes behind them.
 
-Real DB, no LLM. Faculty 2 teaches 24CS201T (offering 3) and its Internal-2 (assessment 12,
-max 20) has no marks yet; faculty 1 teaches offering 7. Everything a test writes is deleted
+Real DB, no LLM. Faculty 2 teaches 24CS201T (offering 3) and its End-Sem (assessment 7,
+out of 100) has no marks yet; faculty 1 teaches offering 7. Everything a test writes is deleted
 afterwards by the `undo` fixture.
 """
 from __future__ import annotations
@@ -23,9 +23,9 @@ client = TestClient(app)
 DEV_PW = "uniassist"
 DBMS_OFFERING = 3
 DBMS = "24CS201T"
-INTERNAL_2 = 12  # DBMS, max 20, nothing entered yet
+END_SEM = 7  # DBMS, out of 100, nothing entered yet
 OTHER_OFFERING = 7  # faculty 1's
-OTHER_ASSESSMENT = 24  # faculty 1's
+OTHER_ASSESSMENT = 18  # faculty 1's Mid-Sem
 FACULTY = "faculty:2"
 PAST_DAY = "2020-01-06"  # no seeded session falls here
 CLEARED = (AttendanceRecord, AttendanceSession, Mark)
@@ -81,7 +81,7 @@ def test_every_faculty_route_needs_a_faculty_token():
         ("get", f"/api/faculty/offerings/{DBMS_OFFERING}/roster"),
         ("get", f"/api/faculty/offerings/{DBMS_OFFERING}/attendance"),
         ("get", f"/api/faculty/offerings/{DBMS_OFFERING}/assessments"),
-        ("get", f"/api/faculty/assessments/{INTERNAL_2}/marks"),
+        ("get", f"/api/faculty/assessments/{END_SEM}/marks"),
         ("get", "/api/faculty/dashboard"),
     ]
     for verb, path in paths:
@@ -222,13 +222,13 @@ def test_a_correction_keeps_late_and_excused_as_recorded(undo):
 
 def test_marks_round_trip_with_an_absentee(fac, undo):
     a, b, c = (s["roll_no"] for s in _roster(fac)[:3])
-    url = f"/api/faculty/assessments/{INTERNAL_2}/marks"
+    url = f"/api/faculty/assessments/{END_SEM}/marks"
     r = client.post(url, headers=fac, json={"marks": {a: 17.5, b: 0}, "absent_roll_nos": [c]})
     assert r.status_code == 200, r.text
     assert r.json()["inserted"] == 3
 
     page = client.get(url, headers=fac).json()
-    assert page["assessment"]["max_marks"] == 20.0
+    assert page["assessment"]["max_marks"] == 100.0
     by_roll = {s["roll_no"]: s for s in page["students"]}
     assert by_roll[a]["score"] == 17.5 and not by_roll[a]["is_absent"]
     assert by_roll[b]["score"] == 0.0
@@ -240,19 +240,19 @@ def test_marks_round_trip_with_an_absentee(fac, undo):
     assert {s["roll_no"]: s for s in client.get(url, headers=fac).json()["students"]}[c]["is_absent"] is False
 
     listing = client.get(f"/api/faculty/offerings/{DBMS_OFFERING}/assessments", headers=fac).json()["assessments"]
-    assert next(x for x in listing if x["assessment_id"] == INTERNAL_2)["graded"] == 3
+    assert next(x for x in listing if x["assessment_id"] == END_SEM)["graded"] == 3
 
 
 def test_marks_are_validated(fac, undo):
     a, b = (s["roll_no"] for s in _roster(fac)[:2])
-    url = f"/api/faculty/assessments/{INTERNAL_2}/marks"
-    assert client.post(url, headers=fac, json={"marks": {a: 21}}).status_code == 400  # above the max of 20
+    url = f"/api/faculty/assessments/{END_SEM}/marks"
+    assert client.post(url, headers=fac, json={"marks": {a: 101}}).status_code == 400  # above the max of 100
     assert client.post(url, headers=fac, json={"marks": {a: -1}}).status_code == 400
     assert client.post(url, headers=fac, json={"marks": {"25XXX999": 5}}).status_code == 400
     assert client.post(url, headers=fac, json={"marks": {a: 5}, "absent_roll_nos": [a]}).status_code == 400
     assert client.post(url, headers=fac, json={}).status_code == 400  # nothing to save
     with SessionLocal() as db:
-        assert db.scalar(select(func.count(Mark.id)).where(Mark.assessment_id == INTERNAL_2)) == 0
+        assert db.scalar(select(func.count(Mark.id)).where(Mark.assessment_id == END_SEM)) == 0
 
 
 # --- the action tools themselves -----------------------------------------------------------
@@ -333,20 +333,26 @@ def test_student_results_agree_with_the_assistants_marks():
     assert sorted(page) == sorted((m["course"], m["assessment_type"], m["score"]) for m in chat)
 
 
-def test_ia_is_the_internal_components_scaled_to_their_weightage():
+def test_every_course_is_out_of_100_and_the_total_waits_for_every_component():
     sems = client.get("/api/student/results", headers=_login("student:17")).json()["semesters"]
-    checked = 0
-    for c in (c for s in sems for c in s["courses"] if c["ia"]):
-        internal = [a for a in c["assessments"] if a["type"] not in ("End-Sem", "Lab-Exam")]
-        graded = [a for a in internal if a["is_absent"] or a["score"] is not None]
-        expected = sum(0 if a["is_absent"] else a["score"] / a["max_marks"] * a["weightage_pct"] for a in graded)
-        assert c["ia"]["score"] == pytest.approx(expected, abs=0.01)
-        assert c["ia"]["out_of"] == sum(a["weightage_pct"] for a in internal)
-        assert c["ia"]["complete"] == (len(graded) == len(internal))
-        if any(a["type"] == "End-Sem" for a in c["assessments"]):
-            assert c["ia"]["out_of"] == 50  # Examination Regulations 2.2.1: the five CIA components
-        checked += 1
-    assert checked > 0
+    schemes = {  # type -> (max_marks, weightage_pct)
+        "theory": {"IA": (25, 25), "Mid-Sem": (25, 25), "End-Sem": (100, 50)},  # End-Sem out of 100 counts 50
+        "practical": {"Mid-Sem-Viva": (25, 25), "Lab-File": (25, 25), "Lab-Exam": (50, 50)},
+        "internship": {"Term-Work": (100, 100)},
+    }
+    totals = 0
+    for c in (c for s in sems for c in s["courses"]):
+        got = {a["type"]: (a["max_marks"], a["weightage_pct"]) for a in c["assessments"]}
+        assert got in schemes.values(), (c["course"], got)
+        assert len(c["assessments"]) == len(got)  # one of each, so exactly one IA
+        if not all(a["is_absent"] or a["score"] is not None for a in c["assessments"]):
+            assert c["total"] is None  # a partial total would read as a low one
+            continue
+        expected = sum(0 if a["is_absent"] else a["score"] / a["max_marks"] * a["weightage_pct"] for a in c["assessments"])
+        assert c["total"]["out_of"] == 100 and c["total"]["score"] == pytest.approx(expected, abs=0.01)
+        totals += 1
+    assert totals > 0  # the past semester is fully marked
+    assert all(c["total"] is None for c in sems[0]["courses"] if "End-Sem" in {a["type"] for a in c["assessments"]})
 
 
 def test_faculty_dashboard_shows_courses_todays_classes_and_hod_leave():
