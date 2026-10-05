@@ -248,6 +248,32 @@ def test_smalltalk_skips_tools_and_retrieval(student_ctx, db):
     assert len(provider.calls) == 2
 
 
+def test_a_wrong_role_question_runs_no_tool_and_says_who_it_is_for(db):
+    """An admin's "which of my students..." once came back as every missing submission in the university."""
+    admin = make_ctx("admin")
+    provider = ScriptedProvider(
+        route(intent="wrong_role", tools=["list_attendance_defaulters"], needs_rag=True),
+        answer(text="You don't have students of your own - that is a faculty view."),
+    )
+    out = run_turn(question="which of my students have missing submissions?", ctx=admin, db=db, provider=provider)
+
+    assert out.tool_runs == [] and out.passages == []  # the listed tool is dropped, nothing is retrieved
+    assert len(provider.calls) == 2  # no Call B
+    synth = provider.calls[1]["messages"][-1]["content"]
+    assert "an administrator does not have" in synth and "faculty members" in synth
+
+
+def test_the_router_is_told_what_each_role_does_not_have(student_ctx, faculty_ctx, db):
+    prompts = {}
+    for role, ctx in (("student", student_ctx), ("faculty", faculty_ctx), ("admin", make_ctx("admin"))):
+        provider = ScriptedProvider(route(intent="smalltalk"), answer())
+        run_turn(question="hi", ctx=ctx, db=db, provider=provider)
+        prompts[role] = provider.calls[0]["system"]
+    assert all('"wrong_role"' in p for p in prompts.values())
+    assert 'a university-wide list is NOT "my students"' in prompts["admin"]
+    assert '"my CGPA"' in prompts["faculty"]
+
+
 def test_route_index_is_filtered_to_the_callers_role(student_ctx, faculty_ctx, db):
     provider = ScriptedProvider(route(intent="smalltalk"), answer())
     run_turn(question="hi", ctx=student_ctx, db=db, provider=provider)

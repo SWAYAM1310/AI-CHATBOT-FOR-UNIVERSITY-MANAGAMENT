@@ -555,6 +555,13 @@
   must_not_contain: ["hours/week", "weekly hours"]
   tags: [refusal, adversarial]
 
+- id: f23
+  role: faculty
+  question: "What is my CGPA?"
+  expected_tools: []
+  expect_refusal: true
+  tags: [refusal, wrong-role]
+
 # ----------------------------------------------------------------------------
 # Admin - university-wide
 # ----------------------------------------------------------------------------
@@ -621,7 +628,7 @@
 - id: a11
   role: admin
   question: "Which students have attendance below 65% in the IT department?"
-  expected_tools: [list_students_below_attendance, get_university_attendance_report]
+  expected_tools: [list_attendance_defaulters, get_university_attendance_report]
   tags: [attendance]
 
 - id: a12
@@ -676,6 +683,21 @@
   expected_tools: []
   expect_refusal: true
   tags: [refusal, no-such-tool]
+
+- id: a19
+  role: admin
+  question: "Which of my students have missing submissions?"
+  expected_tools: []
+  expect_refusal: true
+  must_not_contain: ["25B"]
+  tags: [refusal, wrong-role]
+
+- id: a20
+  role: admin
+  question: "Show me my timetable for Monday."
+  expected_tools: []
+  expect_refusal: true
+  tags: [refusal, wrong-role]
 
 - id: a18
   role: admin

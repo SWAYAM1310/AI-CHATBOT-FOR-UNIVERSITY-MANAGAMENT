@@ -1,6 +1,6 @@
 """System prompts for Calls A, B and C (plan.md §3).
 
-The four standing rules, and where each is enforced:
+The five standing rules, and where each is enforced:
 
   Role rule            — the caller's role and name are stated here, and only
                          tools that survived Layer 1 are ever described. The
@@ -12,6 +12,11 @@ The four standing rules, and where each is enforced:
                          passages means say so, never answer from memory.
   Refusal rule         — Call C: no tool for it means "outside your access
                          level", with no speculation about what an admin sees.
+  Wrong-role rule      — Call A: a question about records this role does not
+                         have ("my students" from an admin, "my CGPA" from a
+                         faculty member) routes to intent "wrong_role" with no
+                         tools, so a nearby tool cannot answer a different
+                         question; Call C then says who the question is for.
 
 Identity is never in these prompts as an instruction the model could ignore —
 it is applied server-side in the registry. The prompt only tells the model who
@@ -30,6 +35,54 @@ _ROLE_BLURB = {
     Role.FACULTY: "a faculty member. They can see their own records and the courses they teach.",
     Role.ADMIN: "an administrator with university-wide access.",
 }
+
+
+# What each role does NOT have, for the wrong-role rule. Without it the router
+# reaches for the nearest tool: an admin's "which of my students have missing
+# submissions?" came back as every missing submission in the university.
+_NOT_YOURS = {
+    Role.STUDENT: (
+        "This caller is a student: they teach no courses, so they have no students, class rosters or "
+        "class-wide statistics of their own, and no university-wide administrative view. \"Which of my "
+        "students...\", a whole class's marks or attendance, or university/department-wide figures are "
+        "faculty or administrator questions."
+    ),
+    Role.FACULTY: (
+        "This caller is a faculty member: they are not enrolled as a student, so they have no attendance, "
+        "marks, results, CGPA, fees, scholarships, exam schedule or assignment submissions of their own, and "
+        "no university-wide administrative view. \"What is my attendance?\", \"my CGPA\", \"my fee dues\" are "
+        "student questions; university- or department-wide counts and reports are administrator questions. "
+        "Their own students, courses and teaching timetable ARE theirs."
+    ),
+    Role.ADMIN: (
+        "This caller is an administrator: they teach no courses and are not enrolled, so they have no "
+        "students, classes, courses, teaching timetable, attendance, marks, fees or assignments of their "
+        "own. \"Which of my students...\", \"my classes\", \"my attendance\", \"my marks\" are faculty or "
+        "student questions - a university-wide list is NOT \"my students\". Questions about students in "
+        "general, a department or the whole university are theirs."
+    ),
+}
+
+# who a wrong-role question is really for, for Call C's one-line explanation
+_BELONGS_TO = {
+    Role.STUDENT: "faculty members (their students and courses) or administrators (university-wide figures)",
+    Role.FACULTY: "students (their own attendance, marks, fees and results) or administrators (university-wide figures)",
+    Role.ADMIN: "faculty members (their own students and courses) or students (their own records)",
+}
+
+_ROLE_NOUN = {Role.STUDENT: "a student", Role.FACULTY: "a faculty member", Role.ADMIN: "an administrator"}
+
+WRONG_ROLE = "wrong_role"
+
+
+def wrong_role_note(ctx: AuthContext) -> str:
+    """Call C's payload note when the router decided the question belongs to another role."""
+    return (
+        f"Note: this question asks about records that {_ROLE_NOUN[ctx.role]} does not have; "
+        f"it is a question for {_BELONGS_TO[ctx.role]}. In one or two sentences, tell the caller that as "
+        f"{_ROLE_NOUN[ctx.role]} they have no such records of their own, so there is nothing to show - this is "
+        f"not a permissions problem. Do not answer it with any other data and do not guess at figures."
+    )
 
 
 def _who(ctx: AuthContext, name: str | None) -> str:
@@ -56,6 +109,12 @@ Reply with JSON only, in this exact shape:
 Rules:
 - intent is "smalltalk" for greetings, thanks, or chit-chat needing no data.
   In that case candidate_tools must be [] and needs_rag false.
+- {_NOT_YOURS[ctx.role]}
+  For a question about the caller's OWN records of a kind this role does not
+  have, intent is "{WRONG_ROLE}", candidate_tools [] and needs_rag false. Never
+  substitute a tool that answers a different question. This is only about the
+  caller's own records: a question about rules or policy ("what is the
+  attendance rule?") is fine for every role.
 - candidate_tools: 0 to 4 names, copied exactly from the list above. Never
   invent a name and never list one that is not above.
 - needs_rag is true when the answer depends on university policy, rules,
@@ -131,9 +190,12 @@ def synthesize_user(
     question: str,
     results: list[dict[str, Any]],
     passages: list[dict[str, Any]],
+    note: str | None = None,
 ) -> str:
-    """The Call C payload: question, compacted tool output, top-3 passages."""
+    """The Call C payload: question, compacted tool output, top-3 passages, and an optional routing note."""
     parts = [f"Question: {question}", ""]
+    if note:
+        parts += [note, ""]
 
     if results:
         parts.append("Tool results:")

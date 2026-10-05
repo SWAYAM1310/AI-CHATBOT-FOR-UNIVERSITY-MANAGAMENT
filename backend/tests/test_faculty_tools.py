@@ -19,6 +19,8 @@ NOT_DBMS = 1
 
 FACULTY_ONLY = {"get_my_teaching_courses", "get_my_teaching_schedule"}
 COURSE_TOOLS = {
+    "list_course_students",
+    "list_students_below_attendance",
     "get_course_attendance_summary",
     "list_missing_submissions",
     "get_course_marks_summary",
@@ -44,13 +46,19 @@ def other():
 
 # --- exposure (RBAC layer 1) -------------------------------------------------
 
-def test_faculty_group_is_visible_to_faculty_and_hidden_from_students():
+def test_faculty_group_is_visible_to_faculty_only():
     faculty_index = {t["name"] for t in REGISTRY.index_for(Role.FACULTY)}
     student_index = {t["name"] for t in REGISTRY.index_for(Role.STUDENT)}
     admin_index = {t["name"] for t in REGISTRY.index_for(Role.ADMIN)}
     assert (FACULTY_ONLY | COURSE_TOOLS) <= faculty_index
     assert not (FACULTY_ONLY | COURSE_TOOLS) & student_index
-    assert COURSE_TOOLS <= admin_index and not FACULTY_ONLY & admin_index
+    assert not (FACULTY_ONLY | COURSE_TOOLS) & admin_index  # an admin teaches nothing: no "my students"
+
+
+@pytest.mark.parametrize("name", sorted(FACULTY_ONLY | COURSE_TOOLS))
+def test_admin_is_denied_every_faculty_tool(name, db):
+    with pytest.raises(ToolDenied):
+        REGISTRY.invoke(name, make_ctx("admin"), db, {})
 
 
 @pytest.mark.parametrize("name", sorted(FACULTY_ONLY | COURSE_TOOLS))

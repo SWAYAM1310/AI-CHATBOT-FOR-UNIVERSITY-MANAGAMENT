@@ -32,7 +32,7 @@ See [`plan.md`](plan.md) for the full architecture, and
 | **3** | RAG — manifest-driven ingest, per-`doc_type` chunkers, hybrid retrieval, resolved citations |
 | **4** | Gap-check against the plan |
 | **5a–5c** | React frontend: streaming answers, Markdown rendering, citation chips, confirmation cards, dev trace panel |
-| **5b** | Evaluation harness, 80-case golden set, three retrieval experiments |
+| **5b** | Evaluation harness, 83-case golden set, three retrieval experiments |
 | **6** | Agentic email notifications for leave apply/decide (Mailpit sandbox + real SMTP) |
 
 **`pytest` — 434 tests, fully offline**: every LLM call goes through a scripted provider,
@@ -208,7 +208,7 @@ Run the evaluation (from `backend/`; needs `LLM_API_KEY`, `--dry-run` validates 
 
 ```bash
 python -u ../eval/run_eval.py --dry-run                      # no LLM calls
-python -u ../eval/run_eval.py --out ../eval/results.json     # full 80 cases, ~30 min
+python -u ../eval/run_eval.py --out ../eval/results.json     # full 83 cases, ~30 min
 python -u ../eval/retrieval_experiments.py                   # Jina only, ~3 min
 ```
 

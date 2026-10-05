@@ -16,7 +16,7 @@ from typing import Any
 from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 
-from app.ai.tools.builtin import PRESENT
+from app.ai.tools.builtin import PRESENT, below_attendance_rows
 from app.ai.tools.registry import Scope, tool
 from app.auth.context import AuthContext, Role
 from app.models import (
@@ -298,6 +298,34 @@ def list_students(
         }
         for s in rows
     ]
+
+
+@tool(
+    name="list_attendance_defaulters",
+    description=(
+        "Named students anywhere in the university whose attendance in a course this term is below a threshold "
+        "(default 75%), worst first; optionally one department, semester or course code (at most 100 rows)."
+    ),
+    allowed_roles=ADMIN,
+    scope=Scope.UNIVERSITY,
+)
+def list_attendance_defaulters(
+    *,
+    ctx: AuthContext,
+    db: Session,
+    threshold: float = ATTENDANCE_FLOOR,
+    dept: str | None = None,
+    semester: int | None = None,
+    course_code: str | None = None,
+    **_: Any,
+) -> list[dict[str, Any]]:
+    stmt = select(CourseOffering.id).where(CourseOffering.term == ctx.term)
+    if course_code:
+        stmt = stmt.where(CourseOffering.subject_code == course_code.strip().upper())
+    offerings = list(db.scalars(stmt))
+    if not offerings:
+        return []
+    return below_attendance_rows(db, offerings, threshold, dept=dept, semester=semester, limit=LIST_CAP)
 
 
 @tool(

@@ -20,6 +20,7 @@ STUDENT_TABLE_TOOLS = {
     "list_students",
     "list_course_students",
     "list_students_below_attendance",
+    "list_attendance_defaulters",
     "identify_at_risk_students",
     "list_missing_submissions",
 }

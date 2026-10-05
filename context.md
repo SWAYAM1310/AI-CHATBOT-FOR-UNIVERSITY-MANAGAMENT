@@ -200,8 +200,8 @@ on an RTX 3050.
       transaction** (survives request rollback), returns the result.
 - `backend/app/ai/tools/builtin.py` — starter real tools:
   `get_my_profile` (student/faculty, SELF), `get_my_attendance` (student, SELF),
-  `list_course_students` (faculty/admin, OWN_COURSES),
-  `list_students_below_attendance` (faculty/admin, OWN_COURSES). Faculty-scoped
+  `list_course_students` (faculty, OWN_COURSES),
+  `list_students_below_attendance` (faculty, OWN_COURSES; admin-shared until §16). Faculty-scoped
   helpers filter `course_offerings.faculty_id == ctx.faculty_id`.
 - `backend/app/api/`: `auth.py` = `POST /api/auth/login` (`{email, password}` →
   `{access_token, role, subject_ref}`); `me.py` = `GET /api/me` (context + profile
@@ -1914,8 +1914,8 @@ cd backend
 ```
 
   (20 cases carry `expect_sources`, 19 carry `expect_facts` / 29 facts.)
-- Set composition, for reading the output: 80 cases — 40 student / 22 faculty
-  / 18 admin; 14 refusal; 52 with `expected_tools`; 20 `expect_citation`;
+- Set composition, for reading the output: **83 cases since §16** — 40 student / 23 faculty
+  / 20 admin; 17 refusal; 52 with `expected_tools`; 20 `expect_citation`;
   7 `expect_path: confirm`, 3 `smalltalk`.
 - Gate: exit 0 only when refusal = 100%, routing ≥ 85%, and all 80 completed.
 
@@ -1930,3 +1930,37 @@ cd backend
    **434 tests**, RAG/eval/frontend/email all shipped. Anyone reading the
    repo cold (a recruiter following a GitHub link) hits this first. Fix it
    before sharing the repo.
+
+## 16. Role-mismatch fix — faculty tools no longer answer admins (2026-10-05)
+
+**Bug (reported by the user):** an admin asked *"which of my students have
+missing submissions"* and got an answer — every missing submission in the
+university. Cause: the six faculty OWN_COURSES tools (`list_course_students`,
+`list_students_below_attendance`, `get_course_attendance_summary`,
+`list_missing_submissions`, `get_course_marks_summary`,
+`identify_at_risk_students`) allowed `{FACULTY, ADMIN}`, and
+`_faculty_offerings` let an admin through *ungated* (every offering in the
+term). So "my students" from an admin became a university-wide list.
+
+**Fix:**
+- Those six tools are **FACULTY-only** (Layers 1 + 2). `_faculty_offerings`
+  returns `[]` for any non-faculty caller (defence in depth).
+- Admin's legitimate need (eval a11, "students below 65% in IT") moves to a
+  new admin tool **`list_attendance_defaulters`** (UNIVERSITY; threshold, dept,
+  semester, course_code; capped at 100, worst first). Shares the query with
+  the faculty tool via `builtin.below_attendance_rows`. Wired into cards
+  (`student_table`) and `POLICY_CONTEXT`. `list_students_below_attendance`
+  lost its admin-only `dept` param. Catalog is now 43 tools.
+- **Wrong-role rule** (`prompts/system.py`): Call A is told per role what that
+  role does *not* have (admin: no students/courses/marks of its own; faculty:
+  no attendance/CGPA/fees of its own; student: no students/class stats/
+  university view). Such a question → intent **`wrong_role`**; the
+  orchestrator then drops all candidates and RAG and gives Call C a note
+  naming who the question is for. Path stays `full`; trace shows the intent.
+- Eval: a11 now expects `list_attendance_defaulters`; new refusal cases
+  **a19** (admin "my students … missing submissions"), **a20** (admin "my
+  timetable"), **f23** (faculty "my CGPA"). 83 cases, validates clean.
+- Tests: 449 passed (new: admin denied every faculty tool, defaulters tool,
+  wrong-role orchestrator path, per-role router prompt). Not yet verified
+  live against Groq — the wrong-role routing is a prompt rule, so it needs
+  the golden-set re-run (a19/a20/f23) to confirm.

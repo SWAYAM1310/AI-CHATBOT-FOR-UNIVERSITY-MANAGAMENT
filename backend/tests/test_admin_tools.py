@@ -201,16 +201,18 @@ def test_course_performance_reports_a_per_course_failure_rate(db):
     assert all(r["failure_rate_percent"] is None or 0 <= r["failure_rate_percent"] <= 100 for r in rows)
 
 
-def test_an_admin_without_a_course_sees_every_course_and_can_filter_by_dept(db):
-    """Eval a11: an empty list was read as "no students below 65% in IT" - an admin has UNIVERSITY scope."""
+def test_attendance_defaulters_span_every_course_and_filter_by_dept(db):
+    """Eval a11: "which students are below 65% in IT?" - an admin has UNIVERSITY scope, on its own tool."""
     ctx = make_ctx("admin")
-    everyone = REGISTRY.invoke("list_students_below_attendance", ctx, db, {"threshold": 75})
-    it_only = REGISTRY.invoke("list_students_below_attendance", ctx, db, {"threshold": 75, "dept": "it"})
-    assert everyone and len({r["dept"] for r in everyone}) > 1
+    everyone = REGISTRY.invoke("list_attendance_defaulters", ctx, db, {"threshold": 75})
+    it_only = REGISTRY.invoke("list_attendance_defaulters", ctx, db, {"threshold": 75, "dept": "it"})
+    assert everyone and len({r["dept"] for r in everyone}) > 1 and len(everyone) <= LIST_CAP
     assert it_only and all(r["dept"] == "IT" for r in it_only) and len(it_only) < len(everyone)
-    # a faculty member is still confined to their own courses, dept filter or not
-    mine = REGISTRY.invoke("list_students_below_attendance", make_ctx("faculty", 2), db, {"threshold": 75})
-    assert set(r["roll_no"] for r in mine) <= set(r["roll_no"] for r in everyone)
+    assert [r["percent"] for r in it_only] == sorted(r["percent"] for r in it_only)  # worst first
+    # a faculty member's own view of a course matches the university's view of the same course
+    mine = REGISTRY.invoke("list_students_below_attendance", make_ctx("faculty", 2), db, {"threshold": 75, "course_code": DBMS})
+    theirs = REGISTRY.invoke("list_attendance_defaulters", ctx, db, {"threshold": 75, "course_code": DBMS})
+    assert mine == theirs
 
 
 def test_null_arguments_mean_not_given_so_defaults_apply(db):

@@ -29,10 +29,12 @@ from app.ai.budget import get_budgeted_provider
 from app.ai.cards import cards_for
 from app.ai.compact import compact
 from app.ai.prompts.system import (
+    WRONG_ROLE,
     plan_system,
     route_system,
     synthesize_system,
     synthesize_user,
+    wrong_role_note,
 )
 from app.ai.providers import LLMProvider, LLMResponse, Msg, StreamDelta, StreamEvent, Usage, parse_json_object
 from app.ai.rag.citations import IncrementalCitations
@@ -59,6 +61,7 @@ POLICY_CONTEXT = {
     "get_my_attendance": "minimum attendance percentage required for end-semester examination eligibility and condonation",
     "get_course_attendance_summary": "minimum attendance percentage required for end-semester examination eligibility",
     "list_students_below_attendance": "minimum attendance percentage required for end-semester examination eligibility and condonation",
+    "list_attendance_defaulters": "minimum attendance percentage required for end-semester examination eligibility and condonation",
     "get_my_fees": "semester fee due date, late fee per week and overdue consequences",
     "get_my_marks": "minimum marks for passing and assessment weightage",
     "get_my_results": "grading, grade points and backlogs",
@@ -257,6 +260,11 @@ def iter_turn(
     needs_rag = bool(plan.get("needs_rag"))
     rag_query = str(plan.get("rag_query") or "").strip() or question  # the router's rewrite, else the question
     candidates = _candidate_names(plan.get("candidate_tools"), ctx.role)
+    note = None
+    if intent == WRONG_ROLE:
+        # about records this role does not have ("my students" from an admin): any tool the
+        # router also listed would answer a different question, so none runs and nothing is retrieved
+        candidates, needs_rag, note = [], False, wrong_role_note(ctx)
 
     # --- fast path ----------------------------------------------------------
     if intent == "smalltalk" and not candidates and not needs_rag:
@@ -356,7 +364,7 @@ def iter_turn(
                 {
                     "role": "user",
                     "content": synthesize_user(
-                        question, [r.as_prompt_block() for r in runs if r.name not in PASSAGE_TOOLS], passages
+                        question, [r.as_prompt_block() for r in runs if r.name not in PASSAGE_TOOLS], passages, note
                     ),
                 },
             ],
@@ -400,7 +408,7 @@ def iter_turn(
                     {
                         "role": "user",
                         "content": synthesize_user(
-                            question, [r.as_prompt_block() for r in runs if r.name not in PASSAGE_TOOLS], passages
+                            question, [r.as_prompt_block() for r in runs if r.name not in PASSAGE_TOOLS], passages, note
                         ),
                     },
                 ],

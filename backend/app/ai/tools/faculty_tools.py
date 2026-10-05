@@ -4,7 +4,8 @@ Every course-level tool goes through `_faculty_offerings`: a faculty member only
 ever sees offerings where `course_offerings.faculty_id` is *their own* id from
 AuthContext. Asking about a course they don't teach yields nothing — not an
 error, so the model can say "you don't teach that course" rather than guess.
-Admins pass the same gate ungated (UNIVERSITY scope on the same tool).
+These are faculty-only: an admin teaches nothing, so "which of my students…"
+has no meaning for them, and the university-wide views are admin tools.
 
 `list_course_students` and `list_students_below_attendance` already live in
 app.ai.tools.builtin; this module completes the group.
@@ -32,7 +33,7 @@ from app.models import (
     TimetableSlot,
 )
 
-FACULTY_ROLES = {Role.FACULTY, Role.ADMIN}
+FACULTY_ROLES = {Role.FACULTY}
 ATTENDANCE_RISK_PCT = 75.0  # the university's own attendance floor
 MARKS_RISK_PCT = 40.0  # below this share of max marks on graded work
 ASSIGNMENT_PREFIX = "Assignment"  # assessments.type is "Assignment-1", "Assignment-2", ...

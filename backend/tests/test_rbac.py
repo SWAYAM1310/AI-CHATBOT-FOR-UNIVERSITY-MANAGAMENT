@@ -34,10 +34,11 @@ def test_faculty_tool_hidden_from_student_index():
     assert "get_my_attendance" in names
 
 
-def test_student_tools_hidden_from_admin_where_not_shared():
+def test_student_and_faculty_tools_hidden_from_admin():
     names = {t["name"] for t in REGISTRY.index_for(Role.ADMIN)}
-    assert "get_my_attendance" not in names  # SELF student tool
-    assert FACULTY_TOOL in names             # shared faculty/admin tool
+    assert "get_my_attendance" not in names           # SELF student tool
+    assert FACULTY_TOOL not in names                  # OWN_COURSES: an admin teaches nothing
+    assert "list_attendance_defaulters" in names      # the admin's own university-wide view
 
 
 # --- Layer 2: execution guard --------------------------------------------
@@ -47,6 +48,14 @@ def test_student_invoking_faculty_tool_is_denied_and_audited():
     with SessionLocal() as db, pytest.raises(ToolDenied):
         REGISTRY.invoke(FACULTY_TOOL, ctx, db, {"course_code": "24CS201T"})
     assert _last_decision(FACULTY_TOOL) == "denied"
+
+
+def test_admin_invoking_faculty_tool_is_denied_and_audited():
+    """An admin's "which of my students..." must not become a university-wide list."""
+    ctx = make_ctx("admin")
+    with SessionLocal() as db, pytest.raises(ToolDenied):
+        REGISTRY.invoke("list_missing_submissions", ctx, db, {})
+    assert _last_decision("list_missing_submissions") == "denied"
 
 
 # --- Layer 3: identity args are never trusted --------------------------
@@ -65,8 +74,8 @@ def test_student_id_arg_is_stripped_and_returns_own_data():
 def test_admin_may_pass_identity_args_without_stripping():
     ctx = make_ctx("admin")
     with SessionLocal() as db:
-        REGISTRY.invoke(FACULTY_TOOL, ctx, db, {"course_code": "24CS201T", "faculty_id": 2})
-    assert _last_decision(FACULTY_TOOL) == "allowed"
+        REGISTRY.invoke("list_attendance_defaulters", ctx, db, {"course_code": "24CS201T", "faculty_id": 2})
+    assert _last_decision("list_attendance_defaulters") == "allowed"
 
 
 # --- Scope: faculty OWN_COURSES ---------------------------------------
