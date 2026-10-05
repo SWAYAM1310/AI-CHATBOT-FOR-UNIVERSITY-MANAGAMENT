@@ -27,6 +27,7 @@ import type {
   RosterOut,
   Role,
   StudentDashboard,
+  StudentResults,
 } from './types'
 
 export class ApiError extends Error {
@@ -172,6 +173,7 @@ const json = (body: unknown): RequestInit => ({ body: JSON.stringify(body) })
 export const api = {
   photo,
   studentDashboard: () => request<StudentDashboard>('/api/student/dashboard'),
+  studentResults: () => request<StudentResults>('/api/student/results'),
   profile: () => request<ProfileOut>('/api/profile'),
   updateProfile: (changes: Record<string, string>) =>
     request<{ profile: ProfileOut['profile'] }>('/api/profile', { method: 'PATCH', ...json(changes) }),

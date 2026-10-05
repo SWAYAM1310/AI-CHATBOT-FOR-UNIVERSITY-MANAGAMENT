@@ -2265,6 +2265,24 @@ automated, and the data stays realistic. Plan: `C:\Users\ASUS\.claude\plans\ther
 
 **Gotcha (again):** `uvicorn --reload` hangs when files change while a browser tab is open. It keeps serving the old code. Kill every `uvicorn`/`multiprocessing` python process and start it again.
 
+### Student Results page (2026-10-05)
+The Home "Marks this term" table (17+ rows, course code only, score a screen away)
+moved to its own **Results** page (`/results`, second in the student sidebar).
+- `GET /api/student/results` (`backend/app/api/student.py`): every enrolled
+  semester newest first, each course with all its assessments (left-joined, so
+  scheduled End-Sem/Lab-Exam show as "On <date>"), the declared `results_semester`
+  row (SGPA/CGPA in the page lede), and an **IA** per course = every component
+  except End-Sem/Lab-Exam scaled to its weightage (theory /50 per Exam. Regs 2.2.1,
+  lab CIE /60, the internship's Term-Work /100); `complete: false` = "so far".
+  The dashboard no longer returns `marks`.
+- `frontend/src/portal/student/Results.tsx`: Semester + Subject (All or one)
+  pickers kept in the URL (`?sem=&course=`); one table per exam type in held
+  order (Course code | Course name | Marks), then IA, then the end-of-term exams.
+  Tables capped at 760px with a small score meter; on phones the course name
+  leads each stacked row.
+- 4 tests in `test_faculty_portal_api.py` (students-only, semesters/result,
+  parity with `get_my_marks`, the IA arithmetic). 545 pass.
+
 ### Next: 7f
 README feature list/screenshots, golden-set cases for `record_fee_payment` and a
 semester-filtered `publish_notice` (confirm path; run only the validator — the

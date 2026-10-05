@@ -12,6 +12,7 @@ from datetime import date, datetime, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
 
 from app.ai.cards import ATTENDANCE_THRESHOLD
@@ -19,8 +20,13 @@ from app.api.profile import identity_row
 from app.api.toolcall import read_tool
 from app.auth.context import AuthContext, Role
 from app.auth.deps import get_db, require_roles
+from app.models import Assessment, CourseOffering, Enrollment, Mark, ResultSemester, Subject
 
 router = APIRouter(prefix="/api/student", tags=["student"])
+
+# The end-of-term examinations; every other component is continuous internal assessment
+# (Examination Regulations 2.1: CIA during the semester, ESE after the last teaching day).
+EXTERNAL_TYPES = {"End-Sem", "Lab-Exam"}
 
 
 def _attendance(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -77,10 +83,111 @@ def dashboard(ctx: AuthContext = Depends(require_roles(Role.STUDENT)), db: Sessi
         "date": today.isoformat(),
         "weekday": today.weekday(),
         "attendance": _attendance(read_tool("get_my_attendance", ctx, db)),
-        "marks": read_tool("get_my_marks", ctx, db),
         "fees": _fees(read_tool("get_my_fees", ctx, db)),
         "assignments": read_tool("get_my_assignments", ctx, db),
         "exams": read_tool("get_my_exam_schedule", ctx, db),
         "today": read_tool("get_my_timetable", ctx, db, day=today.weekday()),
         "announcements": read_tool("get_my_announcements", ctx, db)[:10],
     }
+
+
+def _num(v: Any) -> float | None:
+    return float(v) if v is not None else None
+
+
+def _internal_assessment(assessments: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The course's internal assessment (IA): each internal component's mark scaled to its weightage.
+
+    An absent student scores zero on that component. Until every internal component is
+    graded the figure is a running total, and `complete` says so.
+    """
+    internal = [a for a in assessments if a["type"] not in EXTERNAL_TYPES and a["weightage_pct"] and a["max_marks"]]
+    if not internal:
+        return None
+    graded = [a for a in internal if a["is_absent"] or a["score"] is not None]
+    score = sum(0.0 if a["is_absent"] else a["score"] / a["max_marks"] * a["weightage_pct"] for a in graded)
+    return {
+        "score": round(score, 2),
+        "out_of": sum(a["weightage_pct"] for a in internal),
+        "graded_out_of": sum(a["weightage_pct"] for a in graded),
+        "complete": len(graded) == len(internal),
+    }
+
+
+@router.get("/results")
+def results(ctx: AuthContext = Depends(require_roles(Role.STUDENT)), db: Session = Depends(get_db)) -> dict[str, Any]:
+    """Every semester the student has been enrolled in, newest first: each course's assessments
+    (including those not held yet), its IA, and the declared semester result where there is one."""
+    rows = db.execute(
+        select(
+            CourseOffering.term,
+            CourseOffering.semester,
+            CourseOffering.subject_code,
+            CourseOffering.subject_name,
+            Subject.component,
+            Assessment.type,
+            Assessment.title,
+            Assessment.max_marks,
+            Assessment.weightage_pct,
+            Assessment.due_date,
+            Assessment.status,
+            Mark.id.label("mark_id"),
+            Mark.score,
+            Mark.is_absent,
+        )
+        .select_from(Enrollment)
+        .join(CourseOffering, CourseOffering.id == Enrollment.offering_id)
+        .join(Subject, Subject.subject_code == CourseOffering.subject_code)
+        .outerjoin(Assessment, Assessment.offering_id == CourseOffering.id)
+        .outerjoin(Mark, and_(Mark.assessment_id == Assessment.id, Mark.student_id == ctx.student_id))
+        .where(Enrollment.student_id == ctx.student_id, Enrollment.status != "dropped")
+        .order_by(CourseOffering.semester.desc(), CourseOffering.subject_code, Assessment.due_date, Assessment.id)
+    ).all()
+
+    semesters: dict[tuple[str, int], dict[str, Any]] = {}
+    for r in rows:
+        sem = semesters.setdefault(
+            (r.term, r.semester),
+            {"semester": r.semester, "term": r.term, "current": r.term == ctx.term, "result": None, "courses": {}},
+        )
+        course = sem["courses"].setdefault(
+            r.subject_code,
+            {"course": r.subject_code, "name": r.subject_name, "component": r.component, "assessments": []},
+        )
+        if r.type is None:  # a course with no assessments set yet
+            continue
+        course["assessments"].append(
+            {
+                "type": r.type,
+                "title": r.title,
+                "max_marks": _num(r.max_marks),
+                "weightage_pct": _num(r.weightage_pct),
+                "due_date": r.due_date.isoformat() if r.due_date else None,
+                "status": r.status,
+                "entered": r.mark_id is not None,
+                "score": _num(r.score),
+                "is_absent": bool(r.is_absent),
+            }
+        )
+
+    declared = db.scalars(select(ResultSemester).where(ResultSemester.student_id == ctx.student_id)).all()
+    for res in declared:
+        sem = semesters.get((res.term, res.semester))
+        if sem is not None:
+            sem["result"] = {
+                "sgpa": _num(res.sgpa),
+                "cgpa": _num(res.cgpa),
+                "result_status": res.result_status,
+                "credits_earned": res.credits_earned,
+                "credits_registered": res.credits_registered,
+                "backlogs": res.backlogs,
+                "declared_on": res.declared_on.isoformat() if res.declared_on else None,
+            }
+
+    out = []
+    for sem in semesters.values():
+        courses = list(sem["courses"].values())
+        for c in courses:
+            c["ia"] = _internal_assessment(c["assessments"])
+        out.append({**sem, "courses": courses})
+    return {"term": ctx.term, "semesters": out}

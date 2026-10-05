@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api'
 import type { CourseAttendance, StudentDashboard } from '../../types'
@@ -10,8 +10,6 @@ import { useLoad } from '../useLoad'
 
 const REFRESH_MS = 30_000 // a faculty member's attendance entry shows up here within half a minute
 const SUNDAY = 6
-const MARKS_SHOWN = 8
-const LOW_MARKS_PCT = 40 // the pass mark on a component
 
 interface Attention {
   tone: 'warn' | 'alert'
@@ -84,13 +82,11 @@ function AttendanceRow({ c, floor }: { c: CourseAttendance; floor: number }) {
 export function StudentHome() {
   const { me } = usePortal()
   const { data: d, error } = useLoad(() => api.studentDashboard(), 'student-dashboard', true, REFRESH_MS)
-  const [allMarks, setAllMarks] = useState(false)
   const name = firstName(me?.full_name ?? d?.student.full_name)
   const todo = d ? attention(d) : []
 
   const upcoming = d?.exams.filter((e) => e.date >= d.date) ?? []
   const open = d?.assignments.filter((a) => a.status !== 'submitted') ?? []
-  const marks = d ? (allMarks ? d.marks : d.marks.slice(0, MARKS_SHOWN)) : []
 
   return (
     <div className="page">
@@ -163,48 +159,6 @@ export function StudentHome() {
                   </li>
                 ))}
               </ol>
-            )}
-          </section>
-
-          <section className="block" aria-labelledby="marks-h">
-            <h2 id="marks-h">Marks this term</h2>
-            {d.marks.length === 0 ? (
-              <Empty>No marks have been entered yet.</Empty>
-            ) : (
-              <>
-                <div className="table-wrap">
-                  <table className="data">
-                    <thead>
-                      <tr>
-                        <th>Course</th>
-                        <th>Assessment</th>
-                        <th className="num">Score</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {marks.map((m, i) => {
-                        const pct = m.score !== null && m.max_marks ? (m.score * 100) / m.max_marks : null
-                        return (
-                          <tr key={i}>
-                            <td className="mono">{m.course}</td>
-                            <td>{m.title || m.assessment_type}</td>
-                            <td className={`num${pct !== null && pct < LOW_MARKS_PCT ? ' low' : ''}`}>
-                              {m.is_absent ? <span className="muted">Absent</span> : m.score === null ? <span className="muted">Not graded</span> : `${m.score} / ${m.max_marks ?? '?'}`}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                {d.marks.length > MARKS_SHOWN && (
-                  <p className="small">
-                    <button type="button" className="linklike" onClick={() => setAllMarks((v) => !v)}>
-                      {allMarks ? 'Show fewer' : `Show all ${d.marks.length}`}
-                    </button>
-                  </p>
-                )}
-              </>
             )}
           </section>
 
@@ -297,7 +251,7 @@ export function StudentHome() {
           </div>
 
           <p className="small muted">
-            Not sure what a number means? <Link to="/assistant">Ask the assistant.</Link>
+            Your marks and IA are on the <Link to="/results">Results</Link> page. Not sure what a number means? <Link to="/assistant">Ask the assistant.</Link>
           </p>
         </>
       )}

@@ -292,7 +292,7 @@ def test_chat_previews_still_work_and_name_the_exact_section(undo):
 def test_student_dashboard_has_every_section_and_the_attendance_arithmetic():
     d = client.get("/api/student/dashboard", headers=_login("student:17")).json()
     assert d["student"]["roll_no"] == "25BCP017" and d["attendance"]["threshold"] == 75
-    assert {"attendance", "marks", "fees", "assignments", "exams", "today", "announcements"} <= d.keys()
+    assert {"attendance", "fees", "assignments", "exams", "today", "announcements"} <= d.keys()
     for c in d["attendance"]["courses"]:
         assert c["below_threshold"] == (c["total"] > 0 and c["attended"] / c["total"] < 0.75)
         if c["recover"]:  # attending that many classes in a row really does reach the floor
@@ -308,6 +308,45 @@ def test_student_dashboard_agrees_with_the_assistants_attendance():
         chat = REGISTRY.invoke("get_my_attendance", make_ctx("student", 17), db)
     page = client.get("/api/student/dashboard", headers=_login("student:17")).json()["attendance"]["courses"]
     assert [(c["course"], c["percent"]) for c in page] == [(c["course"], c["percent"]) for c in chat]
+
+
+def test_student_results_are_students_only(fac):
+    assert client.get("/api/student/results", headers=fac).status_code == 403
+    assert client.get("/api/student/results").status_code in (401, 403)
+
+
+def test_student_results_cover_every_semester_newest_first_with_the_declared_result():
+    d = client.get("/api/student/results", headers=_login("student:17")).json()
+    sems = d["semesters"]
+    assert [s["semester"] for s in sems] == sorted((s["semester"] for s in sems), reverse=True) and len(sems) >= 2
+    assert [s["current"] for s in sems].count(True) == 1 and sems[0]["current"] and sems[0]["term"] == d["term"]
+    past = sems[1]
+    assert past["result"] is not None and past["result"]["sgpa"] is not None
+    assert all(a["status"] == "graded" for c in past["courses"] for a in c["assessments"])
+
+
+def test_student_results_agree_with_the_assistants_marks():
+    with SessionLocal() as db:
+        chat = REGISTRY.invoke("get_my_marks", make_ctx("student", 17), db)
+    current = client.get("/api/student/results", headers=_login("student:17")).json()["semesters"][0]
+    page = [(c["course"], a["type"], a["score"]) for c in current["courses"] for a in c["assessments"] if a["entered"]]
+    assert sorted(page) == sorted((m["course"], m["assessment_type"], m["score"]) for m in chat)
+
+
+def test_ia_is_the_internal_components_scaled_to_their_weightage():
+    sems = client.get("/api/student/results", headers=_login("student:17")).json()["semesters"]
+    checked = 0
+    for c in (c for s in sems for c in s["courses"] if c["ia"]):
+        internal = [a for a in c["assessments"] if a["type"] not in ("End-Sem", "Lab-Exam")]
+        graded = [a for a in internal if a["is_absent"] or a["score"] is not None]
+        expected = sum(0 if a["is_absent"] else a["score"] / a["max_marks"] * a["weightage_pct"] for a in graded)
+        assert c["ia"]["score"] == pytest.approx(expected, abs=0.01)
+        assert c["ia"]["out_of"] == sum(a["weightage_pct"] for a in internal)
+        assert c["ia"]["complete"] == (len(graded) == len(internal))
+        if any(a["type"] == "End-Sem" for a in c["assessments"]):
+            assert c["ia"]["out_of"] == 50  # Examination Regulations 2.2.1: the five CIA components
+        checked += 1
+    assert checked > 0
 
 
 def test_faculty_dashboard_shows_courses_todays_classes_and_hod_leave():

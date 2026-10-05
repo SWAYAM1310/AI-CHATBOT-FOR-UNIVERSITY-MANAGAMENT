@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import type { Role } from '../types'
 import { Avatar } from './Avatar'
 import { usePortal } from './context'
-import { BookIcon, CalendarIcon, ChatIcon, HomeIcon, MegaphoneIcon, MenuIcon, SignOutIcon, UserIcon, WalletIcon } from './icons'
+import { BookIcon, CalendarIcon, ChatIcon, HomeIcon, MegaphoneIcon, MenuIcon, ResultsIcon, SignOutIcon, UserIcon, WalletIcon } from './icons'
 
 interface NavItem {
   to: string
@@ -17,6 +17,7 @@ interface NavItem {
 const NAV: Record<Role, NavItem[]> = {
   student: [
     { to: '/', label: 'Home', icon: <HomeIcon />, end: true },
+    { to: '/results', label: 'Results', icon: <ResultsIcon /> },
     { to: '/assistant', label: 'Assistant', icon: <ChatIcon /> },
     { to: '/profile', label: 'Profile', icon: <UserIcon /> },
   ],

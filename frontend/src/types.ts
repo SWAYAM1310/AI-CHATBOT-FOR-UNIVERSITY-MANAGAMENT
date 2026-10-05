@@ -329,15 +329,6 @@ export interface CourseAttendance {
   can_skip: number | null
 }
 
-export interface MarkRow {
-  course: string
-  assessment_type: string
-  title: string | null
-  score: number | null
-  max_marks: number | null
-  is_absent: boolean
-}
-
 export interface FeeEntry {
   term: string
   amount_due: number | null
@@ -383,12 +374,63 @@ export interface StudentDashboard {
   date: string
   weekday: number
   attendance: { threshold: number; overall_percent: number | null; short_courses: number; courses: CourseAttendance[] }
-  marks: MarkRow[]
   fees: { all_paid: boolean; outstanding: number; entries: FeeEntry[] }
   assignments: AssignmentRow[]
   exams: ExamRow[]
   today: ClassSlot[]
   announcements: AnnouncementItem[]
+}
+
+// --- student results (backend/app/api/student.py) -------------------------------------------
+
+export interface ResultAssessment {
+  type: string
+  title: string | null
+  max_marks: number | null
+  weightage_pct: number | null
+  due_date: string | null
+  status: string | null // scheduled | completed | graded
+  entered: boolean // a mark row exists for this student
+  score: number | null
+  is_absent: boolean
+}
+
+export interface InternalAssessment {
+  score: number // weighted, out of `out_of`
+  out_of: number
+  graded_out_of: number
+  complete: boolean
+}
+
+export interface ResultCourse {
+  course: string
+  name: string
+  component: string | null
+  assessments: ResultAssessment[]
+  ia: InternalAssessment | null
+}
+
+export interface ResultSemesterSummary {
+  sgpa: number | null
+  cgpa: number | null
+  result_status: string | null
+  credits_earned: number | null
+  credits_registered: number | null
+  backlogs: number | null
+  declared_on: string | null
+}
+
+export interface ResultsSemester {
+  semester: number
+  term: string
+  current: boolean
+  result: ResultSemesterSummary | null
+  courses: ResultCourse[]
+}
+
+export interface StudentResults {
+  term: string
+  semesters: ResultsSemester[] // newest first
 }
 
 // --- profile (backend/app/api/profile.py) ---------------------------------------------------

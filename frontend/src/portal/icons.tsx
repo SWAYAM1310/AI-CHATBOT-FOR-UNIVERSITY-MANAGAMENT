@@ -27,6 +27,13 @@ export const HomeIcon = () => (
   </Svg>
 )
 
+export const ResultsIcon = () => (
+  <Svg>
+    <rect x="5" y="3.5" width="14" height="17" rx="2" />
+    <path d="M9 16.5v-3M12 16.5v-7M15 16.5v-5" />
+  </Svg>
+)
+
 export const BookIcon = () => (
   <Svg>
     <path d="M5 4.5h10a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3V4.5Z" />

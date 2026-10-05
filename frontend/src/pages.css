@@ -328,6 +328,90 @@ table.data {
   font-weight: 600;
 }
 
+/* --- student results: one narrow table per exam type ------------------------------------ */
+
+.results-h {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.results-h .small {
+  font-family: var(--sans);
+  font-weight: 400;
+}
+
+/* narrow enough that a mark sits beside its course name, not a screen away */
+.results-table {
+  max-width: 760px;
+}
+
+.results-table th:first-child {
+  width: 128px;
+}
+
+.results-table th.num {
+  width: 180px;
+}
+
+.results-table .score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+/* a fixed slot for "8.5 / 10" so every meter in a column lines up */
+.results-table .score-text {
+  min-width: 6.5em;
+  text-align: right;
+}
+
+.results-toolbar {
+  max-width: 760px;
+  margin-bottom: 28px;
+}
+
+.results-toolbar .field-inline {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.results-toolbar select {
+  width: 100%;
+}
+
+.score-meter {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 56px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.score-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--present);
+}
+
+.score-meter > span.low {
+  background: var(--red);
+}
+
+.results-ia .table-wrap {
+  border-top: 2px solid var(--crest);
+}
+
+.results-note {
+  margin: 8px 0 0;
+}
+
 .data.marks input[type='number'] {
   width: 96px;
   text-align: right;
@@ -1095,6 +1179,10 @@ table.data {
   .stack-table td:not([data-label]) {
     display: block;
     text-align: left;
+  }
+
+  .results-table td.course-code {
+    color: var(--muted);
   }
 
   .stack-table td.lead-cell {

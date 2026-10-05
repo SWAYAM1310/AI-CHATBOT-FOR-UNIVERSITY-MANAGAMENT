@@ -12,12 +12,16 @@ import { Roster } from './faculty/Roster'
 import { Assistant } from './pages'
 import { PortalLayout } from './PortalLayout'
 import { Profile } from './Profile'
+import { Results } from './student/Results'
 import { StudentHome } from './student/StudentHome'
 
 // Only the pages a role can use exist for it; anything else falls back to Home,
 // so a bookmarked /fees opened by a student lands somewhere sensible.
 const BY_ROLE: Record<Role, RouteObject[]> = {
-  student: [{ index: true, element: <StudentHome /> }],
+  student: [
+    { index: true, element: <StudentHome /> },
+    { path: 'results', element: <Results /> },
+  ],
   faculty: [
     { index: true, element: <FacultyHome /> },
     { path: 'courses', element: <Courses /> },
