@@ -1,7 +1,18 @@
 import { useEffect, type ReactNode } from 'react'
 
 /** The title block every portal page opens with; also names the browser tab. */
-export function PageHeader({ title, lede, actions }: { title: string; lede?: ReactNode; actions?: ReactNode }) {
+export function PageHeader({
+  title,
+  lede,
+  actions,
+  eyebrow,
+}: {
+  title: string
+  lede?: ReactNode
+  actions?: ReactNode
+  /** A short line above the title, e.g. today's date. */
+  eyebrow?: ReactNode
+}) {
   useEffect(() => {
     const previous = document.title
     document.title = `${title} - UniAssist`
@@ -13,6 +24,7 @@ export function PageHeader({ title, lede, actions }: { title: string; lede?: Rea
   return (
     <header className="page-header">
       <div>
+        {eyebrow && <p className="page-eyebrow">{eyebrow}</p>}
         <h1 className="page-title">{title}</h1>
         {lede && <p className="page-lede">{lede}</p>}
       </div>

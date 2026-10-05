@@ -3,13 +3,15 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import type { Role } from '../types'
 import { Avatar } from './Avatar'
 import { usePortal } from './context'
-import { BookIcon, CalendarIcon, ChatIcon, HomeIcon, MegaphoneIcon, MenuIcon, ResultsIcon, SignOutIcon, UserIcon, WalletIcon } from './icons'
+import { ActivitiesIcon, AlertIcon, AttendanceIcon, BookIcon, CalendarIcon, ExamIcon, ChatIcon, HomeIcon, LeaveIcon, MegaphoneIcon, MenuIcon, ResultsIcon, SignOutIcon, UserIcon, WalletIcon } from './icons'
 
 interface NavItem {
   to: string
   label: string
   icon: ReactNode
   end?: boolean
+  /** Only a head of department sees it. */
+  hodOnly?: boolean
 }
 
 // What each role works with, most-used first. The assistant sits second to last:
@@ -17,7 +19,12 @@ interface NavItem {
 const NAV: Record<Role, NavItem[]> = {
   student: [
     { to: '/', label: 'Home', icon: <HomeIcon />, end: true },
+    { to: '/attendance', label: 'Attendance', icon: <AttendanceIcon /> },
+    { to: '/announcements', label: 'Announcements', icon: <MegaphoneIcon /> },
+    { to: '/exams', label: 'Exams', icon: <ExamIcon /> },
     { to: '/results', label: 'Results', icon: <ResultsIcon /> },
+    { to: '/activities', label: 'Curricular activities', icon: <ActivitiesIcon /> },
+    { to: '/fees', label: 'Fees', icon: <WalletIcon /> },
     { to: '/assistant', label: 'Assistant', icon: <ChatIcon /> },
     { to: '/profile', label: 'Profile', icon: <UserIcon /> },
   ],
@@ -25,6 +32,9 @@ const NAV: Record<Role, NavItem[]> = {
     { to: '/', label: 'Home', icon: <HomeIcon />, end: true },
     { to: '/courses', label: 'Courses', icon: <BookIcon /> },
     { to: '/calendar', label: 'Calendar', icon: <CalendarIcon /> },
+    { to: '/at-risk', label: 'Students at risk', icon: <AlertIcon /> },
+    { to: '/leave', label: 'Leave requests', icon: <LeaveIcon />, hodOnly: true },
+    { to: '/announcements', label: 'Announcements', icon: <MegaphoneIcon /> },
     { to: '/assistant', label: 'Assistant', icon: <ChatIcon /> },
     { to: '/profile', label: 'Profile', icon: <UserIcon /> },
   ],
@@ -75,7 +85,7 @@ export function PortalLayout() {
         </div>
 
         <ul className="portal-links">
-          {NAV[session.role].map((item) => (
+          {NAV[session.role].filter((item) => !item.hodOnly || me?.is_hod).map((item) => (
             <li key={item.to}>
               <NavLink to={item.to} end={item.end} className={({ isActive }) => `portal-link${isActive ? ' active' : ''}`}>
                 {item.icon}

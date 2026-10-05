@@ -11,7 +11,7 @@ from __future__ import annotations
 from calendar import monthrange
 from datetime import date as Date
 from datetime import timedelta
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -501,5 +501,36 @@ def dashboard(ctx: AuthContext = Depends(faculty_only), db: Session = Depends(ge
         "today": today_classes,
         "at_risk": {"count": len(at_risk), "students": at_risk[:5]},
         "pending_leave": {"count": len(leave), "requests": leave[:5]},
-        "announcements": read_tool("get_my_announcements", ctx, db)[:5],
+        "announcements": read_tool("get_my_announcements", ctx, db),  # the tool keeps the latest 20
     }
+
+
+# --- students at risk and leave requests: pages of their own ------------------------------
+
+
+@router.get("/at-risk")
+def at_risk_students(
+    course: str | None = Query(default=None, max_length=20, description="a subject code you teach; all of them if omitted"),
+    ctx: AuthContext = Depends(faculty_only),
+    db: Session = Depends(get_db),
+) -> list[dict[str, Any]]:
+    """Every student in your courses below the attendance or marks floor, or with work missing."""
+    return read_tool("identify_at_risk_students", ctx, db, course_code=course)
+
+
+@router.get("/leave-requests")
+def leave_requests(ctx: AuthContext = Depends(faculty_only), db: Session = Depends(get_db)) -> list[dict[str, Any]]:
+    """Leave requests waiting for this head of department; always empty for anyone else."""
+    return read_tool("list_pending_leave_requests", ctx, db)
+
+
+class LeaveDecisionIn(BaseModel):
+    decision: Literal["approve", "reject"]
+
+
+@router.post("/leave-requests/{leave_request_id}/decision")
+def decide_leave(
+    leave_request_id: int, body: LeaveDecisionIn, ctx: AuthContext = Depends(faculty_only), db: Session = Depends(get_db)
+) -> dict[str, Any]:
+    """Approve or reject from the Leave requests page: the same action, checks and email as in the assistant."""
+    return run_action(db, ctx, "decide_leave_request", {"leave_request_id": leave_request_id, "decision": body.decision})

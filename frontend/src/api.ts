@@ -6,6 +6,7 @@ import type {
   AdminDashboard,
   AdminNotice,
   AssessmentList,
+  AtRiskStudent,
   AttendanceDay,
   Card,
   ChatOut,
@@ -22,6 +23,7 @@ import type {
   MessageOut,
   NoticeDraft,
   NoticePreview,
+  PendingLeave,
   ProfileOut,
   PublishResult,
   RosterOut,
@@ -186,6 +188,10 @@ export const api = {
   },
   deletePhoto: () => request<void>('/api/profile/photo', { method: 'DELETE' }),
   facultyDashboard: () => request<FacultyDashboard>('/api/faculty/dashboard'),
+  atRisk: (course?: string) => request<AtRiskStudent[]>(`/api/faculty/at-risk${course ? `?course=${encodeURIComponent(course)}` : ''}`),
+  leaveRequests: () => request<PendingLeave[]>('/api/faculty/leave-requests'),
+  decideLeave: (leaveRequestId: number, decision: 'approve' | 'reject') =>
+    request<ActionResult>(`/api/faculty/leave-requests/${leaveRequestId}/decision`, { method: 'POST', ...json({ decision }) }),
   facultyCourses: () => request<FacultyCourse[]>('/api/faculty/courses'),
   roster: (offeringId: number) => request<RosterOut>(`/api/faculty/offerings/${offeringId}/roster`),
   attendanceDay: (offeringId: number, date: string) =>

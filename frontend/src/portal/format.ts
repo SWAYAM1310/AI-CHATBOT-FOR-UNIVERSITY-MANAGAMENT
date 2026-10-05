@@ -33,6 +33,26 @@ export function longDay(iso: string): { weekday: string; date: string } {
   return { weekday: LONG_DAYS[weekdayOf(iso)], date: `${d} ${LONG_MONTHS[m - 1]}` }
 }
 
+/** "Monday, 5 October 2026". */
+export function fullDate(iso: string): string {
+  const { weekday, date } = longDay(iso)
+  return `${weekday}, ${date} ${iso.slice(0, 4)}`
+}
+
+/** Whole days from `from` to `to` (both YYYY-MM-DD); negative when `to` is earlier. */
+export function daysBetween(from: string, to: string): number {
+  const at = (iso: string) => {
+    const [y, m, d] = iso.slice(0, 10).split('-').map(Number)
+    return Date.UTC(y, m - 1, d)
+  }
+  return Math.round((at(to) - at(from)) / 86_400_000)
+}
+
+/** The browser's wall clock as "HH:MM", comparable with timetable times. */
+export function clockNow(now = new Date()): string {
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+}
+
 /** Today as YYYY-MM-DD in the browser's own timezone (toISOString would be UTC). */
 export function todayISO(): string {
   return new Date().toLocaleDateString('en-CA')

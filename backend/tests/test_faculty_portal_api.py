@@ -364,6 +364,31 @@ def test_faculty_dashboard_shows_courses_todays_classes_and_hod_leave():
     assert hod["faculty"]["is_hod"] is True and hod["pending_leave"]["count"] >= 1
 
 
+def test_at_risk_page_lists_everyone_and_filters_to_one_course(fac):
+    everyone = client.get("/api/faculty/at-risk", headers=fac).json()
+    assert len(everyone) == client.get("/api/faculty/dashboard", headers=fac).json()["at_risk"]["count"]
+    assert all(s["reasons"] for s in everyone)
+    one = client.get("/api/faculty/at-risk", headers=fac, params={"course": DBMS}).json()
+    assert {s["roll_no"] for s in one} <= {r["roll_no"] for r in _roster(fac)}
+    assert client.get("/api/faculty/at-risk", headers=fac, params={"course": "99XX999T"}).json() == []  # not theirs
+    assert client.get("/api/faculty/at-risk", headers=_login("student:17")).status_code == 403
+
+
+def test_leave_requests_page_is_for_the_hod_and_refusals_change_nothing():
+    # only refusals here: an accepted decision commits and emails the student (covered in test_action_tools)
+    hod = _login("faculty:4")
+    pending = client.get("/api/faculty/leave-requests", headers=hod).json()
+    assert len(pending) >= 1 and {"leave_request_id", "roll_no", "from_date", "to_date"} <= pending[0].keys()
+    assert client.get("/api/faculty/leave-requests", headers=_login(FACULTY)).json() == []  # not an HOD
+
+    first = pending[0]["leave_request_id"]
+    r = client.post(f"/api/faculty/leave-requests/{first}/decision", headers=_login(FACULTY), json={"decision": "approve"})
+    assert r.status_code == 400 and "head of department" in r.json()["detail"]
+    assert client.post(f"/api/faculty/leave-requests/{first}/decision", headers=hod, json={"decision": "maybe"}).status_code == 422
+    assert client.post("/api/faculty/leave-requests/999999/decision", headers=hod, json={"decision": "reject"}).status_code == 400
+    assert client.get("/api/faculty/leave-requests", headers=hod).json() == pending
+
+
 # --- calendar -------------------------------------------------------------------------------
 
 

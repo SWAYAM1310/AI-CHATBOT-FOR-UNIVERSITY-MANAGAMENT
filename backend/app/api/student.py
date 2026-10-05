@@ -1,4 +1,5 @@
-"""Student portal: one payload that is the whole Home page.
+"""Student portal: one payload behind Home and the Attendance, Announcements, Exams,
+Fees and Curricular activities pages.
 
 Built from the student's own read tools (see `app.api.toolcall.read_tool`), so
 the page and the assistant quote the same numbers, and a faculty member's
@@ -84,7 +85,7 @@ def dashboard(ctx: AuthContext = Depends(require_roles(Role.STUDENT)), db: Sessi
         "assignments": read_tool("get_my_assignments", ctx, db),
         "exams": read_tool("get_my_exam_schedule", ctx, db),
         "today": read_tool("get_my_timetable", ctx, db, day=today.weekday()),
-        "announcements": read_tool("get_my_announcements", ctx, db)[:10],
+        "announcements": read_tool("get_my_announcements", ctx, db),  # the tool keeps the latest 20
     }
 
 

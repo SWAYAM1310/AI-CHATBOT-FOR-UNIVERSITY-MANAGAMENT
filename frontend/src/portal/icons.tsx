@@ -49,6 +49,46 @@ export const CalendarIcon = () => (
   </Svg>
 )
 
+export const AttendanceIcon = () => (
+  <Svg>
+    <rect x="4" y="5.5" width="16" height="14.5" rx="2" />
+    <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+    <path d="m9 15 2 2 4-4" />
+  </Svg>
+)
+
+export const ExamIcon = () => (
+  <Svg>
+    <path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5l-5-5Z" />
+    <path d="M14 3.5v5h5" />
+    <path d="M9 13h6M9 16.5h4" />
+  </Svg>
+)
+
+export const ActivitiesIcon = () => (
+  <Svg>
+    <rect x="5" y="4.5" width="14" height="16" rx="2" />
+    <path d="M9 4.5V3h6v1.5" />
+    <path d="m8.5 10 1.5 1.5L12.5 9M8.5 15.5l1.5 1.5 2.5-2.5M14.5 10.5H16M14.5 16H16" />
+  </Svg>
+)
+
+export const AlertIcon = () => (
+  <Svg>
+    <circle cx="9.5" cy="8" r="3.5" />
+    <path d="M3.5 19.5c.7-3 3-4.5 6-4.5 1.3 0 2.5.3 3.4.9" />
+    <path d="M18 11v4.5M18 18.5v.01" />
+  </Svg>
+)
+
+export const LeaveIcon = () => (
+  <Svg>
+    <rect x="4" y="5.5" width="16" height="14.5" rx="2" />
+    <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+    <path d="M9.5 13.5h5" />
+  </Svg>
+)
+
 export const MegaphoneIcon = () => (
   <Svg>
     <path d="M4 10v4h3l8 4V6L7 10H4Z" />

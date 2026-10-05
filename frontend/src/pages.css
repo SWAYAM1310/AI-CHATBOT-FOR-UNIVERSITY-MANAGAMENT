@@ -531,6 +531,11 @@ table.data {
   max-width: 60ch;
 }
 
+/* a page-level summary line before the first section */
+.lead + .block {
+  margin-top: 28px;
+}
+
 .bars {
   list-style: none;
   margin: 0;
@@ -626,7 +631,150 @@ table.data {
 }
 
 .timeline-row.student {
-  grid-template-columns: 92px 1fr;
+  grid-template-columns: 92px 1fr auto;
+}
+
+/* today's classes against the clock: the one on now stands out, the ones over step back */
+.timeline-row.slot-now {
+  margin: 0 -14px;
+  padding-left: 14px;
+  padding-right: 14px;
+  border-radius: 8px;
+  background: var(--crest-soft);
+}
+
+.timeline-row.slot-done .timeline-time,
+.timeline-row.slot-done .timeline-what {
+  opacity: 0.55;
+}
+
+/* a faculty row ends with the clock tag and the attendance button */
+.timeline-end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* --- leave requests: who and when on the left, the decision on the right ---------- */
+
+.plain-list > li.leave-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+  padding: 14px 0;
+}
+
+.leave-what {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  max-width: var(--measure);
+}
+
+.leave-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-tag:empty {
+  display: none;
+}
+
+.slot-tag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.slot-tag.now {
+  border-color: var(--crest);
+  background: var(--crest);
+  color: #fff;
+}
+
+.slot-tag.next {
+  border-color: var(--crest);
+  color: var(--crest-hover);
+}
+
+/* --- student home: the thought of the day ---------------------------------------- */
+
+.thought {
+  position: relative;
+  margin: 0 0 40px;
+  padding: 22px 26px 20px 30px;
+  border-left: 4px solid var(--crest);
+  border-radius: 0 12px 12px 0;
+  background: var(--surface);
+  max-width: 760px;
+}
+
+.thought-label {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.thought blockquote {
+  margin: 0;
+}
+
+.thought blockquote p {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.thought blockquote p::before {
+  content: '\201C';
+}
+
+.thought blockquote p::after {
+  content: '\201D';
+}
+
+.thought-by {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+
+.thought-by::before {
+  content: '\2014\00a0';
+}
+
+/* --- student announcements -------------------------------------------------------- */
+
+.ann-list > li {
+  gap: 4px;
+  padding: 14px 0;
+}
+
+.ann-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+.ann-body {
+  margin: 0;
+  max-width: var(--measure);
+  white-space: pre-line;
 }
 
 .fee-row {
