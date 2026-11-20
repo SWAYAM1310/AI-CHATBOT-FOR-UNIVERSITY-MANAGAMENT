@@ -1,15 +1,17 @@
-import { useState } from 'react'
+import { FilterChips } from '../Filters'
+import { useParamFilter } from '../filtering'
 import { formatDate, plural } from '../format'
 import { Empty } from '../ui'
 import { courseNames } from './dashboard'
 import { StudentPage } from './StudentPage'
 
 // what most needs doing first
-const STATUSES = ['missing', 'late', 'submitted']
-const rank = (s: string) => (STATUSES.includes(s) ? STATUSES.indexOf(s) : STATUSES.length)
+const STATUSES = ['missing', 'late', 'submitted'] as const
+type Status = (typeof STATUSES)[number]
+const rank = (s: string) => (STATUSES.includes(s as Status) ? STATUSES.indexOf(s as Status) : STATUSES.length)
 
 export function StudentActivities() {
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useParamFilter<Status>('status', STATUSES)
   return (
     <StudentPage title="Curricular activities" lede={() => 'Your assignments and projects this term, and whether each one is handed in.'}>
       {(d) => {
@@ -20,7 +22,7 @@ export function StudentActivities() {
         const missing = work.filter((a) => a.status === 'missing')
         const shown = (status ? work.filter((a) => a.status === status) : work)
           .slice()
-          .sort((x, y) => rank(x.status) - rank(y.status) ||(x.due_date ?? '').localeCompare(y.due_date ?? ''))
+          .sort((x, y) => rank(x.status) - rank(y.status) || (x.due_date ?? '').localeCompare(y.due_date ?? ''))
         return (
           <>
             <p className="lead">
@@ -45,22 +47,13 @@ export function StudentActivities() {
 
             <section className="block" aria-labelledby="work-h">
               <h2 id="work-h">All work</h2>
-              <div className="chips" role="group" aria-label="Filter by status">
-                <button type="button" className={status === '' ? 'chip active' : 'chip'} aria-pressed={status === ''} onClick={() => setStatus('')}>
-                  All <span className="chip-count">{work.length}</span>
-                </button>
-                {STATUSES.filter((s) => count(s) > 0).map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    className={status === s ? 'chip active' : `chip${s === 'missing' ? ' overdue' : ''}`}
-                    aria-pressed={status === s}
-                    onClick={() => setStatus(status === s ? '' : s)}
-                  >
-                    {s[0].toUpperCase() + s.slice(1)} <span className="chip-count">{count(s)}</span>
-                  </button>
-                ))}
-              </div>
+              <FilterChips
+                label="Filter by status"
+                options={STATUSES.map((s) => ({ value: s, label: s[0].toUpperCase() + s.slice(1), count: count(s), tone: s === 'missing' ? 'overdue' : undefined }))}
+                value={status}
+                onChange={setStatus}
+                total={work.length}
+              />
               <div className="table-wrap">
                 <table className="data">
                   <thead>

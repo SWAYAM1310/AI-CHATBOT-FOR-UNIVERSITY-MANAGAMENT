@@ -1,6 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { api } from '../../api'
 import type { AdminNotice, NoticeAudience, NoticeDraft, NoticePreview } from '../../types'
+import { CATEGORIES, categorize, categoryOptions, type Category } from '../categories'
+import { CategoryTag, FilterChips, FilterSummary, SearchField } from '../Filters'
+import { matchesQuery, useClearParams, useParamFilter } from '../filtering'
 import { formatDate, plural } from '../format'
 import { PageHeader } from '../PageHeader'
 import { Empty, Loading, Notice } from '../ui'
@@ -36,6 +39,78 @@ function toDraft(f: Form): NoticeDraft {
     dept: f.dept || undefined,
     semester: f.semester ? Number(f.semester) : undefined,
   }
+}
+
+/** The published notices, filtered by category, audience, department and a search. */
+function PublishedList({ notices, departments }: { notices: AdminNotice[]; departments: { dept: string; name: string }[] }) {
+  const [category, setCategory] = useParamFilter<Category>('cat', CATEGORIES)
+  const [audience, setAudience] = useParamFilter<NoticeAudience>('for', AUDIENCE_VALUES)
+  const [dept, setDept] = useParamFilter<string>('dept')
+  const [query, setQuery] = useState('')
+  const clearParams = useClearParams(['cat', 'for', 'dept'])
+
+  const narrowed = notices.filter(
+    (n) =>
+      (!audience || audienceOf(n) === audience) &&
+      (!dept || (dept === WHOLE_UNIVERSITY ? !n.dept : n.dept === dept)) &&
+      matchesQuery(query, n.title, n.body),
+  )
+  const shown = category ? narrowed.filter((n) => categorize(n) === category) : narrowed
+  // only departments that have been sent something are worth offering
+  const sentTo = new Set(notices.map((n) => n.dept).filter(Boolean))
+
+  return (
+    <>
+      <div className="toolbar filter-bar">
+        <SearchField label="Search published notices" placeholder="Search title or message" value={query} onChange={setQuery} />
+        <label className="field-inline">
+          <span>For</span>
+          <select value={audience} onChange={(e) => setAudience(e.target.value as NoticeAudience | '')}>
+            <option value="">Any audience</option>
+            {AUDIENCES.map((a) => (
+              <option key={a.value} value={a.value}>
+                {a.value === 'all' ? 'Everyone' : `${a.label} only`}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field-inline">
+          <span>Department</span>
+          <select value={dept} onChange={(e) => setDept(e.target.value)}>
+            <option value="">Any</option>
+            <option value={WHOLE_UNIVERSITY}>Whole university</option>
+            {departments
+              .filter((d) => sentTo.has(d.dept))
+              .map((d) => (
+                <option key={d.dept} value={d.dept}>
+                  {d.name} ({d.dept})
+                </option>
+              ))}
+          </select>
+        </label>
+      </div>
+      <FilterChips label="Filter by category" options={categoryOptions(narrowed)} value={category} onChange={setCategory} total={narrowed.length} />
+      <FilterSummary
+        shown={shown.length}
+        total={notices.length}
+        noun={['notice', 'notices']}
+        active={Boolean(category || audience || dept || query.trim())}
+        onClear={() => {
+          clearParams()
+          setQuery('')
+        }}
+      />
+      {shown.length === 0 ? (
+        <Empty>No published notice matches these filters.</Empty>
+      ) : (
+        <ul className="plain-list">
+          {shown.map((n) => (
+            <NoticeRow key={n.announcement_id} n={n} />
+          ))}
+        </ul>
+      )}
+    </>
+  )
 }
 
 function Deliveries({ id, sending }: { id: number; sending: boolean }) {
@@ -74,6 +149,15 @@ function Deliveries({ id, sending }: { id: number; sending: boolean }) {
   )
 }
 
+/** Who a published notice went to, as one of the audience choices on the form. */
+function audienceOf(n: AdminNotice): NoticeAudience {
+  const roles = n.audience.split(',')
+  return roles.includes('student') && roles.includes('faculty') ? 'all' : roles.includes('faculty') ? 'faculty' : 'student'
+}
+
+const AUDIENCE_VALUES = AUDIENCES.map((a) => a.value)
+const WHOLE_UNIVERSITY = 'university'
+
 function NoticeRow({ n }: { n: AdminNotice }) {
   const [open, setOpen] = useState(false)
   const d = n.delivery
@@ -82,7 +166,11 @@ function NoticeRow({ n }: { n: AdminNotice }) {
     <li className="notice-row">
       <div className="notice-head">
         <span>
-          <strong>{n.title}</strong> <span className="muted small">{formatDate(n.posted_at)}</span>
+          <span className="ann-meta">
+            <CategoryTag category={categorize(n)} />
+            <span className="muted small">{formatDate(n.posted_at)}</span>
+          </span>
+          <strong className="block-line">{n.title}</strong>
           <span className="muted small block-line">{noticeAudience(n)}</span>
         </span>
         {d.total > 0 && (
@@ -183,6 +271,11 @@ export function Announcements() {
           <label className="field">
             <span>Title</span>
             <input value={form.title} maxLength={TITLE_MAX} onChange={(e) => edit({ title: e.target.value })} disabled={busy !== null} required />
+            {form.title.trim() && (
+              <span className="muted small filed-under">
+                Readers will find this under <CategoryTag category={categorize(form)} /> when they filter by category. It is read from the title.
+              </span>
+            )}
           </label>
           <label className="field field-gap">
             <span>Message</span>
@@ -297,13 +390,7 @@ export function Announcements() {
         {notices.error && <Notice tone="error">{notices.error}</Notice>}
         {!notices.data && !notices.error && <Loading what="announcements" />}
         {notices.data && notices.data.length === 0 && <Empty>Nothing has been announced yet.</Empty>}
-        {notices.data && notices.data.length > 0 && (
-          <ul className="plain-list">
-            {notices.data.map((n) => (
-              <NoticeRow key={n.announcement_id} n={n} />
-            ))}
-          </ul>
-        )}
+        {notices.data && notices.data.length > 0 && <PublishedList notices={notices.data} departments={departments.data?.departments ?? []} />}
       </section>
     </div>
   )

@@ -1,7 +1,8 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api'
 import type { AtRiskStudent } from '../../types'
+import { FilterChips } from '../Filters'
+import { useParamFilter } from '../filtering'
 import { plural } from '../format'
 import { PageHeader } from '../PageHeader'
 import { Empty, Loading, Notice } from '../ui'
@@ -24,8 +25,8 @@ const FLAGGED: Record<Reason, (s: AtRiskStudent) => boolean> = {
 const pct = (n: number | null) => (n === null ? '-' : `${n}%`)
 
 export function AtRisk() {
-  const [course, setCourse] = useState('')
-  const [reason, setReason] = useState<Reason | ''>('')
+  const [course, setCourse] = useParamFilter<string>('course')
+  const [reason, setReason] = useParamFilter<Reason>('reason', REASONS)
   const courses = useLoad(() => api.facultyCourses(), 'faculty-courses')
   const { data: students, error } = useLoad(() => api.atRisk(course || undefined), `at-risk:${course}`, true)
 
@@ -72,22 +73,13 @@ export function AtRisk() {
             . A student can be on more than one count.
           </p>
 
-          <div className="chips" role="group" aria-label="Filter by reason">
-            <button type="button" className={reason === '' ? 'chip active' : 'chip'} aria-pressed={reason === ''} onClick={() => setReason('')}>
-              All <span className="chip-count">{students.length}</span>
-            </button>
-            {REASONS.filter((r) => count(r) > 0).map((r) => (
-              <button
-                key={r}
-                type="button"
-                className={reason === r ? 'chip active' : 'chip'}
-                aria-pressed={reason === r}
-                onClick={() => setReason(reason === r ? '' : r)}
-              >
-                {LABEL[r]} <span className="chip-count">{count(r)}</span>
-              </button>
-            ))}
-          </div>
+          <FilterChips
+            label="Filter by reason"
+            options={REASONS.map((r) => ({ value: r, label: LABEL[r], count: count(r) }))}
+            value={reason}
+            onChange={setReason}
+            total={students.length}
+          />
 
           <div className="table-wrap">
             <table className="data">

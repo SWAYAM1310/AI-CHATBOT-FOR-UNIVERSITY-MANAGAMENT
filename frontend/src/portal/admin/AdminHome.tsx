@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { api } from '../../api'
 import type { DepartmentRow } from '../../types'
+import { categorize } from '../categories'
+import { CategoryTag } from '../Filters'
 import { usePortal } from '../context'
 import { firstName, formatDate, formatMoney, greeting, plural } from '../format'
 import { PageHeader } from '../PageHeader'
@@ -167,9 +169,11 @@ export function AdminHome() {
               <ul className="plain-list news">
                 {data.recent_announcements.map((a) => (
                   <li key={a.announcement_id}>
-                    <span>
-                      <strong>{a.title}</strong> <span className="muted small">{formatDate(a.posted_at)}</span>
+                    <span className="ann-meta">
+                      <CategoryTag category={categorize(a)} />
+                      <span className="muted small">{formatDate(a.posted_at)}</span>
                     </span>
+                    <strong>{a.title}</strong>
                     <span className="muted small">
                       {noticeAudience(a)}. {deliverySummary(a.delivery)}.
                     </span>

@@ -2344,6 +2344,43 @@ CGPA 9.31 (was 9.45). Full-dataset backup before this: scratchpad
 `full_csv_backup_regraded/`. 546 tests pass; dev DB reloaded and checked in the
 browser.
 
+### Filters across the portal (2026-11-20, frontend only, uncommitted)
+The user asked for category filters wherever lists benefit from them.
+- **Announcements have no category column.** `portal/categories.ts` reads one from the
+  title (then the body) with ordered regex rules: Exams, Coursework, Class changes, Fees,
+  Events, Holidays, Placements, Campus, else General. Every sample and full-set notice
+  lands in a real category (checked with a Node run over both CSVs). If admins need
+  to pick a category by hand, that would need a real `category` column, a migration
+  and a `publish_notice` arg. That is not built.
+- Shared pieces: `portal/Filters.tsx` (`FilterChips` with live counts, colour
+  swatches and red-count tone; it hides a row whose one option equals "All";
+  `SearchField`; `FilterSummary` "Showing N of M. Clear filters"; `CategoryTag`) and
+  `portal/filtering.ts` (`useParamFilter`: a filter kept in the URL query, with invalid
+  values read as "all"; `useClearParams`; `matchesQuery`). **Gotcha:** react-router's
+  functional `setSearchParams` starts from the last render's URL, so two setters in a
+  row lose the first. Clear several params with `useClearParams`.
+- Pages:
+  - Student and faculty Announcements: search, "Sent to" select, category chips
+    (`?cat=&from=`), and a tag on every notice.
+  - Admin Announcements: the Published list gets search, audience, department and
+    category filters (`?cat=&for=&dept=`). The form shows which category a title will
+    fall under. Admin Home tags its recent notices.
+  - Student Exams: exam-type chips (`?type=`).
+  - Student Attendance: Theory/Labs chips (code suffix T/P) plus standing chips:
+    below 75%, on the line (≤1 class to spare), comfortable, no classes yet
+    (`?kind=&standing=`).
+  - Faculty Roster: Below 75% / Work missing / All clear chips, plus a department
+    select when a section mixes departments (`?show=&dept=`).
+  - Activities (`?status=`) and At-risk (`?course=&reason=`) were moved onto the
+    shared chips. Their behaviour is unchanged, except that the filter is now in the URL.
+- Left without filters on purpose: student Fees (2-3 terms), Leave requests (short
+  queue), Courses (a handful of sections), the Marks entry sheet (hiding rows would
+  break Enter-moves-down) and Results/admin Fees (they already have filters).
+- Verified: `npm run build` is clean and lint has no new warnings. Playwright ran at
+  1280px and 390px as student, faculty and admin, against a backend with
+  `EMAIL_MODE=console`. Filters, reload persistence and Clear filters all work, with no
+  console errors and no horizontal scroll.
+
 ### >>> Resume here next session: grading-scheme Part 3 (RAG corpus) <<<
 1. Rewrite `docs/policies/examination_regulations.md` §2 for the new scheme:
    theory table (IA 25 / Mid-Sem 25 / End-Sem 100 -> 50), drop 2.2.1's Term-Work

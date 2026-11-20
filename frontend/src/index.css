@@ -23,6 +23,25 @@
   --present-soft: #e4e6c9;
   --holiday: #4b5675;
   --holiday-soft: #dcdee8;
+  /* announcement categories: ink on its soft fill, reusing the palette where it fits */
+  --cat-exams: var(--red);
+  --cat-exams-soft: var(--red-soft);
+  --cat-coursework: var(--amber);
+  --cat-coursework-soft: var(--amber-soft);
+  --cat-classes: var(--holiday);
+  --cat-classes-soft: var(--holiday-soft);
+  --cat-fees: #8b4a1e;
+  --cat-fees-soft: var(--crest-soft);
+  --cat-events: var(--present);
+  --cat-events-soft: var(--present-soft);
+  --cat-holidays: #2f6461;
+  --cat-holidays-soft: #d7e7e3;
+  --cat-placements: #6e3d66;
+  --cat-placements-soft: #efdeea;
+  --cat-campus: #5d4a3a;
+  --cat-campus-soft: var(--card);
+  --cat-general: var(--muted);
+  --cat-general-soft: var(--surface);
   --sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;

@@ -756,19 +756,107 @@ table.data {
   content: '\2014\00a0';
 }
 
-/* --- student announcements -------------------------------------------------------- */
+/* --- announcements ---------------------------------------------------------------- */
 
 .ann-list > li {
   gap: 4px;
   padding: 14px 0;
 }
 
-.ann-head {
+.ann-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.ann-title {
+  font-size: 16px;
+}
+
+/* what a notice is about: a small coloured label, and the matching dot on its filter chip */
+.cat-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 9px 1px 7px;
+  border-radius: 999px;
+  background: var(--cat-soft);
+  color: var(--cat);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.cat-tag::before,
+.swatch {
+  content: '';
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--cat);
+}
+
+.swatch {
+  display: inline-block;
+  margin-right: -2px;
+}
+
+.chip.active .swatch {
+  box-shadow: 0 0 0 2px var(--page);
+}
+
+.cat-exams { --cat: var(--cat-exams); --cat-soft: var(--cat-exams-soft); }
+.cat-coursework { --cat: var(--cat-coursework); --cat-soft: var(--cat-coursework-soft); }
+.cat-classes { --cat: var(--cat-classes); --cat-soft: var(--cat-classes-soft); }
+.cat-fees { --cat: var(--cat-fees); --cat-soft: var(--cat-fees-soft); }
+.cat-events { --cat: var(--cat-events); --cat-soft: var(--cat-events-soft); }
+.cat-holidays { --cat: var(--cat-holidays); --cat-soft: var(--cat-holidays-soft); }
+.cat-placements { --cat: var(--cat-placements); --cat-soft: var(--cat-placements-soft); }
+.cat-campus { --cat: var(--cat-campus); --cat-soft: var(--cat-campus-soft); }
+.cat-general { --cat: var(--cat-general); --cat-soft: var(--cat-general-soft); }
+
+.cat-general.cat-tag {
+  box-shadow: inset 0 0 0 1px var(--rule);
+}
+
+.filed-under {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+/* --- filters (portal/filters.tsx) ------------------------------------------------- */
+
+.filter-bar {
+  align-items: flex-end;
+}
+
+.filter-bar .field-inline:has(input[type='search']) {
+  flex: 1 1 260px;
+}
+
+.filter-bar input[type='search'] {
+  width: 100%;
+  min-width: 0;
+}
+
+/* two chip groups side by side, e.g. kind of class and where you stand */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 28px;
+}
+
+.filter-summary {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 16px;
+  gap: 4px;
+  margin: -6px 0 12px;
 }
 
 .ann-body {
