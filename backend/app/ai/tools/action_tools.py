@@ -33,9 +33,17 @@ from app.ai.tools.registry import Scope, tool
 from app.auth.context import AuthContext, Role
 from app.auth.security import hash_password
 from app.notify.announce import (
+    AUDIENCE_ROLES,
+    ROLES_AUDIENCE,
+    approval_departments,
+    approval_state,
+    approvals_for,
     audience_label,
+    course_reach,
+    demo_budget,
     demo_split,
     find_recent_duplicate,
+    hods,
     queue_announcement_emails,
     resolve_recipients,
 )
@@ -53,6 +61,7 @@ from app.config import settings
 from app.models import (
     Admin,
     Announcement,
+    AnnouncementApproval,
     Assessment,
     AttendanceRecord,
     AttendanceSession,
@@ -84,7 +93,9 @@ DOC_TYPES = (  # what document_requests.doc_type holds today
     "Official Transcript",
 )
 LEAVE_DECISIONS = {"approve": "approved", "reject": "rejected"}
-NOTICE_AUDIENCES = {"all": "student,faculty,admin", "student": "student", "faculty": "faculty"}
+NOTICE_AUDIENCES = AUDIENCE_ROLES
+MAX_NOTE_CHARS = 500
+SUBMISSIONS_LIST = 20
 USER_ACTIONS = ("activate", "deactivate", "reset_password")
 TEMP_PASSWORD_BYTES = 9
 
@@ -688,9 +699,13 @@ def _clean_text(title: str, body: str) -> tuple[str, str] | dict[str, Any]:
     return title, body
 
 
+def _dept_code(db: Session, dept_id: int | None) -> str | None:
+    return db.scalar(select(Department.code).where(Department.id == dept_id)) if dept_id is not None else None
+
+
 @tool(
     name="post_announcement",
-    description="Post an announcement to the students of a course you teach (title, body). Asks for confirmation.",
+    description="Post an announcement to the students of a course you teach (title, body). It reaches them once your head of department approves it (an HOD's own post goes out straight away). Asks for confirmation.",
     allowed_roles={Role.FACULTY},
     scope=Scope.OWN_COURSES,
     action=True,
@@ -715,11 +730,27 @@ def post_announcement(
         return text
     title, body = text
 
+    dept = _dept_code(db, ctx.dept_id)
+    if dept is None:
+        return _error("you are not in a department, so no head of department can approve this")
+    # an HOD needs nobody's approval for their own department; everyone else waits for theirs
+    self_approved = bool(ctx.is_hod)
+    hod = hods(db, [dept])[dept]
+    approver = "you (as head of department)" if self_approved else (hod.full_name if hod else f"the {dept} head of department")
+
     args = {"course_code": code, "title": title, "body": body}
-    preview = {"summary": f"Post \"{title}\" to {code} students", **args, "audience": "student"}
+    preview = {
+        "summary": f"Post \"{title}\" to {code} students"
+        + ("" if self_approved else f" once {approver} approves it"),
+        **args,
+        "audience": "student",
+        "students": course_reach(db, code, ctx.term),
+        "approval": {"dept": dept, "approver": approver, "needed": not self_approved},
+    }
     if not confirmed:
         return confirm.pending(ctx, "post_announcement", args, preview)
 
+    now = _now()
     row = Announcement(
         author_user_id=ctx.user_id,
         scope="course",
@@ -727,11 +758,30 @@ def post_announcement(
         title=title,
         body=body,
         audience_roles="student",
-        posted_at=_now(),
+        posted_at=now,
     )
     db.add(row)
     db.flush()
-    return {"done": True, "announcement_id": row.id, "message": f"Announcement \"{title}\" posted to {code}."}
+    db.add(
+        AnnouncementApproval(
+            announcement_id=row.id,
+            dept_code=dept,
+            status="approved" if self_approved else "pending",
+            decided_by=ctx.faculty_id if self_approved else None,
+            decided_at=now if self_approved else None,
+        )
+    )
+    db.flush()
+    if self_approved:
+        message = f"Announcement \"{title}\" posted to {code}."
+    else:
+        message = f"Announcement \"{title}\" sent to {approver} for approval; {code} students see it once it is approved."
+    return {
+        "done": True,
+        "announcement_id": row.id,
+        "status": "approved" if self_approved else "pending",
+        "message": message,
+    }
 
 
 def _department_pending(db: Session, ctx: AuthContext):
@@ -870,7 +920,7 @@ def decide_leave_request(
 
 @tool(
     name="publish_notice",
-    description="Publish a notice to students and/or faculty (title, body; audience all, student or faculty; optionally one department and/or one semester) and email it to each recipient. Asks for confirmation.",
+    description="Submit a notice for students and/or faculty (title, body; audience all, student or faculty; optionally one department and/or one semester). It goes to the head of each department it reaches; each HOD's approval releases it to that department, in-app and by email. Asks for confirmation.",
     allowed_roles={Role.ADMIN},
     scope=Scope.UNIVERSITY,
     action=True,
@@ -915,6 +965,9 @@ def publish_notice(
         return _error("no active students or faculty match that audience")
     n_students = sum(1 for r in recipients if r.role == "student")
     n_faculty = len(recipients) - n_students
+    depts = approval_departments(recipients)
+    heads = hods(db, depts)
+    approvers = [{"dept": d, "hod": h.full_name if h else None} for d, h in heads.items()]
 
     # the email is worded once, here, and frozen into the signed args: what the admin
     # approves in the preview is exactly what every recipient receives
@@ -943,8 +996,11 @@ def publish_notice(
         "email_subject": email_subject,
         "email_body": email_body,
     }
+    by = f"the {depts[0]} head of department" if len(depts) == 1 else f"the heads of {len(depts)} departments"
     preview: dict[str, Any] = {
-        "summary": f"Publish \"{title}\" to {label.lower()}" + (f", semester {semester}" if semester else "") + (f" in {where}" if not scope_ref else ""),
+        "summary": f"Send \"{title}\" to {by} for approval, then to {label.lower()}"
+        + (f", semester {semester}" if semester else "")
+        + (f" in {where}" if not scope_ref else ""),
         "title": title,
         "body": body,
         "audience": audience,
@@ -955,6 +1011,7 @@ def publish_notice(
         "recipients_faculty": n_faculty,
         "emails_to_send": len(to_send),
         "emails_held": len(held),
+        "approvals": approvers,
     }
     if emailing:
         who = f"{len(recipients)} recipients ({n_students} students, {n_faculty} faculty)"
@@ -980,24 +1037,228 @@ def publish_notice(
         audience_roles=audience_roles,
         posted_at=now,
         semester=semester,
+        # frozen now, sent department by department as each HOD approves
+        email_subject=email_subject if emailing else None,
+        email_body=email_body if emailing else None,
     )
     db.add(row)
     db.flush()
+    db.add_all(AnnouncementApproval(announcement_id=row.id, dept_code=d, status="pending") for d in depts)
+    db.flush()
 
-    queued = held_n = 0
-    if emailing:
-        queued, held_n = queue_announcement_emails(db, row.id, recipients, email_subject, email_body)
-    message = f"Notice \"{title}\" published to {audience} in {where}."
-    if queued or held_n:
-        message += f" Emailing {queued} recipient(s)" + (f"; {held_n} more held (demo mode)." if held_n else ".")
+    message = (
+        f"Notice \"{title}\" sent to {by} ({', '.join(depts)}) for approval. "
+        "Each department sees it, and is emailed, once its HOD approves."
+    )
     return {
         "done": True,
         "announcement_id": row.id,
+        "status": "pending",
         "recipients": len(recipients),
+        "awaiting_approval": depts,
+        "message": message,
+    }
+
+
+# --- announcement approval (HOD) ---------------------------------------------
+
+
+def _pending_for_hod(db: Session, dept: str):
+    return (
+        select(AnnouncementApproval, Announcement)
+        .join(Announcement, Announcement.id == AnnouncementApproval.announcement_id)
+        .where(AnnouncementApproval.dept_code == dept, AnnouncementApproval.status == "pending")
+        .order_by(Announcement.posted_at, Announcement.id)
+    )
+
+
+def _author(db: Session, user_id: int) -> dict[str, Any]:
+    """Who submitted a notice: their name and role, from the user's identity row."""
+    user = db.get(User, user_id)
+    if user is None:
+        return {"name": None, "role": None}
+    kind, _, ref = (user.subject_ref or "").partition(":")
+    model = {"faculty": Faculty, "admin": Admin, "student": Student}.get(kind)
+    person = db.get(model, int(ref)) if model and ref.isdigit() else None
+    return {"name": person.full_name if person else user.email, "role": user.role}
+
+
+def _reach_in_dept(db: Session, ctx: AuthContext, notice: Announcement, dept: str) -> dict[str, int]:
+    """How many people this HOD's approval would release the notice to."""
+    if notice.scope == "course":
+        return {"students": course_reach(db, notice.scope_ref, ctx.term), "faculty": 0}
+    audience = ROLES_AUDIENCE.get(notice.audience_roles or "", "all")
+    people = resolve_recipients(db, audience, term=ctx.term, dept=dept, semester=notice.semester)
+    n_students = sum(1 for r in people if r.role == "student")
+    return {"students": n_students, "faculty": len(people) - n_students}
+
+
+def _notice_view(db: Session, ctx: AuthContext, notice: Announcement, dept: str) -> dict[str, Any]:
+    reach = _reach_in_dept(db, ctx, notice, dept)
+    audience = "student" if notice.scope == "course" else ROLES_AUDIENCE.get(notice.audience_roles or "", "all")
+    return {
+        "announcement_id": notice.id,
+        "title": notice.title,
+        "body": notice.body,
+        "scope": notice.scope,
+        "course": notice.scope_ref if notice.scope == "course" else None,
+        "dept": notice.scope_ref if notice.scope == "department" else None,
+        "audience": audience,
+        "semester": notice.semester,
+        "submitted_at": notice.posted_at.isoformat() if notice.posted_at else None,
+        "submitted_by": _author(db, notice.author_user_id),
+        "your_department": dept,
+        "reach_students": reach["students"],
+        "reach_faculty": reach["faculty"],
+        "emails": bool(notice.email_subject and notice.email_body),
+        "email_subject": notice.email_subject,
+        "email_body": notice.email_body,
+    }
+
+
+@tool(
+    name="list_pending_announcements",
+    description="Announcements waiting for the calling faculty member's approval as head of department, with who they would reach in the department (empty unless you are an HOD).",
+    allowed_roles={Role.FACULTY},
+    scope=Scope.OWN_DEPARTMENT,
+)
+def list_pending_announcements(*, ctx: AuthContext, db: Session, **_: Any) -> list[dict[str, Any]]:
+    if not ctx.is_hod:
+        return []
+    dept = _dept_code(db, ctx.dept_id)
+    if dept is None:
+        return []
+    return [_notice_view(db, ctx, notice, dept) for _, notice in db.execute(_pending_for_hod(db, dept))]
+
+
+@tool(
+    name="decide_announcement",
+    description="Approve or reject a pending announcement by id, as head of department (optional note, e.g. the reason for a rejection). Approving releases it to your department's students and faculty, in-app and by email. Asks for confirmation.",
+    allowed_roles={Role.FACULTY},
+    scope=Scope.OWN_DEPARTMENT,
+    action=True,
+)
+def decide_announcement(
+    *,
+    ctx: AuthContext,
+    db: Session,
+    announcement_id: int,
+    decision: str,
+    note: str | None = None,
+    confirmed: bool = False,
+    **_: Any,
+) -> dict[str, Any]:
+    verb = {"approve": "approve", "approved": "approve", "reject": "reject", "rejected": "reject"}.get(
+        (decision or "").strip().lower()
+    )
+    if verb is None:
+        return _error("decision must be 'approve' or 'reject'")
+    try:
+        notice_id = int(announcement_id)
+    except (TypeError, ValueError):
+        return _error("announcement_id must be a number")
+    note = (note or "").strip() or None
+    if note and len(note) > MAX_NOTE_CHARS:
+        return _error(f"the note is longer than {MAX_NOTE_CHARS} characters")
+    if not ctx.is_hod:
+        return _error("only a head of department can approve announcements")
+    dept = _dept_code(db, ctx.dept_id)
+    approval = db.scalar(
+        select(AnnouncementApproval).where(
+            AnnouncementApproval.announcement_id == notice_id, AnnouncementApproval.dept_code == dept
+        )
+    )
+    if approval is None:
+        return _error(f"announcement #{notice_id} is not waiting for the {dept} department")
+    if approval.status != "pending":
+        return _error(f"announcement #{notice_id} is already {approval.status} for {dept}")
+    notice = db.get(Announcement, notice_id)
+    view = _notice_view(db, ctx, notice, dept)
+
+    # who is emailed on approval: this department's slice of the audience, under what is left of the demo cap
+    emailing = verb == "approve" and view["emails"] and settings.email_mode != "off" and notice.scope != "course"
+    recipients = (
+        resolve_recipients(db, view["audience"], term=ctx.term, dept=dept, semester=notice.semester) if emailing else []
+    )
+    to_send, held = demo_split(recipients, demo_budget(db, notice_id)) if emailing else ([], [])
+
+    reach = view["reach_students"] + view["reach_faculty"]
+    args = {"announcement_id": notice_id, "decision": verb, "note": note}
+    preview: dict[str, Any] = {
+        "summary": (
+            f"Approve \"{notice.title}\" for the {dept} department ({reach} people)"
+            if verb == "approve"
+            else f"Reject \"{notice.title}\" for the {dept} department"
+        ),
+        **view,
+        "decision": verb,
+        "note": note,
+    }
+    if emailing:
+        who = f"{len(recipients)} recipients in {dept}"
+        if held:
+            who += f" - demo mode: only {len(to_send)} are really sent, {len(held)} are held"
+        preview["email_preview"] = {"to": who, "subject": notice.email_subject, "body": notice.email_body}
+    for k in ("email_subject", "email_body"):
+        preview.pop(k, None)
+    if not confirmed:
+        return confirm.pending(ctx, "decide_announcement", args, preview)
+
+    approval.status = "approved" if verb == "approve" else "rejected"
+    approval.decided_by = ctx.faculty_id
+    approval.decided_at = _now()
+    approval.note = note
+    db.flush()
+
+    queued = held_n = 0
+    if emailing and recipients:
+        queued, held_n = queue_announcement_emails(db, notice_id, recipients, notice.email_subject, notice.email_body)
+    if verb == "approve":
+        message = f"\"{notice.title}\" approved: it is now live for {reach} people in {dept}."
+        if queued or held_n:
+            message += f" Emailing {queued} recipient(s)" + (f"; {held_n} more held (demo mode)." if held_n else ".")
+    else:
+        message = f"\"{notice.title}\" rejected for {dept}: nobody in the department will see it."
+    return {
+        "done": True,
+        "announcement_id": notice_id,
+        "dept": dept,
+        "status": approval.status,
         "emails_queued": queued,
         "emails_held": held_n,
         "message": message,
     }
+
+
+@tool(
+    name="get_my_submitted_announcements",
+    description="Announcements the caller submitted, newest first, with each head of department's approval status (pending, approved, rejected) and any note.",
+    allowed_roles={Role.FACULTY, Role.ADMIN},
+    scope=Scope.SELF,
+)
+def get_my_submitted_announcements(*, ctx: AuthContext, db: Session, **_: Any) -> list[dict[str, Any]]:
+    rows = list(
+        db.scalars(
+            select(Announcement)
+            .where(Announcement.author_user_id == ctx.user_id)
+            .order_by(Announcement.posted_at.desc(), Announcement.id.desc())
+            .limit(SUBMISSIONS_LIST)
+        )
+    )
+    approvals = approvals_for(db, [a.id for a in rows])
+    return [
+        {
+            "announcement_id": a.id,
+            "title": a.title,
+            "scope": a.scope,
+            "course": a.scope_ref if a.scope == "course" else None,
+            "dept": a.scope_ref if a.scope == "department" else None,
+            "submitted_at": a.posted_at.isoformat() if a.posted_at else None,
+            "status": approval_state(approvals[a.id]),
+            "approvals": approvals[a.id],
+        }
+        for a in rows
+    ]
 
 
 @tool(

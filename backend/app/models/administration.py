@@ -10,6 +10,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    UniqueConstraint,
 )
 
 from app.db.base import Base
@@ -83,6 +84,30 @@ class Announcement(Base):
     audience_roles = Column(String, nullable=True)  # CSV mirror: "student,faculty,admin"
     posted_at = Column(DateTime, nullable=True)
     semester = Column(Integer, nullable=True)  # narrows the student audience to one semester
+    # the email every recipient gets, frozen when the notice is submitted; None = no email
+    email_subject = Column(String, nullable=True)
+    email_body = Column(Text, nullable=True)
+
+
+class AnnouncementApproval(Base):
+    """One HOD's decision on one announcement, for the people of their department.
+
+    Nothing reaches a feed or an inbox until it is approved. A department or course
+    notice has one row; a university-wide notice has one per department it reaches,
+    and each HOD's approval releases it to that department only (`decided_at` is
+    when it went live there). `posted_at` on the announcement is when it was submitted.
+    """
+
+    __tablename__ = "announcement_approvals"
+    __table_args__ = (UniqueConstraint("announcement_id", "dept_code", name="uq_announcement_approvals_dept"),)
+
+    id = Column(Integer, primary_key=True)
+    announcement_id = Column(Integer, ForeignKey("announcements.id", ondelete="CASCADE"), nullable=False, index=True)
+    dept_code = Column(String, nullable=False, index=True)
+    status = Column(String, nullable=False, default="pending")  # pending | approved | rejected
+    decided_by = Column(Integer, ForeignKey("faculty.id"), nullable=True)
+    decided_at = Column(DateTime, nullable=True)
+    note = Column(Text, nullable=True)  # the HOD's reason, mostly for a rejection
 
 
 class AcademicCalendarEvent(Base):

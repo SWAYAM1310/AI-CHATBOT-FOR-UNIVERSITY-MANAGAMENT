@@ -37,6 +37,7 @@ from app.models.assessment import (  # noqa: F401
 from app.models.administration import (  # noqa: F401
     AcademicCalendarEvent,
     Announcement,
+    AnnouncementApproval,
     DocumentRequest,
     Fee,
     LeaveRequest,

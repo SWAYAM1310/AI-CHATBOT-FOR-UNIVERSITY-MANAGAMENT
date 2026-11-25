@@ -1,9 +1,10 @@
-"""Phase 7c — fee recording, agentic announcements (recipients, demo cap, background send), admin API.
+"""Phase 7c — fee recording, agentic announcements (recipients, HOD approval, demo cap, background send), admin API.
 
 Real DB, no LLM, no network: the autouse guard in conftest forces the console transport, and tests
 that look at what was sent swap in a MemoryTransport. Everything a test writes is removed afterwards.
 Cast: student 2 (CP) has a partial fee of 152500 with 71100 paid (fee 4); student 17 (CP, sem 3) is
 fully paid; student 57 (26BCP001, CP) is semester 1; the CP department has 44 students and 4 faculty.
+Faculty 4 heads CP and faculty 5 heads IT: a notice reaches a department only once its HOD approves.
 """
 from __future__ import annotations
 
@@ -170,15 +171,46 @@ def test_preview_is_refused_for_bad_input(adm):
     assert client.post("/api/admin/announcements/preview", headers=adm, json={**NOTICE, "audience": "faculty", "dept": "CP", "semester": 8}).status_code == 400
 
 
-# --- publish: every recipient gets their own email, sent in the background ------------------------
+# --- publish: nothing goes out until the HOD approves; then every recipient gets their own email ----
 
 
-def test_publish_emails_every_recipient_once_with_the_previewed_text(adm, undo, mail):
-    preview = client.post("/api/admin/announcements/preview", headers=adm, json=NOTICE).json()
-    r = client.post("/api/admin/announcements", headers=adm, json={**NOTICE, "email_subject": preview["email"]["subject"], "email_body": preview["email"]["body"]})
+def _approve(announcement_id: int, hod: str = "faculty:4", **body) -> dict:
+    """The CP head of department (faculty 4) approves from the Notice approvals page."""
+    r = client.post(
+        f"/api/faculty/announcement-approvals/{announcement_id}/decision",
+        headers=_login(hod),
+        json={"decision": "approve", **body},
+    )
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def test_publishing_only_submits_the_notice_to_the_hod(adm, undo, mail):
+    r = client.post("/api/admin/announcements", headers=adm, json=NOTICE)
     assert r.status_code == 201, r.text
     out = r.json()
-    assert out["recipients"] == 44 and out["emails_queued"] == 44 and out["emails_held"] == 0
+    assert out["status"] == "pending" and out["awaiting_approval"] == ["CP"] and out["recipients"] == 44
+    assert _outbox(out["announcement_id"]) == [] and mail.sent == []  # not one email yet
+    titles = [a["title"] for a in client.get("/api/student/dashboard", headers=_login("student:17")).json()["announcements"]]
+    assert NOTICE["title"] not in titles
+
+    listed = client.get("/api/admin/announcements", headers=adm).json()[0]
+    assert listed["announcement_id"] == out["announcement_id"] and listed["status"] == "pending"
+    assert [(a["dept"], a["status"]) for a in listed["approvals"]] == [("CP", "pending")] and listed["approvals"][0]["hod"]
+
+    queue = client.get("/api/faculty/announcement-approvals", headers=_login("faculty:4")).json()
+    mine = next(n for n in queue if n["announcement_id"] == out["announcement_id"])
+    assert mine["reach_students"] == 44 and mine["email_subject"] == "[UniAssist] Lab shift"
+    assert client.get("/api/faculty/announcement-approvals", headers=_login("faculty:2")).json() == []  # not an HOD
+    home = client.get("/api/faculty/dashboard", headers=_login("faculty:4")).json()
+    assert home["pending_announcements"]["count"] >= 1
+
+
+def test_approval_emails_every_recipient_once_with_the_previewed_text(adm, undo, mail):
+    preview = client.post("/api/admin/announcements/preview", headers=adm, json=NOTICE).json()
+    out = client.post("/api/admin/announcements", headers=adm, json={**NOTICE, "email_subject": preview["email"]["subject"], "email_body": preview["email"]["body"]}).json()
+    decided = _approve(out["announcement_id"], note="Fine to send.")
+    assert decided["status"] == "approved" and decided["emails_queued"] == 44 and decided["emails_held"] == 0
 
     rows = _outbox(out["announcement_id"])
     assert len(rows) == 44 and {x.status for x in rows} == {"sent"}  # the background task ran
@@ -186,11 +218,15 @@ def test_publish_emails_every_recipient_once_with_the_previewed_text(adm, undo, 
     assert len(mail.sent) == 44 and {m["to"] for m in mail.sent} == {x.to_addr for x in rows}
     assert {m["body"] for m in mail.sent} == {preview["email"]["body"]}  # byte-for-byte what the admin approved
     assert {m["subject"] for m in mail.sent} == {preview["email"]["subject"]}
+    listed = client.get("/api/admin/announcements", headers=adm).json()[0]
+    assert listed["status"] == "approved" and listed["approvals"][0]["note"] == "Fine to send." and listed["approvals"][0]["decided_by"]
 
 
 def test_demo_mode_sends_exactly_four_and_records_the_rest_as_held(adm, undo, mail, demo_mode):
     out = client.post("/api/admin/announcements", headers=adm, json={**NOTICE, "audience": "all", "dept": "CP"}).json()
-    assert out["recipients"] == 48 and out["emails_queued"] == 4 and out["emails_held"] == 44
+    assert out["recipients"] == 48
+    decided = _approve(out["announcement_id"])
+    assert decided["emails_queued"] == 4 and decided["emails_held"] == 44
 
     assert len(mail.sent) == 4  # held messages were never handed to the transport
     assert {m["to"] for m in mail.sent} == {INBOX}  # all four went to the one real inbox...
@@ -207,25 +243,55 @@ def test_demo_mode_sends_exactly_four_and_records_the_rest_as_held(adm, undo, ma
     assert (delivery["sent"], delivery["held"], delivery["total"]) == (4, 44, 48)
 
 
-def test_publish_creates_the_in_app_notice_students_see(adm, undo, mail):
+def test_the_demo_cap_is_shared_by_every_departments_release(adm, undo, mail, demo_mode):
+    """Seven HODs releasing one university notice must not mean seven times four real emails."""
+    out = client.post("/api/admin/announcements", headers=adm, json={**NOTICE, "audience": "all", "dept": None}).json()
+    assert len(out["awaiting_approval"]) >= 5
+    first = _approve(out["announcement_id"], "faculty:4")  # CP
+    second = _approve(out["announcement_id"], "faculty:5")  # IT
+    assert first["emails_queued"] == 4 and second["emails_queued"] == 0 and second["emails_held"] > 0
+    assert len(mail.sent) == 4
+    assert client.get("/api/admin/announcements", headers=adm).json()[0]["status"] == "partial"
+
+
+def test_approval_releases_the_in_app_notice_to_the_right_students(adm, undo, mail):
     sem3_only = {"title": "Sem 3 timetable", "body": "Revised timetable is on the notice board.", "audience": "student", "semester": 3}
-    assert client.post("/api/admin/announcements", headers=adm, json=sem3_only).status_code == 201
+    out = client.post("/api/admin/announcements", headers=adm, json=sem3_only).json()
     titles = lambda ref: [a["title"] for a in client.get("/api/student/dashboard", headers=_login(ref)).json()["announcements"]]  # noqa: E731
+    assert "Sem 3 timetable" not in titles("student:17")  # waiting for the CP HOD
+    _approve(out["announcement_id"])
     assert "Sem 3 timetable" in titles("student:17")  # semester 3
     assert "Sem 3 timetable" not in titles("student:57")  # semester 1: the notice is not for them
 
 
-def test_a_double_submit_creates_one_notice_and_one_set_of_emails(adm, undo, mail):
+def test_a_rejection_sends_nothing_and_a_second_decision_conflicts(adm, undo, mail):
+    out = client.post("/api/admin/announcements", headers=adm, json=NOTICE).json()
+    hod = _login("faculty:4")
+    url = f"/api/faculty/announcement-approvals/{out['announcement_id']}/decision"
+    r = client.post(url, headers=hod, json={"decision": "reject", "note": "Wrong room number."})
+    assert r.status_code == 200 and r.json()["status"] == "rejected"
+    assert client.post(url, headers=hod, json={"decision": "approve"}).status_code == 409
+    assert client.post(url, headers=_login("faculty:5"), json={"decision": "approve"}).status_code == 400  # IT's HOD
+    assert client.post(url, headers=hod, json={"decision": "maybe"}).status_code == 422
+    assert _outbox(out["announcement_id"]) == [] and mail.sent == []
+    listed = client.get("/api/admin/announcements", headers=adm).json()[0]
+    assert listed["status"] == "rejected" and listed["approvals"][0]["note"] == "Wrong room number."
+
+
+def test_a_double_submit_creates_one_notice(adm, undo, mail):
     first = client.post("/api/admin/announcements", headers=adm, json=NOTICE)
     again = client.post("/api/admin/announcements", headers=adm, json=NOTICE)
     assert first.status_code == 201 and again.status_code == 409
     assert "already published" in again.json()["detail"]
+    _approve(first.json()["announcement_id"])
     assert len(mail.sent) == 44
 
 
 def test_queueing_the_same_announcement_twice_adds_nothing(db, undo):
     admin = make_ctx("admin")
     first = REGISTRY.invoke("publish_notice", admin, db, NOTICE, confirmed=True)
+    db.commit()
+    REGISTRY.invoke("decide_announcement", make_ctx("faculty", 4), db, {"announcement_id": first["announcement_id"], "decision": "approve"}, confirmed=True)
     db.commit()
     recipients = resolve_recipients(db, "student", term=TERM, dept="CP")
     queued, held = queue_announcement_emails(db, first["announcement_id"], recipients, "s", "b")
@@ -237,19 +303,22 @@ def test_email_off_publishes_the_notice_without_any_mail(adm, undo, mail, monkey
     preview = client.post("/api/admin/announcements/preview", headers=adm, json=NOTICE).json()
     assert preview["emailing"] is False and preview["preview"]["emails_to_send"] == 0
     out = client.post("/api/admin/announcements", headers=adm, json=NOTICE).json()
-    assert out["emails_queued"] == 0 and "Emailing" not in out["message"]
+    decided = _approve(out["announcement_id"])
+    assert decided["emails_queued"] == 0 and "Emailing" not in decided["message"]
     assert _outbox(out["announcement_id"]) == [] and mail.sent == []
 
 
 def test_an_admin_can_edit_the_email_before_publishing(adm, undo, mail):
     edited = {**NOTICE, "email_subject": "Room change: DBMS lab", "email_body": "Dear students, the DBMS lab is now in B-12."}
-    assert client.post("/api/admin/announcements", headers=adm, json=edited).status_code == 201
+    out = client.post("/api/admin/announcements", headers=adm, json=edited).json()
+    _approve(out["announcement_id"])
     assert {m["subject"] for m in mail.sent} == {"Room change: DBMS lab"}
     assert {m["body"] for m in mail.sent} == {"Dear students, the DBMS lab is now in B-12."}
 
 
 def test_delivery_detail_lists_each_recipients_status(adm, undo, mail, demo_mode):
     out = client.post("/api/admin/announcements", headers=adm, json=NOTICE).json()
+    _approve(out["announcement_id"])
     detail = client.get(f"/api/admin/announcements/{out['announcement_id']}/deliveries", headers=adm).json()
     assert detail["delivery"]["total"] == 44 and len(detail["emails"]) == 44
     assert {e["status"] for e in detail["emails"]} == {"sent", "held"}
@@ -259,14 +328,24 @@ def test_delivery_detail_lists_each_recipients_status(adm, undo, mail, demo_mode
 # --- the chat path shares the same service ------------------------------------------------------------
 
 
-def test_confirming_a_notice_in_chat_emails_the_audience_too(undo, mail, demo_mode):
+def test_confirming_in_chat_submits_the_notice_and_the_hods_chat_approval_emails(undo, mail, demo_mode):
     ctx = make_ctx("admin")
     with SessionLocal() as s:
         pending = REGISTRY.invoke("publish_notice", ctx, s, {**NOTICE, "audience": "all"})
     assert pending["needs_confirmation"]
     assert pending["preview"]["emails_to_send"] == 4 and "email_preview" in pending["preview"]
+    assert pending["preview"]["approvals"][0]["dept"] == "CP"
 
     r = client.post("/api/chat/confirm", headers=_login("admin:1"), json={"token": pending["token"]})
+    assert r.status_code == 200, r.text
+    result = r.json()["result"]
+    assert result["status"] == "pending" and mail.sent == []
+
+    hod = make_ctx("faculty", 4)
+    with SessionLocal() as s:
+        decision = REGISTRY.invoke("decide_announcement", hod, s, {"announcement_id": result["announcement_id"], "decision": "approve"})
+    assert "email_preview" in decision["preview"] and "demo mode" in decision["preview"]["email_preview"]["to"]
+    r = client.post("/api/chat/confirm", headers=_login("faculty:4"), json={"token": decision["token"]})
     assert r.status_code == 200, r.text
     assert r.json()["result"]["emails_queued"] == 4 and r.json()["result"]["emails_held"] > 0
     assert len(mail.sent) == 4

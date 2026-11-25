@@ -2,17 +2,17 @@
 
 Every route is admin-only. Writes call the chat's action tools (`record_fee_payment`,
 `publish_notice`) through `app.api.toolcall`, so the website and the assistant
-share one set of rules and one audit trail. A notice goes out in two parts: the
-in-app announcement and the per-recipient emails are committed together, and the
-emails are then sent from a background task, so a large audience never makes the
-request wait on SMTP.
+share one set of rules and one audit trail. Publishing a notice only submits it:
+it waits for the head of each department it reaches, and each HOD's approval
+(`/api/faculty/announcement-approvals`) releases it, in-app and by email, to that
+department. The notice list shows where each one stands, department by department.
 """
 from __future__ import annotations
 
 from datetime import date as Date
 from typing import Any, Literal
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
@@ -23,7 +23,7 @@ from app.api.toolcall import read_tool, run_action
 from app.auth.context import AuthContext, Role
 from app.auth.deps import get_db, require_roles
 from app.models import Announcement, EmailOutbox, Fee, Student
-from app.notify.mailer import collecting, flush_in_background
+from app.notify.announce import approval_state, approvals_for
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 admin_only = require_roles(Role.ADMIN)
@@ -160,7 +160,7 @@ def _delivery(db: Session, announcement_ids: list[int]) -> dict[int, dict[str, i
     return out
 
 
-def _notice_out(a: Announcement, delivery: dict[str, int]) -> dict[str, Any]:
+def _notice_out(a: Announcement, delivery: dict[str, int], approvals: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "announcement_id": a.id,
         "title": a.title,
@@ -169,8 +169,11 @@ def _notice_out(a: Announcement, delivery: dict[str, int]) -> dict[str, Any]:
         "dept": a.scope_ref if a.scope == "department" else None,
         "audience": a.audience_roles,
         "semester": a.semester,
-        "posted_at": a.posted_at.isoformat() if a.posted_at else None,
+        "posted_at": a.posted_at.isoformat() if a.posted_at else None,  # when it was submitted
         "delivery": delivery,
+        "emailing": bool(a.email_subject and a.email_body),  # emails go out as each HOD approves
+        "status": approval_state(approvals),
+        "approvals": approvals,
     }
 
 
@@ -183,8 +186,9 @@ def recent_notices(db: Session, limit: int = NOTICE_LIST) -> list[dict[str, Any]
             .limit(limit)
         )
     )
-    delivery = _delivery(db, [a.id for a in rows])
-    return [_notice_out(a, delivery[a.id]) for a in rows]
+    ids = [a.id for a in rows]
+    delivery, approvals = _delivery(db, ids), approvals_for(db, ids)
+    return [_notice_out(a, delivery[a.id], approvals[a.id]) for a in rows]
 
 
 @router.get("/announcements")
@@ -233,17 +237,9 @@ def preview_announcement(body: NoticeIn, ctx: AuthContext = Depends(admin_only),
 
 
 @router.post("/announcements", status_code=status.HTTP_201_CREATED)
-def publish_announcement(
-    body: NoticeIn,
-    background: BackgroundTasks,
-    ctx: AuthContext = Depends(admin_only),
-    db: Session = Depends(get_db),
-) -> dict[str, Any]:
-    with collecting() as outbox_rows:
-        result = run_action(db, ctx, "publish_notice", body.tool_args())
-    # only once the notice and its outbox rows are committed; held rows are never sent
-    background.add_task(flush_in_background, [r.id for r in outbox_rows if r.status == "queued"])
-    return result
+def publish_announcement(body: NoticeIn, ctx: AuthContext = Depends(admin_only), db: Session = Depends(get_db)) -> dict[str, Any]:
+    """Submit the notice to the HODs; nothing is shown or emailed until one of them approves."""
+    return run_action(db, ctx, "publish_notice", body.tool_args())
 
 
 # --- dashboard -------------------------------------------------------------------------------

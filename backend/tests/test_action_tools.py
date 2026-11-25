@@ -4,7 +4,8 @@ Real DB, no LLM. Everything an action writes is undone by the `undo` fixture, so
 the sample dataset the other test modules rely on is unchanged afterwards.
 
 Cast: student 17 (CP, roll 25BCP017); faculty 2 teaches 24CS201T; faculty 4 is
-HOD of CP, faculty 5 HOD of IT; leave request #4 is a pending CP request.
+HOD of CP (teaches 24CP101T), faculty 5 HOD of IT; leave request #4 is a pending
+CP request. Every announcement waits for the HOD of each department it reaches.
 """
 from __future__ import annotations
 
@@ -22,6 +23,7 @@ from app.auth.security import verify_password
 from app.db.session import SessionLocal
 from app.models import (
     Announcement,
+    AnnouncementApproval,
     Assessment,
     AttendanceRecord,
     AttendanceSession,
@@ -39,14 +41,31 @@ DBMS = "24CS201T"
 TEACHES_DBMS = 2
 NOT_DBMS = 1
 HOD_CP, HOD_IT = 4, 5
+HOD_CP_COURSE = "24CP101T"
 PENDING_CP_LEAVE = 4  # student 21, 25BCP021
 
 ACTIONS = {
     "student": {"apply_for_leave", "request_document"},
-    "faculty": {"mark_attendance", "correct_attendance", "enter_marks", "post_announcement", "decide_leave_request"},
+    "faculty": {
+        "mark_attendance",
+        "correct_attendance",
+        "enter_marks",
+        "post_announcement",
+        "decide_leave_request",
+        "decide_announcement",
+    },
     "admin": {"publish_notice", "manage_user", "record_fee_payment"},
 }
-APPEND_ONLY = (LeaveRequest, DocumentRequest, Announcement, EmailOutbox, AttendanceRecord, AttendanceSession, Mark)
+APPEND_ONLY = (
+    LeaveRequest,
+    DocumentRequest,
+    AnnouncementApproval,
+    Announcement,
+    EmailOutbox,
+    AttendanceRecord,
+    AttendanceSession,
+    Mark,
+)
 
 
 @pytest.fixture()
@@ -81,7 +100,7 @@ def last_audit(db) -> AuditLog:
 
 # --- registry: what makes a tool an action --------------------------------------
 
-def test_exactly_the_ten_action_tools_are_flagged_and_role_scoped():
+def test_exactly_the_eleven_action_tools_are_flagged_and_role_scoped():
     flagged = {t.name for t in REGISTRY.all() if t.action}
     assert flagged == ACTIONS["student"] | ACTIONS["faculty"] | ACTIONS["admin"]
     for role, names in ACTIONS.items():
@@ -301,19 +320,81 @@ def test_enter_marks_upserts_and_the_summary_reflects_it(db, undo):
         db.commit()
 
 
-def test_post_announcement_reaches_an_enrolled_student(db, undo):
+def _titles(db, role: str, sid: int | None = None) -> set[str]:
+    return {a["title"] for a in REGISTRY.invoke("get_my_announcements", make_ctx(role, sid), db)}
+
+
+def _decide(db, hod: int, notice_id: int, decision: str = "approve", **kw):
+    out = REGISTRY.invoke(
+        "decide_announcement", make_ctx("faculty", hod), db,
+        {"announcement_id": notice_id, "decision": decision, **kw}, confirmed=True,
+    )
+    db.commit()
+    return out
+
+
+def test_post_announcement_waits_for_the_hod_then_reaches_an_enrolled_student(db, undo):
     teacher = make_ctx("faculty", TEACHES_DBMS)
     assert "do not teach" in REGISTRY.invoke(
         "post_announcement", make_ctx("faculty", NOT_DBMS), db, {"course_code": DBMS, "title": "t", "body": "b"}
     )["error"]
     assert "required" in REGISTRY.invoke("post_announcement", teacher, db, {"course_code": DBMS, "title": "t", "body": " "})["error"]
     args = {"course_code": DBMS, "title": "Extra class on Friday", "body": "Same syllabus, same room."}
+    preview = REGISTRY.invoke("post_announcement", teacher, db, args)["preview"]
+    assert preview["approval"]["needed"] is True and preview["approval"]["dept"] == "CP"
     done = REGISTRY.invoke("post_announcement", teacher, db, args, confirmed=True)
     db.commit()
+    assert done["status"] == "pending" and "for approval" in done["message"]
     row = db.get(Announcement, done["announcement_id"])
     assert (row.scope, row.scope_ref, row.audience_roles, row.author_user_id) == ("course", DBMS, "student", teacher.user_id)
-    seen = REGISTRY.invoke("get_my_announcements", make_ctx("student", 17), db)
-    assert "Extra class on Friday" in {a["title"] for a in seen}
+    assert "Extra class on Friday" not in _titles(db, "student", 17)  # not until the HOD says so
+
+    pending = REGISTRY.invoke("list_pending_announcements", make_ctx("faculty", HOD_CP), db)
+    mine = next(n for n in pending if n["announcement_id"] == row.id)
+    assert mine["course"] == DBMS and mine["reach_students"] > 0 and mine["submitted_by"]["role"] == "faculty"
+    assert row.id not in {n["announcement_id"] for n in REGISTRY.invoke("list_pending_announcements", make_ctx("faculty", HOD_IT), db)}
+
+    assert _decide(db, HOD_CP, row.id)["status"] == "approved"
+    assert "Extra class on Friday" in _titles(db, "student", 17)
+    submitted = REGISTRY.invoke("get_my_submitted_announcements", teacher, db)
+    assert next(n for n in submitted if n["announcement_id"] == row.id)["status"] == "approved"
+
+
+def test_an_hods_own_course_post_needs_no_approval(db, undo):
+    args = {"course_code": HOD_CP_COURSE, "title": "Quiz moved", "body": "The quiz is now on Thursday."}
+    hod = make_ctx("faculty", HOD_CP)
+    assert REGISTRY.invoke("post_announcement", hod, db, args)["preview"]["approval"]["needed"] is False
+    done = REGISTRY.invoke("post_announcement", hod, db, args, confirmed=True)
+    db.commit()
+    assert done["status"] == "approved"
+    assert done["announcement_id"] not in {n["announcement_id"] for n in REGISTRY.invoke("list_pending_announcements", hod, db)}
+
+
+def test_only_the_departments_own_hod_decides_and_only_once(db, undo):
+    args = {"title": "CP seminar", "body": "Tuesday, 3 pm.", "audience": "all", "dept": "CP"}
+    notice_id = REGISTRY.invoke("publish_notice", make_ctx("admin"), db, args, confirmed=True)["announcement_id"]
+    db.commit()
+    decide = lambda fid, **kw: REGISTRY.invoke(  # noqa: E731
+        "decide_announcement", make_ctx("faculty", fid), db, {"announcement_id": notice_id, "decision": "approve", **kw}
+    )
+    assert "head of department" in decide(TEACHES_DBMS)["error"]
+    assert "not waiting for the IT" in decide(HOD_IT)["error"]
+    assert "approve" in decide(HOD_CP, decision="maybe")["error"]
+    assert REGISTRY.invoke("list_pending_announcements", make_ctx("faculty", TEACHES_DBMS), db) == []
+    assert decide(HOD_CP)["needs_confirmation"] is True  # the preview writes nothing
+    assert _decide(db, HOD_CP, notice_id)["status"] == "approved"
+    assert "already approved" in decide(HOD_CP)["error"]
+
+
+def test_a_rejected_notice_never_reaches_anyone_and_keeps_the_reason(db, undo):
+    args = {"title": "Picnic on Friday", "body": "Bring lunch.", "audience": "student", "dept": "CP"}
+    notice_id = REGISTRY.invoke("publish_notice", make_ctx("admin"), db, args, confirmed=True)["announcement_id"]
+    db.commit()
+    out = _decide(db, HOD_CP, notice_id, "reject", note="Friday is a teaching day.")
+    assert out["status"] == "rejected" and db.scalars(select(EmailOutbox).where(EmailOutbox.related_id == notice_id, EmailOutbox.related_type == "announcement")).all() == []
+    assert "Picnic on Friday" not in _titles(db, "student", 17)
+    mine = next(n for n in REGISTRY.invoke("get_my_submitted_announcements", make_ctx("admin"), db) if n["announcement_id"] == notice_id)
+    assert mine["status"] == "rejected" and mine["approvals"][0]["note"] == "Friday is a teaching day."
 
 
 def test_leave_decisions_belong_to_the_students_own_hod(db):
@@ -358,7 +439,7 @@ def test_decide_leave_request_approves_once(db):
 
 # --- admin --------------------------------------------------------------------
 
-def test_publish_notice_validates_audience_and_department_then_posts(db, undo):
+def test_publish_notice_validates_audience_and_department_then_waits_for_the_hod(db, undo):
     admin = make_ctx("admin")
     assert "audience" in REGISTRY.invoke("publish_notice", admin, db, {"title": "t", "body": "b", "audience": "everyone"})["error"]
     assert "no department" in REGISTRY.invoke("publish_notice", admin, db, {"title": "t", "body": "b", "dept": "ZZ"})["error"]
@@ -366,12 +447,37 @@ def test_publish_notice_validates_audience_and_department_then_posts(db, undo):
     args = {"title": "Lab closed Monday", "body": "Maintenance.", "audience": "Student", "dept": "cp"}
     preview = REGISTRY.invoke("publish_notice", admin, db, args)["preview"]
     assert (preview["scope"], preview["dept"], preview["audience"]) == ("department", "CP", "student")
+    assert preview["approvals"] == [{"dept": "CP", "hod": preview["approvals"][0]["hod"]}] and preview["approvals"][0]["hod"]
     done = REGISTRY.invoke("publish_notice", admin, db, args, confirmed=True)
     db.commit()
+    assert done["status"] == "pending" and done["awaiting_approval"] == ["CP"]
     row = db.get(Announcement, done["announcement_id"])
     assert (row.scope, row.scope_ref, row.audience_roles) == ("department", "CP", "student")
-    assert "Lab closed Monday" in {a["title"] for a in REGISTRY.invoke("get_my_announcements", make_ctx("student", 17), db)}
-    assert "Lab closed Monday" not in {a["title"] for a in REGISTRY.invoke("get_my_announcements", make_ctx("faculty", HOD_CP), db)}
+    assert "Lab closed Monday" not in _titles(db, "student", 17)
+    _decide(db, HOD_CP, row.id)
+    assert "Lab closed Monday" in _titles(db, "student", 17)
+    assert "Lab closed Monday" not in _titles(db, "faculty", HOD_CP)
+
+
+def test_a_university_notice_goes_live_department_by_department(db, undo):
+    args = {"title": "Convocation dress code", "body": "Formal attire.", "audience": "all"}
+    done = REGISTRY.invoke("publish_notice", make_ctx("admin"), db, args, confirmed=True)
+    db.commit()
+    assert {"CP", "IT"} <= set(done["awaiting_approval"]) and len(done["awaiting_approval"]) >= 5
+    it_student = db.scalar(select(Student.id).where(Student.dept_code == "IT").order_by(Student.id).limit(1))
+
+    _decide(db, HOD_IT, done["announcement_id"])
+    assert "Convocation dress code" in _titles(db, "student", it_student)
+    assert "Convocation dress code" in _titles(db, "faculty", HOD_IT)
+    assert "Convocation dress code" not in _titles(db, "student", 17)  # CP's HOD has not approved yet
+    assert "Convocation dress code" in _titles(db, "admin")  # live somewhere: the admin sees it
+
+    mine = next(n for n in REGISTRY.invoke("get_my_submitted_announcements", make_ctx("admin"), db) if n["announcement_id"] == done["announcement_id"])
+    assert mine["status"] == "partial"
+    assert {a["dept"]: a["status"] for a in mine["approvals"]}["IT"] == "approved"
+
+    _decide(db, HOD_CP, done["announcement_id"])
+    assert "Convocation dress code" in _titles(db, "student", 17)
 
 
 def test_manage_user_deactivates_reactivates_and_resets_a_password(db):

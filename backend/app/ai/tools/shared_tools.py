@@ -18,6 +18,7 @@ from app.ai.tools.registry import Scope, tool
 from app.models import (
     AcademicCalendarEvent,
     Announcement,
+    AnnouncementApproval,
     CourseOffering,
     DocChunk,
     Document,
@@ -113,15 +114,34 @@ def _source_passages(db: Session, chunk_ids: set[int]) -> list[dict[str, Any]]:
 
 @tool(
     name="get_my_announcements",
-    description="Announcements addressed to the caller: university-wide, their department, or courses they're enrolled in/teach.",
+    description="Announcements addressed to the caller (university-wide, their department, or courses they're enrolled in/teach) that their head of department has approved.",
     allowed_roles={Role.STUDENT, Role.FACULTY, Role.ADMIN},
     scope=Scope.SELF,
 )
 def get_my_announcements(*, ctx: AuthContext, db: Session, **_: Any) -> list[dict[str, Any]]:
+    """Only what an HOD has released to the caller, dated by when it went live for them.
+
+    A university or department notice is released per department, so the caller
+    sees it once *their* department's HOD approves; a course notice has one
+    approval (the posting teacher's HOD) that releases it to the whole class.
+    """
     role_match = Announcement.audience_roles.ilike(f"%{ctx.role.value}%")
+    approved = AnnouncementApproval.status == "approved"
     if ctx.role is Role.ADMIN:
-        # admins have no dept/course scope of their own; university-wide role match is enough
-        conditions = [role_match]
+        # admins have no dept/course scope of their own: a role match and any department's approval
+        live = (
+            select(AnnouncementApproval.announcement_id, func.min(AnnouncementApproval.decided_at).label("live_at"))
+            .where(approved)
+            .group_by(AnnouncementApproval.announcement_id)
+            .subquery()
+        )
+        rows = db.execute(
+            select(Announcement, live.c.live_at)
+            .join(live, live.c.announcement_id == Announcement.id)
+            .where(role_match)
+            .order_by(desc(func.coalesce(live.c.live_at, Announcement.posted_at)), desc(Announcement.id))
+            .limit(20)
+        )
     else:
         dept_code = _caller_dept_code(db, ctx)
         course_codes = _caller_course_codes(db, ctx)
@@ -135,13 +155,28 @@ def get_my_announcements(*, ctx: AuthContext, db: Session, **_: Any) -> list[dic
             # a notice aimed at one semester is for that semester's students only
             conditions.append(or_(Announcement.semester.is_(None), Announcement.semester == db.get(Student, ctx.student_id).semester))
 
-    rows = db.scalars(select(Announcement).where(*conditions).order_by(desc(Announcement.posted_at)).limit(20))
-    return [
-        {
-            "title": r.title,
-            "body": r.body,
-            "scope": r.scope,
-            "posted_at": r.posted_at.isoformat() if r.posted_at else None,
-        }
-        for r in rows
-    ]
+        release = and_(
+            AnnouncementApproval.announcement_id == Announcement.id,
+            approved,
+            or_(Announcement.scope == "course", AnnouncementApproval.dept_code == dept_code),
+        )
+        live_at = func.coalesce(AnnouncementApproval.decided_at, Announcement.posted_at)
+        rows = db.execute(
+            select(Announcement, live_at)
+            .join(AnnouncementApproval, release)
+            .where(*conditions)
+            .order_by(desc(live_at), desc(Announcement.id))
+            .limit(20)
+        )
+    out = []
+    for r, live in rows:
+        when = live or r.posted_at
+        out.append(
+            {
+                "title": r.title,
+                "body": r.body,
+                "scope": r.scope,
+                "posted_at": when.isoformat() if when else None,
+            }
+        )
+    return out

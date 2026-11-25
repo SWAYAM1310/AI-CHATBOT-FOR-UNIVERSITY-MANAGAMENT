@@ -13,7 +13,7 @@ from datetime import date as Date
 from datetime import timedelta
 from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -23,6 +23,7 @@ from app.api.profile import identity_row
 from app.api.toolcall import read_tool, run_action
 from app.auth.context import AuthContext, Role
 from app.auth.deps import get_db, require_roles
+from app.notify.mailer import collecting, flush_in_background
 from app.schedule import covers, events_between, is_teaching_day, term_window
 from app.models import (
     Assessment,
@@ -486,6 +487,7 @@ def dashboard(ctx: AuthContext = Depends(faculty_only), db: Session = Depends(ge
 
     at_risk = read_tool("identify_at_risk_students", ctx, db)
     leave = read_tool("list_pending_leave_requests", ctx, db)
+    notices = read_tool("list_pending_announcements", ctx, db)
     return {
         "faculty": {
             "full_name": me.full_name,
@@ -501,6 +503,8 @@ def dashboard(ctx: AuthContext = Depends(faculty_only), db: Session = Depends(ge
         "today": today_classes,
         "at_risk": {"count": len(at_risk), "students": at_risk[:5]},
         "pending_leave": {"count": len(leave), "requests": leave[:5]},
+        "pending_announcements": {"count": len(notices), "announcements": notices[:5]},
+        "my_submissions": read_tool("get_my_submitted_announcements", ctx, db),
         "announcements": read_tool("get_my_announcements", ctx, db),  # the tool keeps the latest 20
     }
 
@@ -534,3 +538,36 @@ def decide_leave(
 ) -> dict[str, Any]:
     """Approve or reject from the Leave requests page: the same action, checks and email as in the assistant."""
     return run_action(db, ctx, "decide_leave_request", {"leave_request_id": leave_request_id, "decision": body.decision})
+
+
+# --- announcements waiting for the head of department ------------------------------------
+
+
+@router.get("/announcement-approvals")
+def announcement_approvals(ctx: AuthContext = Depends(faculty_only), db: Session = Depends(get_db)) -> list[dict[str, Any]]:
+    """Notices waiting for this head of department; always empty for anyone else."""
+    return read_tool("list_pending_announcements", ctx, db)
+
+
+class AnnouncementDecisionIn(BaseModel):
+    decision: Literal["approve", "reject"]
+    note: str | None = Field(default=None, max_length=500)
+
+
+@router.post("/announcement-approvals/{announcement_id}/decision")
+def decide_announcement(
+    announcement_id: int,
+    body: AnnouncementDecisionIn,
+    background: BackgroundTasks,
+    ctx: AuthContext = Depends(faculty_only),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    """Approve (release to the department, emails and all) or reject, as in the assistant."""
+    args: dict[str, Any] = {"announcement_id": announcement_id, "decision": body.decision}
+    if body.note and body.note.strip():
+        args["note"] = body.note.strip()
+    with collecting() as outbox_rows:
+        result = run_action(db, ctx, "decide_announcement", args)
+    # sent only once the approval and its outbox rows are committed; held rows are never sent
+    background.add_task(flush_in_background, [r.id for r in outbox_rows if r.status == "queued"])
+    return result

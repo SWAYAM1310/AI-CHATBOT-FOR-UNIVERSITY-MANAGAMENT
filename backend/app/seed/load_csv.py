@@ -63,7 +63,31 @@ LOAD_ORDER = [
 # idempotency keys embed leave_requests ids ("leave_applied:41"), and RESTART
 # IDENTITY reissues those ids, so a stale row would silently swallow the new
 # leave's notification as a "duplicate".
-RESET_ALSO = ["email_outbox"]
+RESET_ALSO = ["email_outbox", "announcement_approvals"]
+
+# The CSV announcements are history: they all went out long ago. An announcement
+# is only visible once its HOD approves it (announcement_approvals), so each one
+# gets an approved row per department it reached, dated when it was posted.
+# Kept in step with the backfill in alembic revision e5f6a7b8c9d0.
+APPROVE_LOADED_ANNOUNCEMENTS = """
+INSERT INTO announcement_approvals (announcement_id, dept_code, status, decided_at)
+SELECT a.id, d.code, 'approved', a.posted_at
+FROM announcements a
+JOIN departments d ON a.scope = 'university' OR (a.scope = 'department' AND d.code = a.scope_ref)
+WHERE NOT EXISTS (SELECT 1 FROM announcement_approvals x WHERE x.announcement_id = a.id)
+UNION ALL
+SELECT a.id,
+       COALESCE(f.dept_code,
+                (SELECT co.dept_code FROM course_offerings co
+                 WHERE co.subject_code = a.scope_ref AND co.dept_code IS NOT NULL LIMIT 1),
+                '-'),
+       'approved', a.posted_at
+FROM announcements a
+JOIN users u ON u.id = a.author_user_id
+LEFT JOIN faculty f ON u.subject_ref = 'faculty:' || f.id
+WHERE a.scope = 'course' AND NOT EXISTS (SELECT 1 FROM announcement_approvals x WHERE x.announcement_id = a.id)
+ON CONFLICT DO NOTHING
+"""
 
 CHUNK = 5000
 
@@ -154,6 +178,9 @@ def load(dataset: str, reset: bool) -> None:
                 [{"id": i, "hod": h} for i, h in hod_patch],
             )
             print(f"patched {len(hod_patch)} department HODs")
+
+        approved = conn.execute(text(APPROVE_LOADED_ANNOUNCEMENTS)).rowcount
+        print(f"approved {approved} announcement/department pairs")
 
         # bump identity sequences past MAX(id)
         for name in LOAD_ORDER:
