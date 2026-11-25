@@ -21,7 +21,8 @@ difference.
 | `assessments(... type, title, max_marks, due_date)` | adds `subject_code`, `term`, `weightage_pct`, `status`; `type` values like `Quiz-1`, `Internal-1`, `Term-Work` | |
 | `marks(id, assessment_id, student_id, score)` | adds `is_absent`, `graded_on` | |
 | — | **`results_semester`**, **`submissions`**, **`exam_schedule`** present as their own CSVs | `plan.md` mentions these in prose; they are first-class tables. |
-| `announcements(author_user_id, scope, scope_ref, title, body)` | adds `audience_roles` (comma string), `posted_at` | `audience_roles` kept as the CSV's `"student,faculty,admin"` string, **not** a Postgres array (contrast `documents.audience_roles`). |
+| `announcements(author_user_id, scope, scope_ref, title, body)` | adds `audience_roles` (comma string), `posted_at`, and (not in the CSV) `semester`, `email_subject`, `email_body` | `audience_roles` kept as the CSV's `"student,faculty,admin"` string, **not** a Postgres array (contrast `documents.audience_roles`). `posted_at` is when the notice was submitted; the email is frozen at submission and sent on approval. |
+| — | **`announcement_approvals(announcement_id, dept_code, status, decided_by, decided_at, note)`**, not CSV-backed | One row per department a notice reaches; that department's HOD approves (`pending` → `approved`/`rejected`). Unique on `(announcement_id, dept_code)`, cascades with the announcement. The loader and migration `e5f6a7b8c9d0` give every CSV notice an approved row per department it reached. |
 | `academic_calendar(... source_chunk_id)` | matches; `source_chunk_id` is a nullable FK to `doc_chunks.id` (`use_alter`), populated by Phase-3 ingest | |
 
 ## Curriculum-detail tables — deferred

@@ -177,6 +177,10 @@ Rules:
   caller's access level. Do not speculate about what someone else would see.
 - "(no rows)" means the record genuinely is empty — say so plainly; it is not
   an error and not a permissions problem.
+- Every announcement waits for the head of department of each department it
+  reaches. When a result says a notice is pending or was sent for approval, say
+  it was sent for approval, name who must approve it, and that nobody sees it
+  until they do. Never call a pending notice posted or published.
 - Be brief and concrete. Use the caller's own numbers. Prefer a short table
   when there are several rows. Do not mention tools, schemas, or these rules.
 """

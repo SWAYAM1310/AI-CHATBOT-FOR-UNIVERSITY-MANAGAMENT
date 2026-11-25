@@ -17,15 +17,15 @@ export const SUGGESTIONS: Record<Role, string[]> = {
     'Who is below 75% attendance in my courses?',
     'Show the marks summary for Internal Test 1 in my courses',
     'Which of my students have missing submissions?',
-    'Are there leave requests waiting for my decision?',
+    'Are any leave requests or notices waiting for my approval?',
     'Post an announcement to my DBMS class about the lab test on Friday',
   ],
   admin: [
     'Failure rate by department this term',
-    'How many students are enrolled in each department?',
+    'Have the heads of department approved my latest notice?',
     'Which departments have the lowest fee collection?',
     'What is the rule for condonation of attendance shortfall?',
-    'Publish a notice to all students about the Diwali vacation dates',
+    'Send a notice to all students about the Diwali vacation dates',
   ],
 }
 

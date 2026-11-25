@@ -2344,7 +2344,7 @@ CGPA 9.31 (was 9.45). Full-dataset backup before this: scratchpad
 `full_csv_backup_regraded/`. 546 tests pass; dev DB reloaded and checked in the
 browser.
 
-### Filters across the portal (2026-11-20, frontend only, uncommitted)
+### Filters across the portal (2026-11-20, frontend only, committed `407a7d9`)
 The user asked for category filters wherever lists benefit from them.
 - **Announcements have no category column.** `portal/categories.ts` reads one from the
   title (then the body) with ordered regex rules: Exams, Coursework, Class changes, Fees,
@@ -2380,6 +2380,82 @@ The user asked for category filters wherever lists benefit from them.
   1280px and 390px as student, faculty and admin, against a backend with
   `EMAIL_MODE=console`. Filters, reload persistence and Clear filters all work, with no
   console errors and no horizontal scroll.
+
+### Announcements need the HOD's approval (2026-11-25, uncommitted)
+The user's rule: an announcement goes to the HOD first, and only an approved one
+reaches students and faculty. This applies everywhere: website, assistant, feeds and emails.
+Decisions the user made:
+- **University-wide notice = each HOD for their own department.** It is released
+  department by department: IT can be live while CP still waits, and a rejection
+  blocks only that department.
+- **Faculty course notices need approval too**, from the poster's own HOD. An HOD's
+  own course post goes straight out (approved row with `decided_by` = themselves).
+
+Backend (Part 1):
+- New table `announcement_approvals(announcement_id, dept_code, status
+  pending|approved|rejected, decided_by -> faculty, decided_at, note)`, unique per
+  (announcement, dept), `ON DELETE CASCADE`. `announcements` gains
+  `email_subject`/`email_body`: the email is frozen at submission and sent on
+  approval. Migration `e5f6a7b8c9d0` backfills every existing notice with an
+  approved row per department it reached (`decided_at = posted_at`).
+  `load_csv` runs the same SQL after loading (`APPROVE_LOADED_ANNOUNCEMENTS`) and
+  only touches notices with no approval rows. Keep the two copies in step.
+- Which departments approve: those of the resolved recipients
+  (`Recipient.dept`, `announce.approval_departments`). A semester-3 student
+  notice only asks departments that have semester-3 students.
+- `publish_notice` now only submits: it creates the notice and pending rows, queues no
+  email, and returns `status: pending` + `awaiting_approval`. The preview lists the
+  approvers (`preview.approvals`). `post_announcement` does the same for one dept.
+- New tools: `list_pending_announcements` (HOD, read; reach in their dept),
+  `decide_announcement` (HOD action, two-phase; approve queues emails for that
+  department's slice only, never for course notices; optional `note`, max 500),
+  `get_my_submitted_announcements` (faculty/admin read; per-dept status, overall
+  `pending|approved|rejected|partial` from `announce.approval_state`). 48 tools now,
+  11 action tools.
+- `get_my_announcements` joins approvals. A university or department notice is visible when
+  the caller's dept row is approved; a course notice is visible when its single row is approved.
+  `posted_at` in the feed is the release time (`decided_at`). Admins see a notice once
+  any department has it live.
+- **Demo cap is per announcement across releases**: `announce.demo_budget` counts
+  queued/sent/failed outbox rows already written for that notice, so seven HOD
+  approvals still send at most `EMAIL_DEMO_CAP` real emails in total.
+- API: `GET /api/faculty/announcement-approvals`,
+  `POST /api/faculty/announcement-approvals/{id}/decision {decision, note?}`
+  (background flush like the chat confirm). The faculty dashboard gains
+  `pending_announcements` + `my_submissions`. Admin `POST /announcements` no
+  longer flushes anything. The `GET /announcements` rows gain `status`, `approvals`
+  and `emailing`.
+
+Website (Part 2):
+- HOD page `/approvals` (`faculty/NoticeApprovals.tsx`): the notice as it will
+  read, the email folded away, who approving reaches, an optional note, and Approve/Reject
+  with a confirm click. The nav item "Notice approvals" (hodOnly) has a count badge
+  (`PortalLayout` loads the list and polls every 60 s; the page fires
+  `APPROVALS_CHANGED` from `portal/approvals.ts` so the badge drops at once). The
+  HOD Home page gets a "Waiting for your decision" section (notices + leave).
+- `ApprovalTrack` = one stamp per department (dashed amber waiting, green and
+  tilted approved, red struck rejected) plus a line ("Live in 1 of 7
+  departments") and HOD notes. Used on admin Announcements rows and the faculty
+  "Sent by you" list on their Announcements page.
+- Admin Announcements: the button is "Send for approval", the preview shows the HODs, there is an Approval
+  filter (`?status=`), and the list polls every 30 s while anything waits. `notices.ts`
+  `noticeProgress` explains the email state ("Emails go out as each head of
+  department approves").
+
+Assistant/docs (Part 3): the synthesis prompt never calls a pending notice
+published; the rail suggestions were updated; golden-set cases `f24` and `a21`
+were added; `.env.example`, `SCHEMA_MAP.md`, `DATA_MODEL_EXPLANATION.md` and the README
+were updated.
+
+Verified: full backend suite (557) green after Part 1; admin + faculty suites
+green after Part 2; `tsc -b` clean; no new oxlint warnings. Playwright against
+a :8001 backend with Mailpit (preview guard `emails_held: 0`): admin sends a
+university notice -> 7 pending stamps, CP HOD badge 1 -> approve -> live for 48 in
+CP, 48 emails in Mailpit, admin row "Live in 1 of 7", badge gone; faculty
+"Sent by you" shows waiting; 390px has no horizontal scroll. Test rows were deleted
+afterwards (DB back to 33 notices / 75 approvals / empty outbox).
+Not done: HODs are not emailed when something waits for them (it would use up the
+demo cap). The badge and Home section cover it.
 
 ### >>> Resume here next session: grading-scheme Part 3 (RAG corpus) <<<
 1. Rewrite `docs/policies/examination_regulations.md` §2 for the new scheme:

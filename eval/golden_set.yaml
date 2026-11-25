@@ -562,6 +562,13 @@
   expect_refusal: true
   tags: [refusal, wrong-role]
 
+- id: f24
+  role: faculty
+  user: milan.vyas@sot.pdpu.ac.in
+  question: "Which announcements are waiting for my approval?"
+  expected_tools: [list_pending_announcements]
+  tags: [announcement, hod]
+
 # ----------------------------------------------------------------------------
 # Admin - university-wide
 # ----------------------------------------------------------------------------
@@ -698,6 +705,12 @@
   expected_tools: []
   expect_refusal: true
   tags: [refusal, wrong-role]
+
+- id: a21
+  role: admin
+  question: "Have the heads of department approved my notices yet?"
+  expected_tools: [get_my_submitted_announcements]
+  tags: [notice, approval]
 
 - id: a18
   role: admin

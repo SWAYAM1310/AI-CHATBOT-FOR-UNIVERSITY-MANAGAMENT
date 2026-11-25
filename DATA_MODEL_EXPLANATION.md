@@ -247,11 +247,12 @@ Subsystems Overview:
 
 #### 23. `announcements.csv` (33 rows)
 - **Primary Key**: `id`
-- **Key Columns**: `author_user_id`, `scope` (`university`, `department`, `course`), `scope_ref`, `title`, `body`, `audience_roles` (`student`, `faculty`, `admin`), `posted_at`
+- **Key Columns**: `author_user_id`, `scope` (`university`, `department`, `course`), `scope_ref`, `title`, `body`, `audience_roles` (`student`, `faculty`, `admin`), `posted_at` (when it was submitted)
 - **What it represents**: Campus circulars, exam notices, fee deadlines, and departmental announcements.
+- **Approval by the head of department**: nothing reaches anyone until an HOD approves it. A separate table, `announcement_approvals` (not CSV-backed), holds one row per department a notice reaches. Each department's HOD approves or rejects it for their own people, so a university-wide notice goes live department by department. A faculty member's course notice is approved by their own HOD, and an HOD's own course notice needs no approval. The 33 CSV notices are history, so the loader marks each one approved.
 - **How it is used in UniAssist**:
-  - Powers `get_my_announcements()` with multi-level filtering: checks the caller's role, department, and enrolled courses to return only relevant circulars.
-  - Supports the faculty/admin action tool `post_announcement()`.
+  - Powers `get_my_announcements()` with multi-level filtering: checks the caller's role, department, and enrolled courses, and returns only notices their department's HOD has approved, dated by when they went live.
+  - Written by the action tools `post_announcement()` (faculty, one course) and `publish_notice()` (admin, university or one department, emailed on approval); decided by `decide_announcement()` and listed for the HOD by `list_pending_announcements()`. `get_my_submitted_announcements()` shows a sender where each notice stands.
 
 #### 24. `academic_calendar.csv` (25 rows)
 - **Primary Key**: `id`
@@ -424,6 +425,7 @@ students ──> leave_requests (status='pending') ──> faculty (reviews & ap
   - If `scope = 'university'`, the announcement is delivered to all matching `audience_roles`.
   - If `scope = 'department'`, it matches `scope_ref == student.dept_id`.
   - If `scope = 'course'`, it matches `scope_ref == enrollment.offering_id`.
+  - In every case only once `announcement_approvals` has an approved row: for the caller's department (university and department notices) or the notice's single row (course notices).
 - Prevents notification fatigue by ensuring Mechanical students never receive Computer Science lab cancellation notices.
 
 ---
@@ -456,4 +458,7 @@ students ──> leave_requests (status='pending') ──> faculty (reviews & ap
 | `get_fee_collection_summary` | Admin | `fees`, `departments`, `students` | Reports departmental fee collection and overdue amounts. |
 | `search_university_policies` | All Roles | `documents`, `doc_chunks` (RAG Vector Store) | Semantic search over regulations, ordinances, and policies. |
 | `get_academic_calendar` | All Roles | `academic_calendar` | Returns university dates, holidays, and semester deadlines. |
-| `get_my_announcements` | All Roles | `announcements`, `departments`, `enrollments` | Fetches targeted campus circulars matching user context. |
+| `get_my_announcements` | All Roles | `announcements`, `announcement_approvals`, `departments`, `enrollments` | Fetches targeted campus circulars matching user context, once their HOD has approved them. |
+| `list_pending_announcements` | Faculty (HOD) | `announcement_approvals`, `announcements` | Notices waiting for this head of department, with who approval would reach. |
+| `decide_announcement` | Faculty (HOD) | `announcement_approvals`, `email_outbox` | Approves (releases to the department, in-app and by email) or rejects a notice. |
+| `get_my_submitted_announcements` | Faculty / Admin | `announcements`, `announcement_approvals` | The caller's own notices and each department's approval status. |

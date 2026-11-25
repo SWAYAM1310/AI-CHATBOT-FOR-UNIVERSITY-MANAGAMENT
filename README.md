@@ -34,6 +34,7 @@ See [`plan.md`](plan.md) for the full architecture, and
 | **5a–5c** | React frontend: streaming answers, Markdown rendering, citation chips, confirmation cards, dev trace panel |
 | **5b** | Evaluation harness, 83-case golden set, three retrieval experiments |
 | **6** | Agentic email notifications for leave apply/decide (Mailpit sandbox + real SMTP) |
+| **7** *(in progress)* | Role portals (student, faculty, admin), attendance and marks entry on the website, profiles, announcements emailed to every recipient. **Every announcement first goes to the head of department of each department it reaches, and goes live there only once that HOD approves** |
 
 **`pytest` — 434 tests, fully offline**: every LLM call goes through a scripted provider,
 and CI ([backend-tests.yml](.github/workflows/backend-tests.yml)) runs the suite with
