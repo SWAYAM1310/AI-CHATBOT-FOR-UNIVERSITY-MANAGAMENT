@@ -75,6 +75,41 @@ export function FacultyHome() {
       {error && <Notice tone="error">{error}</Notice>}
       {!d && !error && <Loading what="your day" />}
 
+      {d && d.faculty.is_hod && (d.pending_announcements.count > 0 || d.pending_leave.count > 0) && (
+        <section className="block" aria-labelledby="decide-h">
+          <h2 id="decide-h">Waiting for your decision</h2>
+          <ul className="plain-list waiting-list">
+            {d.pending_announcements.count > 0 && (
+              <li>
+                <span>
+                  <strong>{plural(d.pending_announcements.count, 'announcement')}</strong> for the {d.faculty.dept_code} department.
+                  <span className="muted small block-line">
+                    {d.pending_announcements.announcements
+                      .slice(0, 3)
+                      .map((n) => `“${n.title}”`)
+                      .join(', ')}
+                    {d.pending_announcements.count > 3 ? ' and more' : ''}. {d.pending_announcements.count === 1 ? 'Nobody sees it' : 'Nobody sees them'} until you approve.
+                  </span>
+                </span>
+                <Link className="btn primary" to="/approvals">
+                  Review notices
+                </Link>
+              </li>
+            )}
+            {d.pending_leave.count > 0 && (
+              <li>
+                <span>
+                  <strong>{plural(d.pending_leave.count, 'leave request')}</strong> from your students.
+                </span>
+                <Link className="btn" to="/leave">
+                  Review leave
+                </Link>
+              </li>
+            )}
+          </ul>
+        </section>
+      )}
+
       {d && (
         <section className="block" aria-labelledby="today-h">
           <h2 id="today-h">Today</h2>

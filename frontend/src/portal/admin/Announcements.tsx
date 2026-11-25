@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { api } from '../../api'
-import type { AdminNotice, NoticeAudience, NoticeDraft, NoticePreview } from '../../types'
+import type { AdminNotice, NoticeAudience, NoticeDraft, NoticePreview, NoticeState } from '../../types'
+import { ApprovalTrack } from '../ApprovalTrack'
 import { CATEGORIES, categorize, categoryOptions, type Category } from '../categories'
 import { CategoryTag, FilterChips, FilterSummary, SearchField } from '../Filters'
 import { matchesQuery, useClearParams, useParamFilter } from '../filtering'
@@ -8,10 +9,12 @@ import { formatDate, plural } from '../format'
 import { PageHeader } from '../PageHeader'
 import { Empty, Loading, Notice } from '../ui'
 import { describeError, useLoad } from '../useLoad'
-import { deliverySummary, noticeAudience } from './notices'
+import { noticeAudience, noticeProgress } from './notices'
 
-// sending happens in a background task after Publish returns, so the list is re-read until it settles
+// sending happens in a background task after an HOD approves, so the list is re-read until it settles
 const SENDING_POLL_MS = 3000
+// while a notice waits for heads of department, look in now and then for their decisions
+const WAITING_POLL_MS = 30_000
 const TITLE_MAX = 120
 const BODY_MAX = 2000
 
@@ -31,6 +34,14 @@ interface Form {
 
 const EMPTY: Form = { title: '', body: '', audience: 'all', dept: '', semester: '' }
 
+const STATES: { value: NoticeState; label: string }[] = [
+  { value: 'pending', label: 'Waiting for approval' },
+  { value: 'partial', label: 'Live in some departments' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'rejected', label: 'Rejected' },
+]
+const STATE_VALUES = STATES.map((st) => st.value)
+
 function toDraft(f: Form): NoticeDraft {
   return {
     title: f.title.trim(),
@@ -41,16 +52,18 @@ function toDraft(f: Form): NoticeDraft {
   }
 }
 
-/** The published notices, filtered by category, audience, department and a search. */
+/** The notices sent so far, filtered by approval, category, audience, department and a search. */
 function PublishedList({ notices, departments }: { notices: AdminNotice[]; departments: { dept: string; name: string }[] }) {
   const [category, setCategory] = useParamFilter<Category>('cat', CATEGORIES)
   const [audience, setAudience] = useParamFilter<NoticeAudience>('for', AUDIENCE_VALUES)
   const [dept, setDept] = useParamFilter<string>('dept')
+  const [state, setState] = useParamFilter<NoticeState>('status', STATE_VALUES)
   const [query, setQuery] = useState('')
-  const clearParams = useClearParams(['cat', 'for', 'dept'])
+  const clearParams = useClearParams(['cat', 'for', 'dept', 'status'])
 
   const narrowed = notices.filter(
     (n) =>
+      (!state || n.status === state) &&
       (!audience || audienceOf(n) === audience) &&
       (!dept || (dept === WHOLE_UNIVERSITY ? !n.dept : n.dept === dept)) &&
       matchesQuery(query, n.title, n.body),
@@ -62,7 +75,18 @@ function PublishedList({ notices, departments }: { notices: AdminNotice[]; depar
   return (
     <>
       <div className="toolbar filter-bar">
-        <SearchField label="Search published notices" placeholder="Search title or message" value={query} onChange={setQuery} />
+        <SearchField label="Search sent notices" placeholder="Search title or message" value={query} onChange={setQuery} />
+        <label className="field-inline">
+          <span>Approval</span>
+          <select value={state} onChange={(e) => setState(e.target.value as NoticeState | '')}>
+            <option value="">Any</option>
+            {STATES.map((st) => (
+              <option key={st.value} value={st.value}>
+                {st.label} ({notices.filter((n) => n.status === st.value).length})
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="field-inline">
           <span>For</span>
           <select value={audience} onChange={(e) => setAudience(e.target.value as NoticeAudience | '')}>
@@ -94,14 +118,14 @@ function PublishedList({ notices, departments }: { notices: AdminNotice[]; depar
         shown={shown.length}
         total={notices.length}
         noun={['notice', 'notices']}
-        active={Boolean(category || audience || dept || query.trim())}
+        active={Boolean(category || audience || dept || state || query.trim())}
         onClear={() => {
           clearParams()
           setQuery('')
         }}
       />
       {shown.length === 0 ? (
-        <Empty>No published notice matches these filters.</Empty>
+        <Empty>No notice matches these filters.</Empty>
       ) : (
         <ul className="plain-list">
           {shown.map((n) => (
@@ -168,10 +192,11 @@ function NoticeRow({ n }: { n: AdminNotice }) {
         <span>
           <span className="ann-meta">
             <CategoryTag category={categorize(n)} />
-            <span className="muted small">{formatDate(n.posted_at)}</span>
           </span>
           <strong className="block-line">{n.title}</strong>
-          <span className="muted small block-line">{noticeAudience(n)}</span>
+          <span className="muted small block-line">
+            {noticeAudience(n)}, sent {formatDate(n.posted_at)}
+          </span>
         </span>
         {d.total > 0 && (
           <button type="button" className="small-btn" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
@@ -180,8 +205,9 @@ function NoticeRow({ n }: { n: AdminNotice }) {
         )}
       </div>
       {n.body && <span className="muted small clamp">{n.body}</span>}
+      <ApprovalTrack approvals={n.approvals} state={n.status} />
       {d.total > 0 && (
-        <div className="delivery" role="img" aria-label={deliverySummary(d)}>
+        <div className="delivery" role="img" aria-label={noticeProgress(n)}>
           <span className="delivery-sent" style={{ flexGrow: d.sent }} />
           <span className="delivery-queued" style={{ flexGrow: d.queued }} />
           <span className="delivery-held" style={{ flexGrow: d.held + d.suppressed }} />
@@ -189,7 +215,7 @@ function NoticeRow({ n }: { n: AdminNotice }) {
         </div>
       )}
       <span className={d.failed ? 'small low-note' : 'small'} aria-live={sending ? 'polite' : undefined}>
-        {deliverySummary(d)}
+        {noticeProgress(n)}
       </span>
       {open && <Deliveries id={n.announcement_id} sending={sending} />}
     </li>
@@ -200,7 +226,11 @@ export function Announcements() {
   const departments = useLoad(() => api.adminDashboard(), 'admin-dashboard')
   const [poll, setPoll] = useState(0)
   const notices = useLoad(() => api.notices(), 'admin-notices', true, poll)
-  const wantPoll = notices.data?.some((n) => n.delivery.queued > 0) ? SENDING_POLL_MS : 0
+  const wantPoll = notices.data?.some((n) => n.delivery.queued > 0)
+    ? SENDING_POLL_MS
+    : notices.data?.some((n) => n.status === 'pending' || n.status === 'partial')
+      ? WAITING_POLL_MS
+      : 0
   if (wantPoll !== poll) setPoll(wantPoll)
 
   const [form, setForm] = useState<Form>(EMPTY)
@@ -244,10 +274,7 @@ export function Announcements() {
       // the reviewed email is sent as shown; without it the server would draft a fresh one
       const draft = preview.emailing ? { ...toDraft(form), email_subject: subject.trim(), email_body: emailBody.trim() } : toDraft(form)
       const out = await api.publishNotice(draft)
-      let text = `Published "${draft.title}" to ${plural(out.recipients, 'recipient')}.`
-      if (out.emails_queued) text += ` Emailing ${out.emails_queued}.`
-      if (out.emails_held) text += ` ${out.emails_held} held by the demo cap.`
-      setNote({ tone: 'success', text })
+      setNote({ tone: 'success', text: out.message })
       setForm(EMPTY)
       setPreview(null)
       notices.reload()
@@ -263,7 +290,10 @@ export function Announcements() {
 
   return (
     <div className="page">
-      <PageHeader title="Announcements" lede="Publish a notice to the portal and email it to everyone it is for. You see exactly who it reaches before it goes out." />
+      <PageHeader
+        title="Announcements"
+        lede="Write a notice and send it to the head of each department it is for. Once an HOD approves, their department sees it in the portal and gets it by email."
+      />
 
       <section className="block" aria-labelledby="new-h">
         <h2 id="new-h">New announcement</h2>
@@ -335,14 +365,14 @@ export function Announcements() {
               <button type="submit" className="primary" disabled={!ready || busy !== null}>
                 {busy === 'preview' ? 'Preparing preview…' : 'Preview'}
               </button>
-              <span className="muted small">Nothing is published or sent until you press Publish.</span>
+              <span className="muted small">Nothing is sent until you press Send for approval.</span>
             </div>
           )}
         </form>
 
         {preview && p && (
           <section className="preview" aria-labelledby="preview-h">
-            <h3 id="preview-h">Before you publish</h3>
+            <h3 id="preview-h">Before you send it</h3>
             <p className="preview-reach">
               Reaches <strong>{plural(p.recipients_students + p.recipients_faculty, 'person', 'people')}</strong>:{' '}
               {[p.recipients_students && plural(p.recipients_students, 'student'), p.recipients_faculty && plural(p.recipients_faculty, 'faculty member')]
@@ -350,15 +380,30 @@ export function Announcements() {
                 .join(' and ')}
               .
             </p>
+            {p.approvals.length > 0 && (
+              <div className="approvers">
+                <p className="small">
+                  {p.approvals.length === 1 ? 'It goes to this head of department first:' : `It goes to these ${p.approvals.length} heads of department first. Each one releases it to their own department:`}
+                </p>
+                <ul className="approval-stamps">
+                  {p.approvals.map((a) => (
+                    <li key={a.dept} className="stamp pending" title={a.hod ?? 'No head of department'}>
+                      {a.dept}
+                      <span className="stamp-who">{a.hod ?? 'post vacant'}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {preview.emailing && p.emails_held > 0 && (
               <p className="attention-line">
                 Demo cap is on: only {plural(p.emails_to_send, 'email')} will really be sent; the other {p.emails_held} are recorded as held. Everyone still sees the
-                notice in the portal.
+                notice in the portal once their head of department approves.
               </p>
             )}
             {preview.emailing ? (
               <div className="form">
-                <p className="muted small">This email goes to every recipient. You can edit it before publishing.</p>
+                <p className="muted small">This email goes to every recipient once their head of department approves. You can edit it now; it cannot change after you send it.</p>
                 <label className="field">
                   <span>Email subject</span>
                   <input value={subject} maxLength={200} onChange={(e) => setSubject(e.target.value)} disabled={busy !== null} />
@@ -369,11 +414,11 @@ export function Announcements() {
                 </label>
               </div>
             ) : (
-              <p className="muted">Email is switched off on this server, so the notice appears in the portal only.</p>
+              <p className="muted">Email is switched off on this server, so once approved the notice appears in the portal only.</p>
             )}
             <div className="form-actions">
               <button type="button" className="primary" onClick={publish} disabled={busy !== null || emailIncomplete === true}>
-                {busy === 'publish' ? 'Publishing…' : 'Publish'}
+                {busy === 'publish' ? 'Sending…' : 'Send for approval'}
               </button>
               <button type="button" onClick={() => setPreview(null)} disabled={busy !== null}>
                 Back to editing
@@ -386,7 +431,7 @@ export function Announcements() {
       </section>
 
       <section className="block" aria-labelledby="past-h">
-        <h2 id="past-h">Published</h2>
+        <h2 id="past-h">Sent</h2>
         {notices.error && <Notice tone="error">{notices.error}</Notice>}
         {!notices.data && !notices.error && <Loading what="announcements" />}
         {notices.data && notices.data.length === 0 && <Empty>Nothing has been announced yet.</Empty>}

@@ -315,3 +315,16 @@
     transition: none;
   }
 }
+
+/* how many things wait on a page, e.g. notices for an HOD to approve */
+.nav-count {
+  margin-left: auto;
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--crest);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}

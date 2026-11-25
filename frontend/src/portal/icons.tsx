@@ -89,6 +89,15 @@ export const LeaveIcon = () => (
   </Svg>
 )
 
+/** A rubber stamp: a notice waiting for the head of department's sign-off. */
+export const StampIcon = () => (
+  <Svg>
+    <path d="M9.5 11.5V9a2.5 2.5 0 1 1 5 0v2.5" />
+    <path d="M5 15.5c0-2.2 1.8-4 4-4h6c2.2 0 4 1.8 4 4v1H5z" />
+    <path d="M5 20h14" />
+  </Svg>
+)
+
 export const MegaphoneIcon = () => (
   <Svg>
     <path d="M4 10v4h3l8 4V6L7 10H4Z" />

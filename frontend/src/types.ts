@@ -290,6 +290,53 @@ export interface PendingLeave {
   applied_on: string | null
 }
 
+// --- announcement approval: every notice waits for the HOD of each department it reaches ---------
+
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected'
+/** A whole notice: no HOD has decided, all approved, all rejected, or a mix (live in some departments). */
+export type NoticeState = ApprovalStatus | 'partial'
+
+export interface DeptApproval {
+  dept: string
+  status: ApprovalStatus
+  hod: string | null
+  decided_by: string | null
+  decided_at: string | null
+  note: string | null
+}
+
+/** A notice waiting for this head of department (backend list_pending_announcements). */
+export interface PendingNotice {
+  announcement_id: number
+  title: string
+  body: string | null
+  scope: 'university' | 'department' | 'course'
+  course: string | null
+  dept: string | null
+  audience: 'all' | 'student' | 'faculty'
+  semester: number | null
+  submitted_at: string | null
+  submitted_by: { name: string | null; role: string | null }
+  your_department: string
+  reach_students: number
+  reach_faculty: number
+  emails: boolean
+  email_subject: string | null
+  email_body: string | null
+}
+
+/** A notice the caller submitted, and where it stands (backend get_my_submitted_announcements). */
+export interface SubmittedNotice {
+  announcement_id: number
+  title: string
+  scope: string
+  course: string | null
+  dept: string | null
+  submitted_at: string | null
+  status: NoticeState
+  approvals: DeptApproval[]
+}
+
 export interface TodayClass extends FacultyCourse {
   start_time: string
   end_time: string
@@ -307,6 +354,8 @@ export interface FacultyDashboard {
   today: TodayClass[]
   at_risk: { count: number; students: AtRiskStudent[] }
   pending_leave: { count: number; requests: PendingLeave[] }
+  pending_announcements: { count: number; announcements: PendingNotice[] }
+  my_submissions: SubmittedNotice[]
   announcements: AnnouncementItem[]
 }
 
@@ -460,8 +509,13 @@ export interface AdminNotice {
   /** comma-separated roles, e.g. "student,faculty" */
   audience: string
   semester: number | null
+  /** when it was submitted; it goes live per department as each HOD approves */
   posted_at: string | null
   delivery: DeliveryCounts
+  /** whether recipients are emailed when their HOD approves */
+  emailing: boolean
+  status: NoticeState
+  approvals: DeptApproval[]
 }
 
 export interface DepartmentRow {
@@ -541,15 +595,26 @@ export interface NoticePreview {
     recipients_faculty: number
     emails_to_send: number
     emails_held: number
+    /** the heads of department who must approve, one per department the notice reaches */
+    approvals: { dept: string; hod: string | null }[]
   }
   /** null when email is switched off on the server: the notice is then in-app only */
   email: { to: string; subject: string; body: string } | null
   emailing: boolean
 }
 
+/** Publishing submits the notice: nothing is shown or emailed until an HOD approves. */
 export interface PublishResult extends ActionResult {
   announcement_id: number
+  status: 'pending'
   recipients: number
+  awaiting_approval: string[]
+}
+
+export interface NoticeDecisionResult extends ActionResult {
+  announcement_id: number
+  dept: string
+  status: ApprovalStatus
   emails_queued: number
   emails_held: number
 }

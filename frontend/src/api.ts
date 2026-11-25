@@ -23,7 +23,9 @@ import type {
   MessageOut,
   NoticeDraft,
   NoticePreview,
+  NoticeDecisionResult,
   PendingLeave,
+  PendingNotice,
   ProfileOut,
   PublishResult,
   RosterOut,
@@ -192,6 +194,12 @@ export const api = {
   leaveRequests: () => request<PendingLeave[]>('/api/faculty/leave-requests'),
   decideLeave: (leaveRequestId: number, decision: 'approve' | 'reject') =>
     request<ActionResult>(`/api/faculty/leave-requests/${leaveRequestId}/decision`, { method: 'POST', ...json({ decision }) }),
+  announcementApprovals: () => request<PendingNotice[]>('/api/faculty/announcement-approvals'),
+  decideAnnouncement: (announcementId: number, decision: 'approve' | 'reject', note?: string) =>
+    request<NoticeDecisionResult>(`/api/faculty/announcement-approvals/${announcementId}/decision`, {
+      method: 'POST',
+      ...json({ decision, note: note?.trim() || undefined }),
+    }),
   facultyCourses: () => request<FacultyCourse[]>('/api/faculty/courses'),
   roster: (offeringId: number) => request<RosterOut>(`/api/faculty/offerings/${offeringId}/roster`),
   attendanceDay: (offeringId: number, date: string) =>

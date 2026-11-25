@@ -1450,3 +1450,169 @@ table.data {
     max-height: 420px;
   }
 }
+
+/* --- announcement approval: one stamp per department, filled when its HOD signs off ------------ */
+
+.approval-track {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.approval-stamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 6px;
+  border: 1.5px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: default;
+}
+
+/* waiting: an outline with a dashed edge, the stamp not yet pressed */
+.stamp.pending {
+  border-style: dashed;
+  border-color: var(--amber);
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+/* approved: pressed in, slightly askew like a real rubber stamp */
+.stamp.approved {
+  border-color: var(--present);
+  color: var(--present);
+  background: var(--present-soft);
+  transform: rotate(-2deg);
+}
+
+.stamp.rejected {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--red-soft);
+  text-decoration: line-through;
+}
+
+.stamp-who {
+  font-family: var(--sans);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.approval-line.pending,
+.approval-line.partial {
+  color: var(--amber);
+}
+
+.approval-line.rejected {
+  color: var(--red);
+}
+
+.approval-note {
+  max-width: var(--measure);
+}
+
+.approvers {
+  margin: 0 0 14px;
+}
+
+.approvers .approval-stamps {
+  margin-top: 6px;
+}
+
+/* an HOD's queue: the notice as it will read on the left, the decision on the right */
+.plain-list > li.approval-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
+  gap: 16px 28px;
+  padding: 18px 0;
+}
+
+.approval-slip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 3px dashed var(--amber);
+}
+
+.approval-title {
+  font-size: 17px;
+}
+
+.approval-body {
+  margin: 6px 0 0;
+  max-width: var(--measure);
+  white-space: pre-line;
+}
+
+.approval-email {
+  margin-top: 8px;
+}
+
+.approval-email summary {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--crest-hover);
+}
+
+.email-text {
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  white-space: pre-wrap;
+}
+
+.approval-decide {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.approval-decide p {
+  margin: 0;
+}
+
+.approval-decide textarea {
+  width: 100%;
+}
+
+.btn.danger {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+/* an HOD's Home: what is waiting, each with the button that deals with it */
+.plain-list.waiting-list > li {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 800px) {
+  .plain-list > li.approval-card {
+    grid-template-columns: 1fr;
+  }
+}

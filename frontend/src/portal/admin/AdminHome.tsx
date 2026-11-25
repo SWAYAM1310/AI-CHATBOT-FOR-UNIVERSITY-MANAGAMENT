@@ -8,7 +8,8 @@ import { firstName, formatDate, formatMoney, greeting, plural } from '../format'
 import { PageHeader } from '../PageHeader'
 import { Empty, Loading, Notice } from '../ui'
 import { useLoad } from '../useLoad'
-import { deliverySummary, noticeAudience } from './notices'
+import { approvalLine } from '../approvals'
+import { noticeAudience, noticeProgress } from './notices'
 
 const ATTENDANCE_FLOOR = 75
 
@@ -175,7 +176,7 @@ export function AdminHome() {
                     </span>
                     <strong>{a.title}</strong>
                     <span className="muted small">
-                      {noticeAudience(a)}. {deliverySummary(a.delivery)}.
+                      {noticeAudience(a)}. {approvalLine(a.approvals, a.status) || noticeProgress(a)}.
                     </span>
                   </li>
                 ))}

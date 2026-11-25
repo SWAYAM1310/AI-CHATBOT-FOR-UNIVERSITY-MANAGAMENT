@@ -1,9 +1,15 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { api } from '../api'
 import type { Role } from '../types'
 import { Avatar } from './Avatar'
 import { usePortal } from './context'
-import { ActivitiesIcon, AlertIcon, AttendanceIcon, BookIcon, CalendarIcon, ExamIcon, ChatIcon, HomeIcon, LeaveIcon, MegaphoneIcon, MenuIcon, ResultsIcon, SignOutIcon, UserIcon, WalletIcon } from './icons'
+import { APPROVALS_CHANGED } from './approvals'
+import { ActivitiesIcon, AlertIcon, AttendanceIcon, BookIcon, CalendarIcon, ExamIcon, ChatIcon, HomeIcon, LeaveIcon, MegaphoneIcon, MenuIcon, ResultsIcon, SignOutIcon, StampIcon, UserIcon, WalletIcon } from './icons'
+import { useLoad } from './useLoad'
+
+// the badge re-reads now and then, so a notice the admin just sent shows up without a reload
+const BADGE_POLL_MS = 60_000
 
 interface NavItem {
   to: string
@@ -12,6 +18,8 @@ interface NavItem {
   end?: boolean
   /** Only a head of department sees it. */
   hodOnly?: boolean
+  /** Shows how many things are waiting there. */
+  badge?: 'approvals'
 }
 
 // What each role works with, most-used first. The assistant sits second to last:
@@ -34,6 +42,7 @@ const NAV: Record<Role, NavItem[]> = {
     { to: '/calendar', label: 'Calendar', icon: <CalendarIcon /> },
     { to: '/at-risk', label: 'Students at risk', icon: <AlertIcon /> },
     { to: '/leave', label: 'Leave requests', icon: <LeaveIcon />, hodOnly: true },
+    { to: '/approvals', label: 'Notice approvals', icon: <StampIcon />, hodOnly: true, badge: 'approvals' },
     { to: '/announcements', label: 'Announcements', icon: <MegaphoneIcon /> },
     { to: '/assistant', label: 'Assistant', icon: <ChatIcon /> },
     { to: '/profile', label: 'Profile', icon: <UserIcon /> },
@@ -52,9 +61,21 @@ function roleLabel(role: Role, isHod: boolean | undefined): string {
   return role === 'admin' ? 'Administrator' : 'Student'
 }
 
+/** How many notices wait for this head of department; null for everyone else. */
+function useApprovalsWaiting(isHod: boolean): number | null {
+  const { data, reload } = useLoad(() => api.announcementApprovals(), isHod ? 'approvals-badge' : null, true, BADGE_POLL_MS)
+  useEffect(() => {
+    window.addEventListener(APPROVALS_CHANGED, reload)
+    return () => window.removeEventListener(APPROVALS_CHANGED, reload)
+  }, [reload])
+  return isHod && data ? data.length : null
+}
+
 export function PortalLayout() {
   const { session, me, photoVersion, signOut } = usePortal()
   const { pathname } = useLocation()
+  const approvalsWaiting = useApprovalsWaiting(session.role === 'faculty' && Boolean(me?.is_hod))
+  const badges: Record<NonNullable<NavItem['badge']>, number | null> = { approvals: approvalsWaiting }
   // the phone drawer is open for the page it was opened on; going somewhere closes it
   const [openOn, setOpenOn] = useState<string | null>(null)
   const open = openOn === pathname
@@ -90,6 +111,11 @@ export function PortalLayout() {
               <NavLink to={item.to} end={item.end} className={({ isActive }) => `portal-link${isActive ? ' active' : ''}`}>
                 {item.icon}
                 <span>{item.label}</span>
+                {item.badge && Boolean(badges[item.badge]) && (
+                  <span className="nav-count" aria-label={`${badges[item.badge]} waiting`}>
+                    {badges[item.badge]}
+                  </span>
+                )}
               </NavLink>
             </li>
           ))}

@@ -9,6 +9,17 @@ export function noticeAudience(n: Pick<AdminNotice, 'audience' | 'dept' | 'semes
   return [who, where, n.semester ? `semester ${n.semester}` : ''].filter(Boolean).join(', ')
 }
 
+/** Where a notice's emails stand, knowing they only go out as each head of department approves. */
+export function noticeProgress(n: Pick<AdminNotice, 'delivery' | 'emailing' | 'status'>): string {
+  if (n.status === 'rejected') return 'Not sent: every head of department rejected it'
+  if (n.delivery.total === 0) {
+    if (!n.emailing) return 'In-app only, no emails'
+    return n.status === 'pending' ? 'Emails go out as each head of department approves' : 'No emails were needed'
+  }
+  const line = deliverySummary(n.delivery)
+  return n.status === 'partial' && n.emailing ? `${line}; more as the other heads approve` : line
+}
+
 /** One line on where a notice's emails stand. Older notices (seeded, or published with email off) have none. */
 export function deliverySummary(d: DeliveryCounts): string {
   if (d.total === 0) return 'In-app only, no emails'

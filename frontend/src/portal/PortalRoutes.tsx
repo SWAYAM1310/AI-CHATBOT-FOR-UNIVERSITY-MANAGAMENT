@@ -11,6 +11,7 @@ import { Courses } from './faculty/Courses'
 import { FacultyHome } from './faculty/FacultyHome'
 import { LeaveRequests } from './faculty/LeaveRequests'
 import { Marks } from './faculty/Marks'
+import { NoticeApprovals } from './faculty/NoticeApprovals'
 import { Roster } from './faculty/Roster'
 import { Assistant } from './pages'
 import { PortalLayout } from './PortalLayout'
@@ -42,6 +43,7 @@ const BY_ROLE: Record<Role, RouteObject[]> = {
     { path: 'calendar/:date', element: <CalendarRegisterDay /> },
     { path: 'at-risk', element: <AtRisk /> },
     { path: 'leave', element: <LeaveRequests /> },
+    { path: 'approvals', element: <NoticeApprovals /> },
     { path: 'announcements', element: <FacultyAnnouncements /> },
     {
       path: 'courses/:offeringId',
